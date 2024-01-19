@@ -1,0 +1,50 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.5762369299346287,
+      "y": 7.190453639109847
+    },
+    "rotation": 0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Shooting Initial Ring"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Initial to Top-Left"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Top-Left to Middle-Left"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Middle-Left to Bottom-Left"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}
