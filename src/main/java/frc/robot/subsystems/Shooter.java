@@ -10,6 +10,7 @@ import com.revrobotics.SparkRelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.MotorUtil;
 
 
 // NOT DONE, NEEDS VELOCITY REGULATION BETWEEN THE TWO MOTORS
@@ -23,17 +24,11 @@ public class Shooter extends SubsystemBase {
 
 
     public Shooter() {
-        this.topMotor = new CANSparkMax(SHOOTER_TOP_MOTOR_ID, MotorType.kBrushless);
-        this.bottomMotor = new CANSparkMax(SHOOTER_BOTTOM_MOTOR_ID, MotorType.kBrushless);
-
-        this.topMotor.setIdleMode(IdleMode.kCoast);
-        this.bottomMotor.setIdleMode(IdleMode.kCoast);
-
-        this.topMotor.setSmartCurrentLimit(NEO_CURRENT_LIMIT_AMPS);
-        this.bottomMotor.setSmartCurrentLimit(NEO_CURRENT_LIMIT_AMPS);
-    
-        this.topEncoder = topMotor.getEncoder(SparkRelativeEncoder.Type.kHallSensor, NEO_COUNTS_PER_REVOLUTION);
-        this.bottomEncoder = bottomMotor.getEncoder(SparkRelativeEncoder.Type.kHallSensor, NEO_COUNTS_PER_REVOLUTION);
+        topMotor = MotorUtil.initSparkMax(SHOOTER_TOP_MOTOR_ID, MotorType.kBrushless, IdleMode.kCoast);
+        bottomMotor = MotorUtil.initSparkMax(SHOOTER_BOTTOM_MOTOR_ID, MotorType.kBrushless, IdleMode.kCoast);
+        
+        topEncoder = topMotor.getEncoder(SparkRelativeEncoder.Type.kHallSensor, NEO_COUNTS_PER_REVOLUTION);
+        bottomEncoder = bottomMotor.getEncoder(SparkRelativeEncoder.Type.kHallSensor, NEO_COUNTS_PER_REVOLUTION);
     }
 
     public double getTargetSpeed() {
