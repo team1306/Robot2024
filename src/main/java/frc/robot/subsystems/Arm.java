@@ -64,7 +64,7 @@ public class Arm extends PIDSubsystem {
         return targetAngle;
     }
 
-    void setTargetAngle(Rotation2d angle) {
+    public void setTargetAngle(Rotation2d angle) {
         targetAngle = angle;
     }
 
