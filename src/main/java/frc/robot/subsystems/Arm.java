@@ -10,6 +10,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.PIDSubsystem;
+import frc.robot.util.MotorUtil;
+
 import com.revrobotics.SparkRelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 
@@ -35,16 +37,11 @@ public class Arm extends PIDSubsystem {
 
     public Arm() {
         super(new PIDController(kP, kI, kD), INITIAL_POSITION);
-        motor1 = new CANSparkMax(ARM_LEFT_MOTOR_ID, MotorType.kBrushless);
-        motor2 = new CANSparkMax(ARM_RIGHT_MOTOR_ID, MotorType.kBrushless);
+        motor1 = MotorUtil.initSparkMax(ARM_LEFT_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
+        motor2 = MotorUtil.initSparkMax(ARM_RIGHT_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
 
         motor1.restoreFactoryDefaults();
         motor2.restoreFactoryDefaults();
-
-        motor1.setIdleMode(IdleMode.kBrake);
-        motor2.setIdleMode(IdleMode.kBrake);
-        motor1.setSmartCurrentLimit(NEO_CURRENT_LIMIT_AMPS);
-        motor2.setSmartCurrentLimit(NEO_CURRENT_LIMIT_AMPS);
 
         motor1.follow(motor2, true);
         
