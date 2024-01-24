@@ -1,4 +1,6 @@
-package frc.robot.commands;
+package frc.robot.commands.shooter;
+
+import static frc.robot.Constants.LIMELIGHT_NAME;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -31,12 +33,12 @@ public class ShooterPitchControlCommand extends Command{
 
     @Override
     public void execute(){
-        if(!LimelightHelpers.getTV("")){
+        if(!LimelightHelpers.getTV(LIMELIGHT_NAME)){
             // If April Tag is not visible, set speaker distance to last recorded speaker distance
             speakerDistance = lastSpeakerDistance; 
         }else{
             // Otherwise, verify April Tag ID is correct and then set speaker distance to x transform of April Tag relative to camera (distance from April Tag to camera)
-            if(LimelightHelpers.getFiducialID("") == TARGET_TAG_ID) speakerDistance = LimelightHelpers.getTargetPose3d_CameraSpace("").getX();
+            if(LimelightHelpers.getFiducialID(LIMELIGHT_NAME) == TARGET_TAG_ID) speakerDistance = LimelightHelpers.getTargetPose3d_CameraSpace(LIMELIGHT_NAME).getX();
             lastSpeakerDistance = speakerDistance;
         }
         // Calculate angle of shooter given initial note speed, gravity, speaker distance, and speaker height/shooter height

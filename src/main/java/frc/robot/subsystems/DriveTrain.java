@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.MotorUtil;
@@ -25,6 +26,9 @@ import frc.robot.util.Utilities;
 public class DriveTrain extends SubsystemBase{
     //Track width in meters
     public static final double TRACK_WIDTH = 0;
+    //Percentage
+    public static final double MAX_SPEED = 1;
+
     
     private CANSparkMax leftLeader;
     private CANSparkMax leftFollower;
@@ -35,6 +39,8 @@ public class DriveTrain extends SubsystemBase{
     private RelativeEncoder rEncoder, lEncoder;
 
     private DifferentialDriveOdometry odo;
+
+    private ChassisSpeeds lastSpeeds;
 
     public DriveTrain(){
         leftLeader = new CANSparkMax(FRONT_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless);
@@ -69,8 +75,8 @@ public class DriveTrain extends SubsystemBase{
 
     public void arcadeDrive(double speed, double rotation){
         // Clamp inputs
-        speed = MotorUtil.clampPercent(speed);
-        rotation = MotorUtil.clampPercent(rotation);
+        speed = MotorUtil.clampPercent(speed) * MAX_SPEED;
+        rotation = MotorUtil.clampPercent(rotation) * MAX_SPEED;
 
         double maxInput = Math.copySign(Math.max(Math.abs(speed), Math.abs(rotation)), speed);
         double leftMotorOutput, rightMotorOutput;
@@ -111,6 +117,8 @@ public class DriveTrain extends SubsystemBase{
         DifferentialDriveKinematics kinematics =
         new DifferentialDriveKinematics(TRACK_WIDTH);
 
+        lastSpeeds = speeds;
+
         // Convert to wheel speeds
         DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(speeds);
         drive(wheelSpeeds);
@@ -122,16 +130,10 @@ public class DriveTrain extends SubsystemBase{
 
     private void resetPose(Pose2d pose){
         //Probably should implment without nulls
-        odo.resetPosition(new Rotation2d(), null, pose);
+        odo.resetPosition(new Rotation2d(), new DifferentialDriveWheelPositions(0,0), pose);
     }
 
     private ChassisSpeeds getCurrentSpeeds(){
-        //TODO
-        return null;
+        return lastSpeeds;
     }
-    
-    
-
-    
-
 }

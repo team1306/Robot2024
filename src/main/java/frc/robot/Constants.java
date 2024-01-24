@@ -25,4 +25,8 @@ public final class Constants {
 
     public static final int    LOOP_MS                     = 20;
     public static final int    LOOP_SECONDS                = LOOP_MS / 1000;
+
+    
+    public static final String LIMELIGHT_NAME              = "limelight";
+
 }
