@@ -9,6 +9,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkRelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.MotorUtil;
 
@@ -36,7 +37,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public void setTargetRPM(double targetSpeed) {
-        this.targetSpeed = targetSpeed;
+        this.targetSpeed = MathUtil.clamp(targetSpeed, 0, PEAK_RPM);
     }
 
     /**
