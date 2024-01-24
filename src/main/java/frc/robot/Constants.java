@@ -21,6 +21,8 @@ public final class Constants {
     public static final int    SHOOTER_TOP_MOTOR_ID        = 6;
     public static final int    SHOOTER_BOTTOM_MOTOR_ID     = 7;
 
+    public static final int    INTAKE_MOTOR_ID             = 8;
+
     public static final int    LOOP_MS                     = 20;
     public static final int    LOOP_SECONDS                = LOOP_MS / 1000;
 }
