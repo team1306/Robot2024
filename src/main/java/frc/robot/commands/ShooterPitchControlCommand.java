@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Arm;
 import frc.robot.util.LimelightHelpers;
 
-public class RotateShooter extends Command{
+public class ShooterPitchControlCommand extends Command{
 
     // all constants in metric
     public static final double NOTE_SPEED = 10; // initial velocity, m/s
@@ -20,7 +20,7 @@ public class RotateShooter extends Command{
 
     public final Arm arm;
 
-    public RotateShooter(Arm arm){
+    public ShooterPitchControlCommand(Arm arm){
         this.arm = arm;
     }
 
