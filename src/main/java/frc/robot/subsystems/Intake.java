@@ -42,5 +42,4 @@ public class Intake extends SubsystemBase {
     public void periodic() {
         motor.set(targetSpeed); // CHANGE TO FLYWHEEL STATE MODEL.
     }
-
 }
