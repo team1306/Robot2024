@@ -24,11 +24,7 @@ public class ShooterPitchControlCommand extends Command{
 
     public ShooterPitchControlCommand(Arm arm){
         this.arm = arm;
-    }
-
-    @Override
-    public void initialize(){
-        addRequirements(this.arm);
+        this.addRequirements(this.arm);
     }
 
     @Override

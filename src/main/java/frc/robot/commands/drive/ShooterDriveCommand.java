@@ -28,9 +28,9 @@ public class ShooterDriveCommand extends Command{
             if(MathUtil.applyDeadband(LimelightHelpers.getTX(LIMELIGHT_NAME), DEADBAND_VALUE)==0)
                 finished = true;
             else if (LimelightHelpers.getTX(LIMELIGHT_NAME) < 0)
-                driveTrain.arcadeDrive(DriveTrain.MAX_SPEED, -DriveTrain.MAX_SPEED);
+                driveTrain.arcadeDrive(0, -DriveTrain.MAX_SPEED);
             else if (LimelightHelpers.getTX(LIMELIGHT_NAME) > 0)
-                driveTrain.arcadeDrive(DriveTrain.MAX_SPEED, DriveTrain.MAX_SPEED);
+                driveTrain.arcadeDrive(0, DriveTrain.MAX_SPEED);
             
         }
     }
