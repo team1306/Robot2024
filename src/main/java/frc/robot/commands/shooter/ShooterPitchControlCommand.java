@@ -29,8 +29,8 @@ public class ShooterPitchControlCommand extends Command{
 
     @Override
     public void execute(){
-        if(!LimelightHelpers.getTV(LIMELIGHT_NAME)){
-            // If April Tag is not visible, set speaker distance to last recorded speaker distance
+        if(!LimelightHelpers.getTV(LIMELIGHT_NAME) || LimelightHelpers.getFiducialID(LIMELIGHT_NAME) != TARGET_TAG_ID){
+            // If April Tag is not visible, or the tag id is incorrect, then set speaker distance to last recorded speaker distance
             speakerDistance = lastSpeakerDistance; 
         }else{
             // Otherwise, verify April Tag ID is correct and then set speaker distance to x transform of April Tag relative to camera (distance from April Tag to camera)
