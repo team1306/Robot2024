@@ -29,7 +29,13 @@ public abstract class NeoGroupSubsystem extends SubsystemBase {
         }
     }
 
-    public void periodic() {
+    public abstract double getPowerOutput();
 
+    @Override
+    public void periodic() {
+        final double power = getPowerOutput();
+        for (Pair<CANSparkMax, Boolean> neoPair : otherNeos) {
+            neoPair.getFirst().set(power);
+        }
     }
 }
