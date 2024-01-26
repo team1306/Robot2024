@@ -19,7 +19,7 @@ public class ShooterPitchControlCommand extends Command{
     // all constants in metric
     public static final double NOTE_SPEED = 10; // initial velocity, m/s
     public static final double SPEAKER_HEIGHT = 2.05; // m
-    public static final double GRAVITY = 9.8; // m/s/s
+    public static final double GRAVITY = 9.80441715516; // m/s/s
     public static final double SHOOTER_HEIGHT = 0.1524; // m
 
     public static double theta; // radians
