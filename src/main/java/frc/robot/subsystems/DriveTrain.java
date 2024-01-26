@@ -129,7 +129,6 @@ public class DriveTrain extends SubsystemBase{
     }
 
     private void resetPose(Pose2d pose){
-        //Probably should implment without nulls
         odo.resetPosition(new Rotation2d(), new DifferentialDriveWheelPositions(0,0), pose);
     }
 
