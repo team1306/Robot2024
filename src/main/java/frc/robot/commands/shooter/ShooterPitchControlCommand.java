@@ -5,10 +5,7 @@ import static frc.robot.Constants.LIMELIGHT_NAME;
 import static frc.robot.Constants.RED_SPEAKER;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Arm;
 import frc.robot.util.LimelightHelpers;

@@ -4,23 +4,35 @@
 
 package frc.robot;
 
+import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkMax;
+
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.TestShooterIntake;
+import frc.robot.util.MotorUtil;
+
+import static com.revrobotics.CANSparkLowLevel.MotorType.kBrushless;
+import static frc.robot.Constants.*;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
 
-  private TestShooterIntake testShooterIntake;
 
+  private final XboxController controller = new XboxController(0);
+
+
+  CANSparkMax top, bottom, intake;
   @Override
   public void robotInit() {
     m_robotContainer = new RobotContainer();
 
-    this.testShooterIntake = new TestShooterIntake();
+    intake = MotorUtil.initSparkMax(INTAKE_MOTOR_ID, kBrushless, IdleMode.kCoast);
+    bottom = MotorUtil.initSparkMax(SHOOTER_BOTTOM_MOTOR_ID, kBrushless, IdleMode.kCoast);
+    top = MotorUtil.initSparkMax(SHOOTER_TOP_MOTOR_ID, kBrushless, IdleMode.kCoast);
   }
 
   @Override
@@ -61,7 +73,11 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    testShooterIntake.periodic();
+    //TEST REMOVE LATER
+    double speed = Math.pow(controller.getLeftY(), 2);
+    top.set(speed);
+    bottom.set(speed);
+    intake.set(Math.pow(controller.getRightY(), 2));
   }
 
   @Override

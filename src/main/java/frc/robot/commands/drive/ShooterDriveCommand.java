@@ -4,8 +4,6 @@ import static frc.robot.Constants.BLUE_SPEAKER;
 import static frc.robot.Constants.LIMELIGHT_NAME;
 import static frc.robot.Constants.RED_SPEAKER;
 
-import com.ctre.phoenix.Util;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -35,13 +33,13 @@ public class ShooterDriveCommand extends Command{
         Translation2d targetPos = (Utilities.isRedAlliance() ? RED_SPEAKER : BLUE_SPEAKER).minus(botPose.getTranslation());
         double angle = Math.atan(targetPos.getY()/targetPos.getX());
         double robotAngle = botPose.getRotation().getRadians();
-        if (MathUtil.applyDeadband((angle - (robotAngle - (Utilities.isRedAlliance() ? 180 : 0))), DEADBAND_VALUE) == 0)
+        if (MathUtil.applyDeadband((angle - robotAngle + (Utilities.isRedAlliance() ? 180 : 0)), DEADBAND_VALUE) == 0)
             finished = true;
         else{
-            if (angle - (robotAngle - (Utilities.isRedAlliance() ? 180 : 0)) < 0){
-
+            if (angle - robotAngle + (Utilities.isRedAlliance() ? 180 : 0) < 0){
+                driveTrain.arcadeDrive(0, -DriveTrain.MAX_SPEED);
             }else{
-
+                driveTrain.arcadeDrive(0, DriveTrain.MAX_SPEED);
             }
         }
     }
