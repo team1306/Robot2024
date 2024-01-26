@@ -19,7 +19,8 @@ public abstract class NeoGroupSubsystem extends SubsystemBase {
             throw new IllegalArgumentException("bro forgot to add motors 💀");
         }
         this.lead = neos[0].getFirst();
-        lead.setInverted(true);
+        final boolean leadInverted = neos[0].getSecond();
+        lead.setInverted(leadInverted);
         this.otherNeos = Arrays.asList(neos);
         if (motorIntializationFunctions != null) {
             otherNeos.forEach(neoPair -> {
@@ -30,10 +31,8 @@ public abstract class NeoGroupSubsystem extends SubsystemBase {
             });
         }
         otherNeos.remove(0);
-
         for (Pair<CANSparkMax, Boolean> neoPair : otherNeos) {
-            final boolean thisMotorInverted = neoPair.getSecond();
-            neoPair.getFirst().follow(lead, neoPair.getSecond().booleanValue() ? !thisMotorInverted : thisMotorInverted);
+            neoPair.getFirst().follow(lead, neoPair.getSecond().booleanValue() == leadInverted ? false : true);
         }
     }
     
@@ -51,8 +50,6 @@ public abstract class NeoGroupSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         final double power = getPowerOutput();
-        for (Pair<CANSparkMax, Boolean> neoPair : otherNeos) {
-            neoPair.getFirst().set(power);
-        }
+        otherNeos.forEach(pair -> pair.getFirst().set(power));
     }
 }
