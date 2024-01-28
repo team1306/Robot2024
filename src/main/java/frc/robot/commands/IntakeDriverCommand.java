@@ -17,14 +17,14 @@ public class IntakeDriverCommand extends Command{
     @Override
     public void execute() {
         if (driver2Controller.getBButton()) {
-            intake.setTargetSpeed(Intake.MAX_SPEED);
+            intake.setTargetRPM(Intake.MAX_SPEED);
         } else {
-            intake.setTargetSpeed(0);
+            intake.setTargetRPM(0);
         }
     }
 
     @Override
     public void end(boolean interrupted) {
-        intake.setTargetSpeed(0);
+        intake.setTargetRPM(0);
     }
 }
