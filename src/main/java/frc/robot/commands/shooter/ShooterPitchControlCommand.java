@@ -18,6 +18,9 @@ public class ShooterPitchControlCommand extends Command{
     public static final double SPEAKER_HEIGHT = 2.05; // m
     public static final double GRAVITY = 9.80441715516; // m/s/s
     public static final double SHOOTER_HEIGHT = 0.1524; // m
+    public static final double SHOOTER_X_OFFSET = 0; // from camera
+    public static final double SHOOTER_RADIAN_OFFSET = 0; // shooter angle offset 
+
 
     public static double theta; // radians
     public static double speakerDistance; // m
@@ -36,9 +39,9 @@ public class ShooterPitchControlCommand extends Command{
         speakerDistance = botPose.getTranslation().getDistance(Utilities.isRedAlliance() ? RED_SPEAKER : BLUE_SPEAKER);
 
         // Calculate angle of shooter given initial note speed, gravity, speaker distance, and speaker height/shooter height
-        double root =  Math.sqrt(Math.pow(NOTE_SPEED, 4) - GRAVITY * (GRAVITY * Math.pow(speakerDistance, 2) + 2 * (SPEAKER_HEIGHT - SHOOTER_HEIGHT) * Math.pow(NOTE_SPEED, 2)));
-        theta = Math.atan((Math.pow(NOTE_SPEED, 2) - root) / (GRAVITY * speakerDistance));
+        // double root =  Math.sqrt(Math.pow(NOTE_SPEED, 4) - GRAVITY * (GRAVITY * Math.pow(speakerDistance, 2) + 2 * (SPEAKER_HEIGHT - SHOOTER_HEIGHT) * Math.pow(NOTE_SPEED, 2)));
+        // theta = Math.atan((Math.pow(NOTE_SPEED, 2) - root) / (GRAVITY * speakerDistance));
         // Set the target angle of the arm
-        arm.setTargetAngle(new Rotation2d(theta));
+        arm.setTargetAngle(new Rotation2d(theta + SHOOTER_RADIAN_OFFSET));
     }
 }
