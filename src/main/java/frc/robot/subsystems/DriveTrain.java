@@ -4,6 +4,7 @@ import static frc.robot.Constants.BACK_LEFT_DRIVE_MOTOR_ID;
 import static frc.robot.Constants.BACK_RIGHT_DRIVE_MOTOR_ID;
 import static frc.robot.Constants.FRONT_LEFT_DRIVE_MOTOR_ID;
 import static frc.robot.Constants.FRONT_RIGHT_DRIVE_MOTOR_ID;
+import static frc.robot.Constants.LOOP_TIME_SECONDS;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -62,11 +63,12 @@ public class DriveTrain extends SubsystemBase{
         odo = new DifferentialDriveOdometry(new Rotation2d(), lEncoder.getPosition(), rEncoder.getPosition());
 
         //Pathplanner configuration
-        AutoBuilder.configureRamsete(
+        AutoBuilder.configureLTV(
                 this::getPose, // Robot pose supplier
                 this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
                 this::getCurrentSpeeds, // Current ChassisSpeeds supplier
                 this::drive, // Method that will drive the robot given ChassisSpeeds
+                LOOP_TIME_SECONDS,
                 new ReplanningConfig(), // Default path replanning config. See the API for the options here
                 Utilities::isRedAlliance,
                 this // Reference to this subsystem to set requirements
@@ -135,5 +137,10 @@ public class DriveTrain extends SubsystemBase{
 
     private ChassisSpeeds getCurrentSpeeds(){
         return lastSpeeds;
+    }
+
+    @Override
+    public void periodic() {
+        odo.update(null, null);
     }
 }

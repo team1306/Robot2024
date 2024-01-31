@@ -22,13 +22,13 @@ public class ShooterPitchControlCommand extends Command{
 
     public final Arm arm;
 
-    public ShooterPitchControlCommand(Arm arm){
+    public ShooterPitchControlCommand(Arm arm) {
         this.arm = arm;
         this.addRequirements(this.arm);
     }
 
     @Override
-    public void execute(){
+    public void execute() {
         if(!LimelightHelpers.getTV(LIMELIGHT_NAME) || LimelightHelpers.getFiducialID(LIMELIGHT_NAME) != TARGET_TAG_ID){
             // If April Tag is not visible, or the tag id is incorrect, then set speaker distance to last recorded speaker distance
             speakerDistance = lastSpeakerDistance; 
