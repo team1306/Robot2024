@@ -18,9 +18,14 @@ public class TeleopDriveCommand extends Command{
 
     @Override
     public void execute(){
-        double speed = MathUtil.applyDeadband(leftJoystick.getX(), 0.05);
-        double rotation = MathUtil.applyDeadband(leftJoystick.getY(), 0.05);
+        double speed = MathUtil.applyDeadband(leftJoystick.getY(), 0.05);
+        double rotation = MathUtil.applyDeadband(leftJoystick.getX(), 0.05);
 
         driveTrain.arcadeDrive(speed, rotation);
+    }
+
+    @Override
+    public boolean isFinished(){
+        return false;
     }
 }

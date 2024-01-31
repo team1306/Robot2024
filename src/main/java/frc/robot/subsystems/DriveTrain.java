@@ -138,8 +138,8 @@ public class DriveTrain extends SubsystemBase{
         return lastSpeeds;
     }
 
-    @Override
-    public void periodic() {
-        odo.update(null, null);
-    }
+    // @Override
+    // public void periodic() {
+    //     odo.update(null, null);
+    // }
 }
