@@ -14,21 +14,25 @@ import frc.robot.util.Utilities;
 public class ShooterPitchControlCommand extends Command{
 
     // all constants in metric
-    public static final double NOTE_SPEED = 10; // initial velocity, m/s
     public static final double SPEAKER_HEIGHT = 2.05; // m
     public static final double GRAVITY = 9.80441715516; // m/s/s
-    public static final double SHOOTER_HEIGHT = 0.1524; // m
-    public static final double SHOOTER_X_OFFSET = 0; // from camera
-    public static final double SHOOTER_RADIAN_OFFSET = 0; // shooter angle offset 
+    public static final double SHOOTER_X_OFFSET = 0; // from camera, O_x
+    public static final double SHOOTER_Y_OFFSET = 0; // from camera, O_y
+    public static final double SHOOTER_RADIAN_OFFSET = 0; // shooter angle offset, radians, c
+    public static final double SHOOTER_RADIUS = 0; // meters, r
+
+    public static double phi; // arm angle, radians
+    public static double speakerDistance; // m, d_s
 
 
-    public static double theta; // radians
-    public static double speakerDistance; // m
+
+
+
     public static double lastSpeakerDistance; // m
 
     public final Arm arm;
 
-    public ShooterPitchControlCommand(Arm arm) {
+    public ShooterPitchControlCommand(Arm arm){
         this.arm = arm;
         this.addRequirements(this.arm);
     }
@@ -39,9 +43,10 @@ public class ShooterPitchControlCommand extends Command{
         speakerDistance = botPose.getTranslation().getDistance(Utilities.isRedAlliance() ? RED_SPEAKER : BLUE_SPEAKER);
 
         // Calculate angle of shooter given initial note speed, gravity, speaker distance, and speaker height/shooter height
-        // double root =  Math.sqrt(Math.pow(NOTE_SPEED, 4) - GRAVITY * (GRAVITY * Math.pow(speakerDistance, 2) + 2 * (SPEAKER_HEIGHT - SHOOTER_HEIGHT) * Math.pow(NOTE_SPEED, 2)));
-        // theta = Math.atan((Math.pow(NOTE_SPEED, 2) - root) / (GRAVITY * speakerDistance));
+        double phi = Math.PI - (SHOOTER_RADIAN_OFFSET + Math.asin((SHOOTER_RADIUS*Math.sin(SHOOTER_RADIAN_OFFSET))/Math.sqrt(Math.pow((SHOOTER_X_OFFSET+speakerDistance), 2)+Math.pow((SPEAKER_HEIGHT-SHOOTER_Y_OFFSET), 2)))) + Math.atan(SPEAKER_HEIGHT/(SHOOTER_X_OFFSET+speakerDistance)); 
+    
+        
         // Set the target angle of the arm
-        arm.setTargetAngle(new Rotation2d(theta + SHOOTER_RADIAN_OFFSET));
+        arm.setTargetAngle(new Rotation2d(theta));
     }
 }
