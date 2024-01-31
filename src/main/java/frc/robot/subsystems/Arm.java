@@ -70,7 +70,7 @@ public class Arm extends PIDSubsystem {
     }
 
     private double calculateAcceleration() {
-        return (velocities[calcVelocityIndex(velocityIndex)] - velocities[calcVelocityIndex(velocityIndex + 1)]) / LOOP_SECONDS; 
+        return (velocities[calcVelocityIndex(velocityIndex)] - velocities[calcVelocityIndex(velocityIndex + 1)]) / LOOP_TIME_SECONDS; 
     }
 
     @Override

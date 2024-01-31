@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.MotorUtil;
 
 public class Intake extends SubsystemBase {
+    public static final double MAX_SPEED = 1;
+
     private final CANSparkMax motor;
     private final RelativeEncoder encoder;
     public static final double MAX_RPM = 6000;
@@ -42,6 +44,6 @@ public class Intake extends SubsystemBase {
     
     @Override
     public void periodic() {
-        motor.set(targetSpeed); // CHANGE TO FLYWHEEL STATE MODEL.
+        motor.set(targetSpeed);
     }
 }

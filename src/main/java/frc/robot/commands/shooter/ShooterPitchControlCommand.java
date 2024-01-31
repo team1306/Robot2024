@@ -28,7 +28,7 @@ public class ShooterPitchControlCommand extends Command{
 
     public final Arm arm;
 
-    public ShooterPitchControlCommand(Arm arm){
+    public ShooterPitchControlCommand(Arm arm) {
         this.arm = arm;
         this.addRequirements(this.arm);
     }
