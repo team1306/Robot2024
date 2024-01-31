@@ -1,5 +1,6 @@
 package frc.robot.subsystems.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
@@ -21,7 +22,7 @@ public abstract class NeoGroupSubsystem extends SubsystemBase {
         this.lead = neos[0].getFirst();
         final boolean leadInverted = neos[0].getSecond();
         lead.setInverted(leadInverted);
-        this.otherNeos = Arrays.asList(neos);
+        this.otherNeos = new ArrayList<>(Arrays.asList(neos));
         if (motorIntializationFunctions != null) {
             otherNeos.forEach(neoPair -> {
                 final CANSparkMax neo = neoPair.getFirst();

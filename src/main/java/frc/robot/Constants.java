@@ -1,5 +1,8 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
+
 /**
  * Storage for robot-wide constants
  */
@@ -28,5 +31,7 @@ public final class Constants {
 
     
     public static final String LIMELIGHT_NAME              = "limelight";
+    public static final Translation2d BLUE_SPEAKER         = new Translation2d(-8.308975, 1.442593);
+    public static final Translation2d RED_SPEAKER          = new Translation2d(8.308975, 1.442593);
 
 }
