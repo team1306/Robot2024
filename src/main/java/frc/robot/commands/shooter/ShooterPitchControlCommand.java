@@ -47,6 +47,6 @@ public class ShooterPitchControlCommand extends Command{
     
         
         // Set the target angle of the arm
-        arm.setTargetAngle(new Rotation2d(theta));
+        arm.setTargetAngle(new Rotation2d(phi));
     }
 }
