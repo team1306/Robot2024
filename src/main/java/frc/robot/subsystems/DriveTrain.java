@@ -9,6 +9,7 @@ import static frc.robot.Constants.LOOP_TIME_SECONDS;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -58,15 +59,17 @@ public class DriveTrain extends SubsystemBase{
 
     public DriveTrain(){
         gyro.reset();
-        leftLeader = new CANSparkMax(FRONT_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless);
-        leftFollower = new CANSparkMax(BACK_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless);
-        rightLeader = new CANSparkMax(FRONT_RIGHT_DRIVE_MOTOR_ID, MotorType.kBrushless);
-        rightFollower = new CANSparkMax(BACK_RIGHT_DRIVE_MOTOR_ID, MotorType.kBrushless);
+    
+        leftLeader = MotorUtil.initSparkMax(FRONT_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
+        leftFollower = MotorUtil.initSparkMax(BACK_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
+        rightLeader = MotorUtil.initSparkMax(FRONT_RIGHT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
+        rightFollower = MotorUtil.initSparkMax(BACK_RIGHT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
 
         leftLeader.setInverted(true);
         leftFollower.follow(leftLeader, false);
 
-        rightFollower.follow(rightLeader);
+        rightLeader.setInverted(false);
+        rightFollower.follow(rightLeader, false);
 
         rEncoder = rightLeader.getEncoder();
         lEncoder = leftLeader.getEncoder();
@@ -86,12 +89,16 @@ public class DriveTrain extends SubsystemBase{
                 this // Reference to this subsystem to set requirements
         );
         
-        poseEstimator = new DifferentialDrivePoseEstimator(kinematics, gyro.getRotation2d(), lEncoder.getPosition(), rEncoder.getPosition(), PathPlannerAuto.getStaringPoseFromAutoFile(AUTO_NAME));
+        poseEstimator = new DifferentialDrivePoseEstimator(kinematics, gyro.getRotation2d(), lEncoder.getPosition(), rEncoder.getPosition(),
+        //ADD FOR AUTO
+        /*PathPlannerAuto.getStaringPoseFromAutoFile(AUTO_NAME)*/ new Pose2d());
 
         SmartDashboard.putNumber("Max Speed", MAX_SPEED);
     }
 
     public void arcadeDrive(double speed, double rotation){
+        SmartDashboard.putNumber("Speed", speed);
+        SmartDashboard.putNumber("Rotation", rotation);
         // Clamp inputs
         speed = MotorUtil.clampPercent(speed) * MAX_SPEED;
         rotation = MotorUtil.clampPercent(rotation) * MAX_SPEED;
@@ -119,6 +126,10 @@ public class DriveTrain extends SubsystemBase{
                 leftMotorOutput = maxInput;
                 rightMotorOutput = speed - rotation;
             }
+        }
+        if (speed == 0 && rotation == 0){
+            leftMotorOutput = 0;
+            rightMotorOutput = 0;
         }
 
         leftLeader.set(leftMotorOutput);
@@ -153,8 +164,10 @@ public class DriveTrain extends SubsystemBase{
 
     @Override
     public void periodic() {
-        poseEstimator.update(null, new DifferentialDriveWheelPositions(lEncoder.getPosition(), rEncoder.getPosition()));
+        poseEstimator.update(new Rotation2d(), new DifferentialDriveWheelPositions(lEncoder.getPosition(), rEncoder.getPosition()));
         poseEstimator.addVisionMeasurement(LimelightHelpers.getBotPose2d(LIMELIGHT_NAME), Timer.getFPGATimestamp());
-        MAX_SPEED = SmartDashboard.getNumber("Max Speed", 0.5);
+        MAX_SPEED = SmartDashboard.getNumber("Max Speed", 1);
+        SmartDashboard.putNumber("Left Encoder Output", lEncoder.getVelocity());
+        SmartDashboard.putNumber("Right Encoder Output", rEncoder.getVelocity());
     }
 }

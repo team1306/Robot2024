@@ -12,10 +12,10 @@ public final class Constants {
     public static final int    NEO_CURRENT_LIMIT_AMPS      = 50;
     public static final double NEO_MAX_VOLTAGE             = 12;
 
-    public static final int    FRONT_LEFT_DRIVE_MOTOR_ID   = 2;
-    public static final int    FRONT_RIGHT_DRIVE_MOTOR_ID  = 1;
-    public static final int    BACK_LEFT_DRIVE_MOTOR_ID    = 4;
-    public static final int    BACK_RIGHT_DRIVE_MOTOR_ID   = 3;
+    public static final int    FRONT_LEFT_DRIVE_MOTOR_ID   = 1;
+    public static final int    FRONT_RIGHT_DRIVE_MOTOR_ID  = 2;
+    public static final int    BACK_LEFT_DRIVE_MOTOR_ID    = 3;
+    public static final int    BACK_RIGHT_DRIVE_MOTOR_ID   = 4;
 
     public static final int    ARM_LEFT_MOTOR_ID           = 5;
     public static final int    ARM_RIGHT_MOTOR_ID          = 6;
