@@ -4,24 +4,25 @@
 
 package frc.robot;
 
-import com.revrobotics.CANSparkMax;
-
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.drive.TeleopDriveCommand;
+import frc.robot.subsystems.DriveTrain;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
 
+  private DriveTrain driveTrain;
+  private TeleopDriveCommand driveCommand;
 
-
-
-  CANSparkMax top, bottom, intake;
   @Override
   public void robotInit() {
     m_robotContainer = new RobotContainer();
+    driveTrain = new DriveTrain();
   }
 
   @Override
@@ -58,6 +59,10 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
+    driveCommand = new TeleopDriveCommand(driveTrain, new XboxController(0));
+    driveTrain.setDefaultCommand(driveCommand);
+
   }
 
   @Override

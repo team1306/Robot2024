@@ -25,6 +25,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.SPI;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Utilities;
@@ -36,7 +37,6 @@ public class DriveTrain extends SubsystemBase{
     public static final double TRACK_WIDTH = 0;
 
     private static final String AUTO_NAME = "Path";
-    private AHRS gyro = new AHRS();
     
     //Percentage
     public static double MAX_SPEED = 1;
@@ -52,7 +52,7 @@ public class DriveTrain extends SubsystemBase{
     private DifferentialDrivePoseEstimator poseEstimator;
 
     private final DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(TRACK_WIDTH);
-    //private final AHRS gyro = new AHRS(SPI.Port.kMXP);
+    private final AHRS gyro = new AHRS(SPI.Port.kMXP);
 
     private ChassisSpeeds lastSpeeds;
 

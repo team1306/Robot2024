@@ -9,6 +9,6 @@ public class Utilities {
      */
     public static boolean isRedAlliance(){
         var alliance = DriverStation.getAlliance();
-        return alliance.isPresent() ? (alliance.get() == DriverStation.Alliance.Red) : false;
+        return alliance.isPresent() ? (alliance.get() == DriverStation.Alliance.Red) : true;
     }
 }

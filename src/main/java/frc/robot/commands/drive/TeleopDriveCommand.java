@@ -1,25 +1,25 @@
 package frc.robot.commands.drive;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DriveTrain;
 
 public class TeleopDriveCommand extends Command{
 
     DriveTrain driveTrain;
-    Joystick leftJoystick;
+    XboxController xboxController;
 
-    public TeleopDriveCommand(DriveTrain driveTrain, Joystick leftJoystick){
+    public TeleopDriveCommand(DriveTrain driveTrain, XboxController xboxController){
         this.driveTrain = driveTrain;
-        this.leftJoystick = leftJoystick;
+        this.xboxController = xboxController;
         this.addRequirements(driveTrain);
     }  
 
     @Override
     public void execute(){
-        double speed = MathUtil.applyDeadband(leftJoystick.getY(), 0.05);
-        double rotation = MathUtil.applyDeadband(leftJoystick.getX(), 0.05);
+        double speed = MathUtil.applyDeadband(xboxController.getLeftY(), 0.05);
+        double rotation = MathUtil.applyDeadband(xboxController.getLeftX(), 0.05);
 
         driveTrain.arcadeDrive(speed, rotation);
     }
