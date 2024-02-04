@@ -7,6 +7,7 @@ import static frc.robot.Constants.RED_SPEAKER;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.shooter.ShootCommand;
@@ -25,10 +26,13 @@ public class ShooterDriveCommand extends Command{
         this.driveTrain = driveTrain;
         this.shootCommand = shootCommand;
         this.addRequirements(driveTrain);
+        SmartDashboard.putNumber("Shooter Auto Deadband", DEADBAND_VALUE);
     }
 
     @Override
     public void execute(){
+        DEADBAND_VALUE = SmartDashboard.getNumber("Shooter Auto Deadband", 0.05);
+
         Pose2d botPose = LimelightHelpers.getBotPose2d(LIMELIGHT_NAME);
         Translation2d targetPos = (Utilities.isRedAlliance() ? RED_SPEAKER : BLUE_SPEAKER).minus(botPose.getTranslation());
         double angle = Math.atan(targetPos.getY()/targetPos.getX());

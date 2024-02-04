@@ -24,10 +24,6 @@ public class ShooterPitchControlCommand extends Command{
     public static double phi; // arm angle, radians
     public static double speakerDistance; // m, d_s
 
-
-
-
-
     public static double lastSpeakerDistance; // m
 
     public final Arm arm;
@@ -44,7 +40,6 @@ public class ShooterPitchControlCommand extends Command{
 
         // Calculate angle of shooter given initial note speed, gravity, speaker distance, and speaker height/shooter height
         double phi = Math.PI - (SHOOTER_RADIAN_OFFSET + Math.asin((SHOOTER_RADIUS*Math.sin(SHOOTER_RADIAN_OFFSET))/Math.sqrt(Math.pow((SHOOTER_X_OFFSET+speakerDistance), 2)+Math.pow((SPEAKER_HEIGHT-SHOOTER_Y_OFFSET), 2)))) + Math.atan(SPEAKER_HEIGHT/(SHOOTER_X_OFFSET+speakerDistance)); 
-    
         
         // Set the target angle of the arm
         arm.setTargetAngle(new Rotation2d(phi));

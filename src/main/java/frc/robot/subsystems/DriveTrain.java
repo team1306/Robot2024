@@ -19,6 +19,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Utilities;
@@ -28,7 +29,7 @@ public class DriveTrain extends SubsystemBase{
     //Track width in meters
     public static final double TRACK_WIDTH = 0;
     //Percentage
-    public static final double MAX_SPEED = 1;
+    public static double MAX_SPEED = 1;
 
     
     private CANSparkMax leftLeader;
@@ -76,6 +77,7 @@ public class DriveTrain extends SubsystemBase{
                 Utilities::isRedAlliance,
                 this // Reference to this subsystem to set requirements
         );
+        SmartDashboard.putNumber("Max Speed", MAX_SPEED);
     }
 
     public void arcadeDrive(double speed, double rotation){
@@ -119,8 +121,6 @@ public class DriveTrain extends SubsystemBase{
     }
 
     public void drive(ChassisSpeeds speeds){
-        
-
         lastSpeeds = speeds;
 
         // Convert to wheel speeds
@@ -140,10 +140,11 @@ public class DriveTrain extends SubsystemBase{
         return lastSpeeds;
     }
 
-    // @Override
-    // public void periodic() {
+    @Override
+    public void periodic() {
     //     poseEstimator.update(null, null);
-    // }
+        MAX_SPEED = SmartDashboard.getNumber("Max Speed", 0.5);
+    }
 
     public Pose2d getStartingPose() {
         return new Pose2d(); // TODO: GET FROM AUTO
