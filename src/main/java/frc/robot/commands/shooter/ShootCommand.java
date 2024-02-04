@@ -46,6 +46,7 @@ public class ShootCommand extends Command{
 
     @Override
     public boolean isFinished(){
+        shooter.setTargetRPM(0);
         return finished;
     }
 }
