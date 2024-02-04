@@ -4,11 +4,14 @@ import static frc.robot.Constants.BACK_LEFT_DRIVE_MOTOR_ID;
 import static frc.robot.Constants.BACK_RIGHT_DRIVE_MOTOR_ID;
 import static frc.robot.Constants.FRONT_LEFT_DRIVE_MOTOR_ID;
 import static frc.robot.Constants.FRONT_RIGHT_DRIVE_MOTOR_ID;
+import static frc.robot.Constants.LIMELIGHT_NAME;
 import static frc.robot.Constants.LOOP_TIME_SECONDS;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
@@ -19,19 +22,25 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.LimelightHelpers;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Utilities;
+
 
 //Implemented as Ramsete (Differential)
 public class DriveTrain extends SubsystemBase{
     //Track width in meters
     public static final double TRACK_WIDTH = 0;
+
+    private static final String AUTO_NAME = "Path";
+    private AHRS gyro = new AHRS();
+    
     //Percentage
     public static double MAX_SPEED = 1;
 
-    
     private CANSparkMax leftLeader;
     private CANSparkMax leftFollower;
 
@@ -48,6 +57,7 @@ public class DriveTrain extends SubsystemBase{
     private ChassisSpeeds lastSpeeds;
 
     public DriveTrain(){
+        gyro.reset();
         leftLeader = new CANSparkMax(FRONT_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless);
         leftFollower = new CANSparkMax(BACK_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless);
         rightLeader = new CANSparkMax(FRONT_RIGHT_DRIVE_MOTOR_ID, MotorType.kBrushless);
@@ -64,8 +74,6 @@ public class DriveTrain extends SubsystemBase{
         rEncoder.setPosition(0);
         lEncoder.setPosition(0);
 
-        poseEstimator = new DifferentialDrivePoseEstimator(kinematics, new Rotation2d(), 0, 0, getStartingPose());
-
         //Pathplanner configuration
         AutoBuilder.configureLTV(
                 this::getPose, // Robot pose supplier
@@ -77,6 +85,9 @@ public class DriveTrain extends SubsystemBase{
                 Utilities::isRedAlliance,
                 this // Reference to this subsystem to set requirements
         );
+        
+        poseEstimator = new DifferentialDrivePoseEstimator(kinematics, gyro.getRotation2d(), lEncoder.getPosition(), rEncoder.getPosition(), PathPlannerAuto.getStaringPoseFromAutoFile(AUTO_NAME));
+
         SmartDashboard.putNumber("Max Speed", MAX_SPEED);
     }
 
@@ -129,7 +140,7 @@ public class DriveTrain extends SubsystemBase{
     }
 
     private Pose2d getPose(){
-        return null;//poseEstimator.getEstimatedPosition()
+        return poseEstimator.getEstimatedPosition();
     }
 
     private void resetPose(Pose2d pose){
@@ -142,11 +153,8 @@ public class DriveTrain extends SubsystemBase{
 
     @Override
     public void periodic() {
-    //     poseEstimator.update(null, null);
+        poseEstimator.update(null, new DifferentialDriveWheelPositions(lEncoder.getPosition(), rEncoder.getPosition()));
+        poseEstimator.addVisionMeasurement(LimelightHelpers.getBotPose2d(LIMELIGHT_NAME), Timer.getFPGATimestamp());
         MAX_SPEED = SmartDashboard.getNumber("Max Speed", 0.5);
-    }
-
-    public Pose2d getStartingPose() {
-        return new Pose2d(); // TODO: GET FROM AUTO
     }
 }
