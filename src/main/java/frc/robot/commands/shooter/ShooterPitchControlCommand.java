@@ -7,6 +7,7 @@ import static frc.robot.Constants.RED_SPEAKER;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.Arm;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.Utilities;
@@ -25,10 +26,13 @@ public class ShooterPitchControlCommand extends Command{
     public static double speakerDistance; // m, d_s
 
     public static double lastSpeakerDistance; // m
+    private final ShootCommand shootCommand;
 
     public final Arm arm;
+    private boolean finished = false;
 
-    public ShooterPitchControlCommand(Arm arm){
+    public ShooterPitchControlCommand(Arm arm, ShootCommand shootCommand){
+        this.shootCommand = shootCommand;
         this.arm = arm;
         this.addRequirements(this.arm);
     }
@@ -43,5 +47,11 @@ public class ShooterPitchControlCommand extends Command{
         
         // Set the target angle of the arm
         arm.setTargetAngle(new Rotation2d(phi));
+    }
+
+    @Override
+    public boolean isFinished(){
+        CommandScheduler.getInstance().schedule(shootCommand);
+        return finished;
     }
 }
