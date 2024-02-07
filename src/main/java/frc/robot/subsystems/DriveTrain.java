@@ -25,6 +25,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.SPI;
 import frc.robot.util.LimelightHelpers;
@@ -41,6 +42,8 @@ public class DriveTrain extends SubsystemBase{
     
     //Percentage
     public static double MAX_SPEED = 1;
+
+    private double currSpeedMultipler = 1;
 
     private CANSparkMax leftLeader;
     private CANSparkMax leftFollower;
@@ -96,6 +99,11 @@ public class DriveTrain extends SubsystemBase{
         SmartDashboard.putNumber("Max Speed", MAX_SPEED);
     }
 
+    private void setSides(double left, double right) {
+        leftLeader.set(left * currSpeedMultipler * MAX_SPEED);
+        rightLeader.set(right * currSpeedMultipler * MAX_SPEED);   
+    }
+
     public void arcadeDrive(double speed, double rotation){
         SmartDashboard.putNumber("Speed", speed);
         SmartDashboard.putNumber("Rotation", rotation);
@@ -132,14 +140,11 @@ public class DriveTrain extends SubsystemBase{
             rightMotorOutput = 0;
         }
 
-        leftLeader.set(leftMotorOutput);
-        rightLeader.set(rightMotorOutput);   
+        setSides(leftMotorOutput, rightMotorOutput);
     }
 
     public void drive(DifferentialDriveWheelSpeeds wheelSpeeds){
-        //Should maybe clamp values
-        leftLeader.set(wheelSpeeds.leftMetersPerSecond);
-        rightLeader.set(wheelSpeeds.rightMetersPerSecond);
+        setSides(wheelSpeeds.leftMetersPerSecond, wheelSpeeds.rightMetersPerSecond);
     }
 
     public void drive(ChassisSpeeds speeds){
@@ -169,5 +174,19 @@ public class DriveTrain extends SubsystemBase{
         MAX_SPEED = SmartDashboard.getNumber("Max Speed", 1);
         SmartDashboard.putNumber("Left Encoder Output", lEncoder.getVelocity());
         SmartDashboard.putNumber("Right Encoder Output", rEncoder.getVelocity());
+    }
+
+    public Command getSetSpeedMultiplierCommand(double speed) {
+        return new Command() {
+            @Override
+            public void initialize() {
+                currSpeedMultipler = speed;
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                currSpeedMultipler = 1;
+            }
+        };
     }
 }

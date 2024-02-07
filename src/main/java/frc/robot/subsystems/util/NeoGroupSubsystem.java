@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+@Deprecated // NEEDS TO BE FIXED FOR BUGS
 public abstract class NeoGroupSubsystem extends SubsystemBase {
     private final List<Pair<CANSparkMax, Boolean>> otherNeos;
     private final CANSparkMax lead;

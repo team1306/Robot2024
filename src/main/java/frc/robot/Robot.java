@@ -15,14 +15,9 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
-
-  private DriveTrain driveTrain;
-  private TeleopDriveCommand driveCommand;
-
   @Override
   public void robotInit() {
     m_robotContainer = new RobotContainer();
-    driveTrain = new DriveTrain();
   }
 
   @Override
@@ -59,10 +54,6 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-
-    driveCommand = new TeleopDriveCommand(driveTrain, new XboxController(0));
-    driveTrain.setDefaultCommand(driveCommand);
-
   }
 
   @Override

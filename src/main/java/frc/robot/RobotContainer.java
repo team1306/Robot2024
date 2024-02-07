@@ -4,13 +4,28 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.drive.TeleopDriveCommand;
+import frc.robot.subsystems.DriveTrain;
+
+import static frc.robot.Constants.*;
 
 public class RobotContainer {
+
+  XboxController controller = new XboxController(1); // Creates an XboxController on port 1.
+  Trigger aButton = new JoystickButton(controller, XboxController.Button.kA.value); // Creates a new JoystickButton object for the `A` button on controller
+
+  DriveTrain driveTrain;
+  private TeleopDriveCommand driveCommand;
+  
+  
   public RobotContainer() {
+    driveTrain = new DriveTrain();
     configureBindings();
   }
 
@@ -23,7 +38,11 @@ public class RobotContainer {
      * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
      * joysticks}.
      */
-  private void configureBindings() {}
+  private void configureBindings() {
+    aButton.whileTrue(driveTrain.getSetSpeedMultiplierCommand(SLOW_MODE_SPEED));
+    driveCommand = new TeleopDriveCommand(driveTrain, new XboxController(0));
+    driveTrain.setDefaultCommand(driveCommand);
+  }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
