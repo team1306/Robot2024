@@ -40,8 +40,8 @@ public class RobotContainer {
      */
   private void configureBindings() {
     aButton.whileTrue(driveTrain.getSetSpeedMultiplierCommand(SLOW_MODE_SPEED));
-    driveCommand = new TeleopDriveCommand(driveTrain, new XboxController(0));
-    driveTrain.setDefaultCommand(driveCommand);
+    //driveCommand = new TeleopDriveCommand(driveTrain, controller);
+    //driveTrain.setDefaultCommand(driveCommand);
   }
 
   public Command getAutonomousCommand() {

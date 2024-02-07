@@ -4,18 +4,13 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.DriveTrain;
 
 public class TeleopDriveCommand extends Command{
 
-    CommandXboxController controller = new CommandXboxController(1); // Creates a controller on port 1.
-    
+    private final XboxController controller = new XboxController(1);
 
     DriveTrain driveTrain;
     private DoubleSupplier forwardSupplier;
@@ -42,9 +37,6 @@ public class TeleopDriveCommand extends Command{
         //final double forward = xboxController.getRightTriggerAxis(), backward = xboxController.getLeftTriggerAxis();
         double speed = MathUtil.applyDeadband(forward > backward ? forward : -backward, DEADBAND_VALUE);
         double rotation = MathUtil.applyDeadband(controller.getLeftX(), DEADBAND_VALUE);
-
-        //speed *= aButton.whileTrue() ? 0.3 : 1;
-        //rotation *= aButton.whileTrue() ? 0.3 : 1;
 
         driveTrain.arcadeDrive(speed, rotation);
     }
