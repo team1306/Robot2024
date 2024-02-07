@@ -16,9 +16,9 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
@@ -38,6 +38,8 @@ public class DriveTrain extends SubsystemBase{
     public static final double TRACK_WIDTH = 0;
 
     private static final String AUTO_NAME = "Path";
+
+    private static final boolean INCLUDE_AUTO = false;
     
     //Percentage
     public static double MAX_SPEED = 1;
@@ -90,8 +92,7 @@ public class DriveTrain extends SubsystemBase{
         );
         
         poseEstimator = new DifferentialDrivePoseEstimator(kinematics, gyro.getRotation2d(), lEncoder.getPosition(), rEncoder.getPosition(),
-        //ADD FOR AUTO
-        /*PathPlannerAuto.getStaringPoseFromAutoFile(AUTO_NAME)*/ new Pose2d());
+            INCLUDE_AUTO ? PathPlannerAuto.getStaringPoseFromAutoFile(AUTO_NAME) : new Pose2d());
 
         SmartDashboard.putNumber("Max Speed", MAX_SPEED);
     }
@@ -155,7 +156,7 @@ public class DriveTrain extends SubsystemBase{
     }
 
     private void resetPose(Pose2d pose){
-        poseEstimator.resetPosition(new Rotation2d(), new DifferentialDriveWheelPositions(0,0), pose);
+        poseEstimator.resetPosition(gyro.getRotation2d(), new DifferentialDriveWheelPositions(0,0), pose);
     }
 
     private ChassisSpeeds getCurrentSpeeds(){
@@ -164,7 +165,7 @@ public class DriveTrain extends SubsystemBase{
 
     @Override
     public void periodic() {
-        poseEstimator.update(new Rotation2d(), new DifferentialDriveWheelPositions(lEncoder.getPosition(), rEncoder.getPosition()));
+        poseEstimator.update(gyro.getRotation2d(), new DifferentialDriveWheelPositions(lEncoder.getPosition(), rEncoder.getPosition()));
         poseEstimator.addVisionMeasurement(LimelightHelpers.getBotPose2d(LIMELIGHT_NAME), Timer.getFPGATimestamp());
         MAX_SPEED = SmartDashboard.getNumber("Max Speed", 1);
         SmartDashboard.putNumber("Left Encoder Output", lEncoder.getVelocity());
