@@ -24,11 +24,14 @@ public final class Constants {
     public static final int           SHOOTER_BOTTOM_MOTOR_ID     = 8;
  
     public static final int           INTAKE_MOTOR_ID             = 9;
+
+    public static final int           HANGER_LEFT_MOTOR_ID        = 10;
+    public static final int           HANGER_RIGHT_MOTOR_ID       = 11;
  
     public static final int           LOOP_TIME_MS                = 20;
-    public static final int           LOOP_TIME_SECONDS            = LOOP_TIME_MS / 1000;
+    public static final int           LOOP_TIME_SECONDS           = LOOP_TIME_MS / 1000;
 
-    
+
     public static final String        LIMELIGHT_NAME              = "limelight";
     public static final Translation2d BLUE_SPEAKER                = new Translation2d(-8.308975, 1.442593);
     public static final Translation2d RED_SPEAKER                 = new Translation2d(8.308975, 1.442593);
