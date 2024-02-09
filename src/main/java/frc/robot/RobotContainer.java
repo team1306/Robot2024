@@ -66,6 +66,7 @@ public class RobotContainer {
   private void configureBindings() {
     driveTrainController.a().whileTrue(driveTrain.getSetSpeedMultiplierCommand(SLOW_MODE_SPEED));
     shooterController.b().toggleOnTrue(intake.getIntakeDriverCommand());
+    shooterController.x().onTrue(shooterPitchControlCommand);
   }
 
   public Command getAutonomousCommand() {
