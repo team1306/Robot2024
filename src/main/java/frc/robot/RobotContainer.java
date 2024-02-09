@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.IntakeDriverCommand;
 import frc.robot.commands.arm.MoveArmCommand;
 import frc.robot.commands.drive.ShooterDriveCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
@@ -34,7 +33,6 @@ public class RobotContainer {
   private ShooterDriveCommand shooterDriveCommand;
   private ShootCommand shootCommand;
   private ShooterPitchControlCommand shooterPitchControlCommand;
-  private IntakeDriverCommand intakeDriverCommand;
   private TeleopDriveCommand teleopDriveCommand;
   
   
@@ -48,7 +46,6 @@ public class RobotContainer {
     shooterDriveCommand = new ShooterDriveCommand(driveTrain, shootCommand);
     shootCommand = new ShootCommand(shooter, intake);
     shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shootCommand);
-    intakeDriverCommand = new IntakeDriverCommand(intake);
     teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> driveTrainController.getRightTriggerAxis(), () -> driveTrainController.getLeftTriggerAxis(), () -> driveTrainController.getLeftX());
     // Example Pathplanner named command registration 
     // NamedCommands.registerCommand("ShootCommand", shooterPitchControlCommand);
@@ -68,7 +65,7 @@ public class RobotContainer {
      */
   private void configureBindings() {
     driveTrainController.a().whileTrue(driveTrain.getSetSpeedMultiplierCommand(SLOW_MODE_SPEED));
-    shooterController.b().whileTrue(intakeDriverCommand);
+    shooterController.b().toggleOnTrue(intake.getIntakeDriverCommand());
   }
 
   public Command getAutonomousCommand() {

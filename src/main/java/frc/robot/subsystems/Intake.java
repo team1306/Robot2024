@@ -10,6 +10,7 @@ import com.revrobotics.SparkRelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.MotorUtil;
 
@@ -44,5 +45,19 @@ public class Intake extends SubsystemBase {
     @Override
     public void periodic() {
         motor.set(targetSpeed);
+    }
+
+    public Command getIntakeDriverCommand(){
+        return new Command() {
+            @Override
+            public void initialize(){
+                setTargetRPM(Intake.MAX_RPM);
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                setTargetRPM(0);
+            }
+        };
     }
 }
