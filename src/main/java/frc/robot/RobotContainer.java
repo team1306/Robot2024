@@ -43,9 +43,9 @@ public class RobotContainer {
     arm = new Arm();
 
     moveArmCommand = new MoveArmCommand(driveTrain, arm, () -> shooterController.getLeftY());
-    shooterDriveCommand = new ShooterDriveCommand(driveTrain, shootCommand);
     shootCommand = new ShootCommand(shooter, intake);
-    shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shootCommand);
+    shooterDriveCommand = new ShooterDriveCommand(driveTrain, shootCommand);
+    shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shooterDriveCommand);
     teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> driveTrainController.getRightTriggerAxis(), () -> driveTrainController.getLeftTriggerAxis(), () -> driveTrainController.getLeftX());
     // Example Pathplanner named command registration 
     // NamedCommands.registerCommand("ShootCommand", shooterPitchControlCommand);
