@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.MotorUtil;
 
 public class Intake extends SubsystemBase {
+    
     private final CANSparkMax motor;
     private final RelativeEncoder encoder;
     public static final double MAX_RPM = 6000;

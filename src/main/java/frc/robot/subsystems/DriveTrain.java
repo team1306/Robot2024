@@ -175,11 +175,11 @@ public class DriveTrain extends SubsystemBase{
         SmartDashboard.putNumber("Right Encoder Output", rEncoder.getVelocity());
     }
 
-    public Command getSetSpeedMultiplierCommand(double speed) {
+    public Command getSetSpeedMultiplierCommand(double multiplier) {
         return new Command() {
             @Override
             public void initialize() {
-                currentSpeedMultipler = speed;
+                currentSpeedMultipler = multiplier;
             }
 
             @Override

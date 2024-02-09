@@ -21,7 +21,6 @@ public class ShootCommand extends Command{
     public ShootCommand(Shooter shooter, Intake intake){
         this.shooter = shooter;
         this.intake = intake;
-
         this.addRequirements(shooter, intake);
 
         SmartDashboard.putNumber("Time Before Shot (MS)", TIME_BEFORE_SHOT_MS);

@@ -22,13 +22,13 @@ public class ShooterPitchControlCommand extends Command{
     public static final double SHOOTER_RADIAN_OFFSET = 0; // shooter angle offset, radians, c
     public static final double SHOOTER_RADIUS = 0; // meters, r
 
-    public static double phi; // arm angle, radians
-    public static double speakerDistance; // m, d_s
-
-    public static double lastSpeakerDistance; // m
+    public final Arm arm;
     private final ShootCommand shootCommand;
 
-    public final Arm arm;
+    public double phi; // arm angle, radians
+    public double speakerDistance; // m, d_s
+    public double lastSpeakerDistance; // m
+
     private boolean finished = false;
 
     public ShooterPitchControlCommand(Arm arm, ShootCommand shootCommand){

@@ -9,18 +9,20 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveTrain;
 
 public class MoveArmCommand extends Command {
+
     private final Arm arm;
-    private static double minAngle = 0;
-    private static double maxAngle = 90;
+    private double minAngle = 0;
+    private double maxAngle = 90;
 
     private final DoubleSupplier rotationSupplier;
 
     public MoveArmCommand(DriveTrain driveTrain, Arm arm, DoubleSupplier rotationSupplier){
         this.arm = arm;
         this.rotationSupplier = rotationSupplier;
+        this.addRequirements(arm);
+
         SmartDashboard.putNumber("Arm Min Angle", 0.00);
         SmartDashboard.putNumber("Arm Max Angle", 90);
-        this.addRequirements(arm);
     }
 
     @Override

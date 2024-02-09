@@ -16,6 +16,7 @@ import frc.robot.util.MotorUtil;
 
 // NOT DONE, NEEDS VELOCITY REGULATION BETWEEN THE TWO MOTORS
 public class Shooter extends SubsystemBase {
+
     private final CANSparkMax topMotor, bottomMotor;
     private final RelativeEncoder topEncoder, bottomEncoder;
     
@@ -59,5 +60,4 @@ public class Shooter extends SubsystemBase {
         topMotor.set(targetSpeed); // CHANGE TO FLYWHEEL STATE MODEL.
         bottomMotor.set(targetSpeed);
     }
-
 }

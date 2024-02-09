@@ -16,6 +16,7 @@ import frc.robot.util.LimelightHelpers;
 import frc.robot.util.Utilities;
 
 public class ShooterDriveCommand extends Command{
+
     private final DriveTrain driveTrain;
     private final ShootCommand shootCommand;
 
@@ -26,6 +27,7 @@ public class ShooterDriveCommand extends Command{
         this.driveTrain = driveTrain;
         this.shootCommand = shootCommand;
         this.addRequirements(driveTrain);
+
         SmartDashboard.putNumber("Shooter Auto Deadband", DEADBAND_VALUE);
     }
 
@@ -37,6 +39,7 @@ public class ShooterDriveCommand extends Command{
         Translation2d targetPos = (Utilities.isRedAlliance() ? RED_SPEAKER : BLUE_SPEAKER).minus(botPose.getTranslation());
         double angle = Math.atan(targetPos.getY()/targetPos.getX());
         double robotAngle = botPose.getRotation().getRadians();
+        //TODO Fix bad code (probably doesn't work)
         if (MathUtil.applyDeadband((angle - robotAngle + (Utilities.isRedAlliance() ? 180 : 0)), DEADBAND_VALUE) == 0)
             finished = true;
         else{

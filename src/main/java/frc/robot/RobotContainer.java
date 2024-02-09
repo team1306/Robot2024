@@ -25,7 +25,6 @@ public class RobotContainer {
   private CommandXboxController driveTrainController = new CommandXboxController(1); // Creates an XboxController on port 1.
   private CommandXboxController shooterController = new CommandXboxController(2); // Creates an XboxController on port 1.
 
-
   private DriveTrain driveTrain;
   private Intake intake;
   private Shooter shooter; 
@@ -45,16 +44,16 @@ public class RobotContainer {
     shooter = new Shooter();
     arm = new Arm();
 
-    //Dont pass controller values and null, pass suppliers
     moveArmCommand = new MoveArmCommand(driveTrain, arm, () -> shooterController.getLeftY());
     shooterDriveCommand = new ShooterDriveCommand(driveTrain, shootCommand);
     shootCommand = new ShootCommand(shooter, intake);
     shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shootCommand);
-    intakeDriverCommand = new IntakeDriverCommand(intake, shooterController.b());
-    teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> driveTrainController.getRightTriggerAxis(), () -> driveTrainController.getLeftTriggerAxis(), () -> driveTrainController.getLeftX(), driveTrainController.a());
+    intakeDriverCommand = new IntakeDriverCommand(intake);
+    teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> driveTrainController.getRightTriggerAxis(), () -> driveTrainController.getLeftTriggerAxis(), () -> driveTrainController.getLeftX());
     // Example Pathplanner named command registration 
     // NamedCommands.registerCommand("ShootCommand", shooterPitchControlCommand);
     
+    driveTrain.setDefaultCommand(teleopDriveCommand);
     configureBindings();
   }
 
@@ -68,9 +67,8 @@ public class RobotContainer {
      * joysticks}.
      */
   private void configureBindings() {
-    aButton.whileTrue(driveTrain.getSetSpeedMultiplierCommand(SLOW_MODE_SPEED));
-    //driveCommand = new TeleopDriveCommand(driveTrain, controller);
-    //driveTrain.setDefaultCommand(driveCommand);
+    driveTrainController.a().whileTrue(driveTrain.getSetSpeedMultiplierCommand(SLOW_MODE_SPEED));
+    shooterController.b().whileTrue(intakeDriverCommand);
   }
 
   public Command getAutonomousCommand() {

@@ -18,6 +18,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import static frc.robot.Constants.*;
 
 public class Arm extends PIDSubsystem {
+    
     private final CANSparkMax motor1;
     private final CANSparkMax motor2;
     private final RelativeEncoder encoder;
