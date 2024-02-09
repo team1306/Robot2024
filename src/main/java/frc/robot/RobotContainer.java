@@ -20,7 +20,7 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
-import frc.robot.Constants;
+import static frc.robot.Constants.*;
 
 public class RobotContainer {
 
