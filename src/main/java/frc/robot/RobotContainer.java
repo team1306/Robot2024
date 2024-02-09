@@ -68,7 +68,9 @@ public class RobotContainer {
      * joysticks}.
      */
   private void configureBindings() {
-    driveTrain.setDefaultCommand(teleopDriveCommand);
+    aButton.whileTrue(driveTrain.getSetSpeedMultiplierCommand(SLOW_MODE_SPEED));
+    //driveCommand = new TeleopDriveCommand(driveTrain, controller);
+    //driveTrain.setDefaultCommand(driveCommand);
   }
 
   public Command getAutonomousCommand() {

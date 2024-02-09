@@ -43,7 +43,7 @@ public class DriveTrain extends SubsystemBase{
     //Percentage
     public static double MAX_SPEED = 1;
 
-    private double currSpeedMultipler = 1;
+    private double currentSpeedMultipler = 1;
 
     private CANSparkMax leftLeader;
     private CANSparkMax leftFollower;
@@ -99,8 +99,8 @@ public class DriveTrain extends SubsystemBase{
     }
 
     private void setSides(double left, double right) {
-        leftLeader.set(left * currSpeedMultipler * MAX_SPEED);
-        rightLeader.set(right * currSpeedMultipler * MAX_SPEED);   
+        leftLeader.set(left * currentSpeedMultipler * MAX_SPEED);
+        rightLeader.set(right * currentSpeedMultipler * MAX_SPEED);   
     }
 
     public void arcadeDrive(double speed, double rotation){
@@ -179,12 +179,12 @@ public class DriveTrain extends SubsystemBase{
         return new Command() {
             @Override
             public void initialize() {
-                currSpeedMultipler = speed;
+                currentSpeedMultipler = speed;
             }
 
             @Override
             public void end(boolean interrupted) {
-                currSpeedMultipler = 1;
+                currentSpeedMultipler = 1;
             }
         };
     }
