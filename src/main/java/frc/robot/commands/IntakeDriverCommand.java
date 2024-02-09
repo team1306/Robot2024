@@ -1,23 +1,24 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.XboxController;
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Intake;
 
 public class IntakeDriverCommand extends Command{
     
-    private Intake intake;
-    private XboxController driver2Controller;
+    private final Intake intake;
+    private final BooleanSupplier buttonPressed;
 
-    public IntakeDriverCommand (Intake intake) {
+    public IntakeDriverCommand (Intake intake, BooleanSupplier buttonPressed) {
         this.intake = intake;
-        this.driver2Controller = new XboxController(1);
+        this.buttonPressed = buttonPressed;
         addRequirements(intake);
     }
 
     @Override
     public void execute() {
-        if (driver2Controller.getBButton()) {
+        if (buttonPressed.getAsBoolean()) {
             intake.setTargetRPM(Intake.MAX_RPM);
         } else {
             intake.setTargetRPM(0);

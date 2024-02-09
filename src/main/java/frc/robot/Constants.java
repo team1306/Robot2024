@@ -36,5 +36,7 @@ public final class Constants {
     public static final Translation2d BLUE_SPEAKER                = new Translation2d(-8.308975, 1.442593);
     public static final Translation2d RED_SPEAKER                 = new Translation2d(8.308975, 1.442593);
            
-    public static final double        SLOW_MODE_SPEED            = 0.3;
+    public static final double        SLOW_MODE_SPEED             = 0.3;
+
+    public static final boolean       INCLUDE_AUTO                = false;
 }

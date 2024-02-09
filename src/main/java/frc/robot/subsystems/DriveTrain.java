@@ -4,6 +4,7 @@ import static frc.robot.Constants.BACK_LEFT_DRIVE_MOTOR_ID;
 import static frc.robot.Constants.BACK_RIGHT_DRIVE_MOTOR_ID;
 import static frc.robot.Constants.FRONT_LEFT_DRIVE_MOTOR_ID;
 import static frc.robot.Constants.FRONT_RIGHT_DRIVE_MOTOR_ID;
+import static frc.robot.Constants.INCLUDE_AUTO;
 import static frc.robot.Constants.LIMELIGHT_NAME;
 import static frc.robot.Constants.LOOP_TIME_SECONDS;
 
@@ -38,8 +39,6 @@ public class DriveTrain extends SubsystemBase{
     public static final double TRACK_WIDTH = 0;
 
     private static final String AUTO_NAME = "Path";
-
-    private static final boolean INCLUDE_AUTO = false;
     
     //Percentage
     public static double MAX_SPEED = 1;
