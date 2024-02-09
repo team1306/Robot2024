@@ -51,7 +51,8 @@ public class ShooterPitchControlCommand extends Command{
 
     @Override
     public boolean isFinished(){
-        CommandScheduler.getInstance().schedule(shootCommand);
+        //TODO Finished needs to be updated to true at some point
+        if (finished) CommandScheduler.getInstance().schedule(shootCommand);
         return finished;
     }
 }

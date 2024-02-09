@@ -4,11 +4,9 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.IntakeDriverCommand;
 import frc.robot.commands.arm.MoveArmCommand;
@@ -20,11 +18,13 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import static frc.robot.Constants.*;
 
 public class RobotContainer {
 
-  XboxController controller = new XboxController(1); // Creates an XboxController on port 1.
-  Trigger aButton = new JoystickButton(controller, XboxController.Button.kA.value); // Creates a new JoystickButton object for the `A` button on controller
+  private CommandXboxController driveTrainController = new CommandXboxController(1); // Creates an XboxController on port 1.
+  private CommandXboxController shooterController = new CommandXboxController(2); // Creates an XboxController on port 1.
+
 
   private DriveTrain driveTrain;
   private Intake intake;
@@ -46,12 +46,12 @@ public class RobotContainer {
     arm = new Arm();
 
     //Dont pass controller values and null, pass suppliers
-    moveArmCommand = new MoveArmCommand(driveTrain, arm, null);
+    moveArmCommand = new MoveArmCommand(driveTrain, arm, () -> shooterController.getLeftY());
     shooterDriveCommand = new ShooterDriveCommand(driveTrain, shootCommand);
     shootCommand = new ShootCommand(shooter, intake);
     shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shootCommand);
-    intakeDriverCommand = new IntakeDriverCommand(intake);
-    teleopDriveCommand = new TeleopDriveCommand(driveTrain, null);
+    intakeDriverCommand = new IntakeDriverCommand(intake, shooterController.b());
+    teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> driveTrainController.getRightTriggerAxis(), () -> driveTrainController.getLeftTriggerAxis(), () -> driveTrainController.getLeftX(), driveTrainController.a());
     // Example Pathplanner named command registration 
     // NamedCommands.registerCommand("ShootCommand", shooterPitchControlCommand);
     
