@@ -19,6 +19,7 @@ public class MotorUtil {
 
     public static CANSparkMax initSparkMax(int motorId, MotorType motorType, IdleMode idleMode ){
         CANSparkMax motor = new CANSparkMax(motorId, motorType);
+        motor.restoreFactoryDefaults();
         motor.setIdleMode(idleMode);
         motor.setSmartCurrentLimit(NEO_CURRENT_LIMIT_AMPS);
         return motor;

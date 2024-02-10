@@ -4,12 +4,15 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import static frc.robot.Constants.*;
 
+import java.util.function.DoubleSupplier;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkRelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.MotorUtil;
 
@@ -20,7 +23,7 @@ public class Shooter extends SubsystemBase {
     private final CANSparkMax topMotor, bottomMotor;
     private final RelativeEncoder topEncoder, bottomEncoder;
     
-    public static final double PEAK_RPM = 6000;
+    public static final double PEAK_OUTPUT = 1.0;
 
     private double targetSpeed = 0;
 
@@ -37,8 +40,8 @@ public class Shooter extends SubsystemBase {
         return targetSpeed;
     }
 
-    public void setTargetRPM(double targetSpeed) {
-        this.targetSpeed = MathUtil.clamp(targetSpeed, 0, PEAK_RPM);
+    public void setTargetSpeed(double targetSpeed) {
+        this.targetSpeed = MathUtil.clamp(targetSpeed, 0, PEAK_OUTPUT);
     }
 
     /**
@@ -59,5 +62,21 @@ public class Shooter extends SubsystemBase {
     public void periodic() {
         topMotor.set(targetSpeed); // CHANGE TO FLYWHEEL STATE MODEL.
         bottomMotor.set(targetSpeed);
+    }
+
+    public Command getToggleShooterCommand(DoubleSupplier speedSupplier) {
+        return new Command() {
+            {
+                addRequirements(Shooter.this);
+            }
+            @Override
+            public void initialize(){
+               setTargetSpeed(speedSupplier.getAsDouble()); 
+            }
+            @Override
+            public void end(boolean interrupted){
+                setTargetSpeed(0);
+            }
+        };
     }
 }

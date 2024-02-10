@@ -10,8 +10,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.shooter.ShootCommand;
+import frc.robot.commands.shooter.NoteIndexingCommand;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Shooter;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Utilities;
@@ -19,15 +20,18 @@ import frc.robot.util.Utilities;
 public class ShooterDriveCommand extends Command{
 
     private final DriveTrain driveTrain;
-    private final ShootCommand shootCommand;
+    private final Shooter shooter;
+    private final NoteIndexingCommand noteIndexCommand;
     private final PIDController rotationController;
 
     private boolean finished = false;
     private double deadbandValue = 0.05;
     public static double P = 1, I = 0, D = 0.1;
-    public ShooterDriveCommand(DriveTrain driveTrain, ShootCommand shootCommand){
+
+    public ShooterDriveCommand(DriveTrain driveTrain, Shooter shooter, NoteIndexingCommand noteIndexCommand){
         this.driveTrain = driveTrain;
-        this.shootCommand = shootCommand;
+        this.shooter = shooter;
+        this.noteIndexCommand = noteIndexCommand;
         this.addRequirements(driveTrain);
         this.rotationController = new PIDController(P, I, D);
         SmartDashboard.putNumber("Shooter Auto Deadband", deadbandValue);
@@ -52,7 +56,9 @@ public class ShooterDriveCommand extends Command{
     @Override
     public boolean isFinished(){
         if(finished)
-            CommandScheduler.getInstance().schedule(shootCommand);
+            CommandScheduler.getInstance().schedule(
+                noteIndexCommand.alongWith(shooter.getToggleShooterCommand(() -> 1.0)
+                .withTimeout(NoteIndexingCommand.TIME_AFTER_SHOT_MS + NoteIndexingCommand.TIME_BEFORE_SHOT_MS)));
         return finished;
     }
 }

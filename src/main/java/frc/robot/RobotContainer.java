@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.arm.MoveArmCommand;
 import frc.robot.commands.drive.ShooterDriveCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
-import frc.robot.commands.shooter.ShootCommand;
+import frc.robot.commands.shooter.NoteIndexingCommand;
 import frc.robot.commands.shooter.ShooterPitchControlCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveTrain;
@@ -21,8 +21,8 @@ import static frc.robot.Constants.*;
 
 public class RobotContainer {
 
-  private CommandXboxController driveTrainController = new CommandXboxController(1); // Creates an XboxController on port 1.
-  private CommandXboxController shooterController = new CommandXboxController(2); // Creates an XboxController on port 1.
+  private CommandXboxController controller1 = new CommandXboxController(0); // Creates an XboxController on port 1.
+  private CommandXboxController controller2 = new CommandXboxController(1); // Creates an XboxController on port 1.
 
   private DriveTrain driveTrain;
   private Intake intake;
@@ -31,25 +31,27 @@ public class RobotContainer {
   
   private MoveArmCommand moveArmCommand;
   private ShooterDriveCommand shooterDriveCommand;
-  private ShootCommand shootCommand;
+  private NoteIndexingCommand indexNoteCommand;
   private ShooterPitchControlCommand shooterPitchControlCommand;
   private TeleopDriveCommand teleopDriveCommand;
   
   
   public RobotContainer() {
     driveTrain = new DriveTrain();
-    intake = new Intake();
+    //intake = new Intake();
     shooter = new Shooter();
     arm = new Arm();
 
-    moveArmCommand = new MoveArmCommand(driveTrain, arm, () -> shooterController.getLeftY());
-    shootCommand = new ShootCommand(shooter, intake);
-    shooterDriveCommand = new ShooterDriveCommand(driveTrain, shootCommand);
-    shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shooterDriveCommand);
-    teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> driveTrainController.getRightTriggerAxis(), () -> driveTrainController.getLeftTriggerAxis(), () -> driveTrainController.getLeftX());
+
+    moveArmCommand = new MoveArmCommand(arm, () -> controller2.getRightY());
+    //indexNoteCommand = new NoteIndexingCommand(intake);
+    // shooterDriveCommand = new ShooterDriveCommand(driveTrain, shooter, indexNoteCommand);
+    // shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shooterDriveCommand);
+    teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> controller1.getRightTriggerAxis(), () -> controller1.getLeftTriggerAxis(), () -> -controller1.getLeftX());
     // Example Pathplanner named command registration 
     // NamedCommands.registerCommand("ShootCommand", shooterPitchControlCommand);
     
+    arm.setDefaultCommand(moveArmCommand);
     driveTrain.setDefaultCommand(teleopDriveCommand);
     configureBindings();
   }
@@ -64,9 +66,11 @@ public class RobotContainer {
      * joysticks}.
      */
   private void configureBindings() {
-    driveTrainController.a().whileTrue(driveTrain.getSetSpeedMultiplierCommand(SLOW_MODE_SPEED));
-    shooterController.b().toggleOnTrue(intake.getIntakeDriverCommand());
-    shooterController.x().onTrue(shooterPitchControlCommand);
+    controller1.a().whileTrue(driveTrain.getSetSpeedMultiplierCommand(SLOW_MODE_SPEED));
+    controller2.b().toggleOnTrue(intake.getIntakeDriverCommand());
+    //controller2.y().onTrue(indexNoteCommand);
+    controller2.x().toggleOnTrue(shooter.getToggleShooterCommand(() -> Shooter.PEAK_OUTPUT));
+    // controller2.x().onTrue(shooterPitchControlCommand);
   }
 
   public Command getAutonomousCommand() {

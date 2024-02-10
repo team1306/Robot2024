@@ -2,22 +2,21 @@ package frc.robot.commands.arm;
 
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.DriveTrain;
 
 public class MoveArmCommand extends Command {
 
     private final Arm arm;
-    private double minAngle = 0;
-    private double maxAngle = 90;
+    private double minAngle = -1e+9;
+    private double maxAngle = 1e+9;
 
     private final DoubleSupplier rotationSupplier;
 
-    public MoveArmCommand(DriveTrain driveTrain, Arm arm, DoubleSupplier rotationSupplier){
+    public MoveArmCommand(Arm arm, DoubleSupplier rotationSupplier){
         this.arm = arm;
+        arm.setControlMode(Arm.ControlMode.MANUAL);
         this.rotationSupplier = rotationSupplier;
         this.addRequirements(arm);
 
@@ -30,8 +29,7 @@ public class MoveArmCommand extends Command {
         minAngle = SmartDashboard.getNumber("Arm Min Angle", minAngle);
         maxAngle = SmartDashboard.getNumber("Arm Max Angle", maxAngle);
 
-        double rotationSpeed = rotationSupplier.getAsDouble();
-        rotationSpeed *= (rotationSpeed < minAngle || rotationSpeed > maxAngle ? 0.1 : 1);
-        arm.setTargetAngle(arm.getCurrentAngle().plus(new Rotation2d(rotationSpeed)));
+        final double armAngle = arm.getCurrentAngle().getDegrees();
+        arm.setManualPower(armAngle < minAngle || armAngle > maxAngle ? 0 : rotationSupplier.getAsDouble());
     }
 }

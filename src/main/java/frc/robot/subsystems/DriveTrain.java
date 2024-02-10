@@ -107,8 +107,8 @@ public class DriveTrain extends SubsystemBase{
         SmartDashboard.putNumber("Speed", speed);
         SmartDashboard.putNumber("Rotation", rotation);
         // Clamp inputs
-        speed = MotorUtil.clampPercent(speed) * MAX_SPEED;
-        rotation = MotorUtil.clampPercent(rotation) * MAX_SPEED;
+        speed = MotorUtil.clampPercent(speed);
+        rotation = MotorUtil.clampPercent(rotation);
 
         double maxInput = Math.copySign(Math.max(Math.abs(speed), Math.abs(rotation)), speed);
         double leftMotorOutput, rightMotorOutput;
