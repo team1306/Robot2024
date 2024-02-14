@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.IntakeDriverCommand;
 import frc.robot.commands.arm.MoveArmCommand;
 import frc.robot.commands.drive.ShooterDriveCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
@@ -67,7 +68,7 @@ public class RobotContainer {
      */
   private void configureBindings() {
     controller1.a().whileTrue(driveTrain.getSetSpeedMultiplierCommand(SLOW_MODE_SPEED));
-    controller2.b().toggleOnTrue(intake.getIntakeDriverCommand());
+    //controller2.b().toggleOnTrue(new IntakeDriverCommand(intake));
     //controller2.y().onTrue(indexNoteCommand);
     controller2.x().toggleOnTrue(shooter.getToggleShooterCommand(() -> Shooter.PEAK_OUTPUT));
     // controller2.x().onTrue(shooterPitchControlCommand);

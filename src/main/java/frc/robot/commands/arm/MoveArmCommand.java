@@ -22,10 +22,12 @@ public class MoveArmCommand extends Command {
 
         SmartDashboard.putNumber("Arm Min Angle", 0.00);
         SmartDashboard.putNumber("Arm Max Angle", 90);
+        SmartDashboard.putNumber("Arm Current Angle", arm.getCurrentAngle().getDegrees());
     }
 
     @Override
     public void execute(){
+        SmartDashboard.putNumber("Arm Current Angle", arm.getCurrentAngle().getDegrees());
         minAngle = SmartDashboard.getNumber("Arm Min Angle", minAngle);
         maxAngle = SmartDashboard.getNumber("Arm Max Angle", maxAngle);
 

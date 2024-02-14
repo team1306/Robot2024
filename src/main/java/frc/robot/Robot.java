@@ -23,7 +23,7 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
   @Override
   public void robotInit() {
-    // motor = MotorUtil.initSparkMax(INTAKE_MOTOR_ID, MotorType.kBrushless, IdleMode.kCoast);
+    motor = MotorUtil.initSparkMax(INTAKE_MOTOR_ID, MotorType.kBrushless, IdleMode.kCoast);
     m_robotContainer = new RobotContainer();
   }
 
@@ -65,7 +65,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    // motor.set(MathUtil.applyDeadband(tController.getLeftY(), 0.05));
+    motor.set(MathUtil.applyDeadband(tController.getLeftY(), 0.05));
   }
 
   @Override

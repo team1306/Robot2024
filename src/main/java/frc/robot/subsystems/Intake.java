@@ -46,18 +46,4 @@ public class Intake extends SubsystemBase {
     public void periodic() {
         motor.set(targetSpeed);
     }
-
-    public Command getIntakeDriverCommand(){
-        return new Command() {
-            @Override
-            public void initialize(){
-                setTargetRPM(Intake.MAX_RPM);
-            }
-
-            @Override
-            public void end(boolean interrupted) {
-                setTargetRPM(0);
-            }
-        };
-    }
 }
