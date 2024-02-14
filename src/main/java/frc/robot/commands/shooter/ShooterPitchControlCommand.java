@@ -23,7 +23,7 @@ public class ShooterPitchControlCommand extends Command{
     public double theta; // arm angle, radians
     public double speakerDistance; // m, d_s
     
-    private double a, b, c;
+    private double a = 1, b = 1, c = 1;
 
     public ShooterPitchControlCommand(Arm arm, ShooterDriveCommand shooterDriveCommand){
         this.shooterDriveCommand = shooterDriveCommand;
