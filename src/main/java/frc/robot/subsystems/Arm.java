@@ -31,15 +31,13 @@ public class Arm extends PIDSubsystem {
     
     private final RelativeEncoder neoEncoder;
 
-    private final ArmFeedforward feedforward;
+    private ArmFeedforward feedforward;
 
     public static double kP = 1, kI = 0, kD = 0; // Do we want PID Controller? Or do we want to do state space model?
                                                  // need to read https://file.tavsys.net/control/controls-engineering-in-frc.pdf more so I know what I am doing
     public static double kS = 1, kG = 1, kA = 1, kV = 1; // PLACEHOLDER
 
     public static final double INITIAL_POSITION = 0;
-
-    public static double holdPower = 0.1;
 
     private Rotation2d targetAngle;
     private double power;
@@ -67,10 +65,18 @@ public class Arm extends PIDSubsystem {
     
 
         feedforward = new ArmFeedforward(kS, kG, kV, kA);
-
+    
         this.controlMode = controlMode;
 
-        SmartDashboard.putNumber("Hold Power", 0.1);
+        SmartDashboard.putNumber("kP", 1);
+        SmartDashboard.putNumber("kI", 0);
+        SmartDashboard.putNumber("kD", 0);
+
+        SmartDashboard.putNumber("kS", 1);
+        SmartDashboard.putNumber("kG", 1);
+        SmartDashboard.putNumber("kV", 1);
+        SmartDashboard.putNumber("kA", 1);
+
     }
     
     public ControlMode getControlMode() {
@@ -124,16 +130,25 @@ public class Arm extends PIDSubsystem {
     }
 
     public void setManualPower(double power) {
-        this.power = Math.max(holdPower, power);
+        this.power = power;
     }
 
     @Override
     public void periodic() {
-        holdPower = SmartDashboard.getNumber("Hold Power", 0.1);
+        kP = SmartDashboard.getNumber("kP", 1);
+        kI = SmartDashboard.getNumber("kI", 0);
+        kD = SmartDashboard.getNumber("kD",0);
+
+        kS = SmartDashboard.getNumber("kS", 1);
+        kG = SmartDashboard.getNumber("kG", 1);
+        kV = SmartDashboard.getNumber("kV", 1);
+        kA = SmartDashboard.getNumber("kA", 1);
+
         if (lastControlMode != controlMode && controlMode == ControlMode.MANUAL) {
             setManualPower(0);
         }
         m_controller.setPID(kP, kI, kD);
+        feedforward = new ArmFeedforward(kS, kG, kV, kA);
         velocities[calcVelocityIndex(velocityIndex)] = neoEncoder.getVelocity();
         switch (controlMode){
             case AUTOMATIC:
