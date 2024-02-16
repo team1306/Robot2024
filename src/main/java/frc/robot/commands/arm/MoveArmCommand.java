@@ -16,7 +16,6 @@ public class MoveArmCommand extends Command {
 
     public MoveArmCommand(Arm arm, DoubleSupplier rotationSupplier){
         this.arm = arm;
-        arm.setControlMode(Arm.ControlMode.MANUAL);
         this.rotationSupplier = rotationSupplier;
         this.addRequirements(arm);
 
@@ -25,11 +24,17 @@ public class MoveArmCommand extends Command {
     }
 
     @Override
+    public void initialize(){
+        arm.setControlMode(Arm.ControlMode.MANUAL);
+    }
+
+    @Override
     public void execute(){
         minAngle = SmartDashboard.getNumber("Arm Min Angle", minAngle);
         maxAngle = SmartDashboard.getNumber("Arm Max Angle", maxAngle);
 
         final double armAngle = arm.getCurrentAngle().getDegrees();
-        arm.setManualPower(armAngle < minAngle || armAngle > maxAngle ? 0 : rotationSupplier.getAsDouble());
+        // arm.setManualPower(armAngle < minAngle || armAngle > maxAngle ? 0 : rotationSupplier.getAsDouble());
+        arm.setManualPower(rotationSupplier.getAsDouble() * .1);
     }
 }

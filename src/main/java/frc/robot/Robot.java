@@ -5,12 +5,22 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.util.MotorUtil;
+
+import static frc.robot.Constants.*;
+
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
+  private CANSparkMax motor;
+  private XboxController tController = new XboxController(1);
   @Override
   public void robotInit() {
     // motor = MotorUtil.initSparkMax(INTAKE_MOTOR_ID, MotorType.kBrushless, IdleMode.kCoast);
@@ -51,10 +61,12 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    motor = MotorUtil.initSparkMax(INTAKE_MOTOR_ID, MotorType.kBrushless, IdleMode.kCoast);
   }
 
   @Override
   public void teleopPeriodic() {
+    motor.set(tController.getLeftY());
   }
 
   @Override

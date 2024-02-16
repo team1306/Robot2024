@@ -67,6 +67,7 @@ public class Arm extends PIDSubsystem {
         feedforward = new ArmFeedforward(kS, kG, kV, kA);
     
         this.controlMode = controlMode;
+        this.lastControlMode = controlMode;
 
         SmartDashboard.putNumber("Arm kP", 1);
         SmartDashboard.putNumber("Arm kI", 0);
