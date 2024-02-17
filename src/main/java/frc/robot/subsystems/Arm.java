@@ -56,7 +56,7 @@ public class Arm extends PIDSubsystem {
         rightArmMotor.setInverted(true);
         
         throughBoreEncoder = new DutyCycleEncoder(0);
-        throughBoreEncoder.setDistancePerRotation(1/100); // ARM GEAR RATIO
+        throughBoreEncoder.reset();
 
         neoEncoder = rightArmMotor.getEncoder(SparkRelativeEncoder.Type.kHallSensor, NEO_COUNTS_PER_REVOLUTION);
         neoEncoder.setPosition(0);
@@ -92,7 +92,7 @@ public class Arm extends PIDSubsystem {
     }
         
     public Rotation2d getCurrentAngle() {
-        return Rotation2d.fromRadians(throughBoreEncoder.getDistance());
+        return Rotation2d.fromRadians(throughBoreEncoder.get());
     }
 
     public Rotation2d getTargetAngle() {

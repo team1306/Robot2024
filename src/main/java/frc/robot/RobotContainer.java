@@ -28,7 +28,7 @@ public class RobotContainer {
   private DriveTrain driveTrain;
   private Intake intake;
   private Shooter shooter; 
-  private Arm arm;
+  Arm arm;
   
   private MoveArmCommand moveArmCommand;
   private ShooterDriveCommand shooterDriveCommand;
