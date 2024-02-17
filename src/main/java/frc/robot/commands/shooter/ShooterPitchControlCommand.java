@@ -13,20 +13,16 @@ import frc.robot.util.Utilities;
 
 public class ShooterPitchControlCommand extends Command{
 
-    // all constants in metric
-    public static final double SPEAKER_HEIGHT = 2.05; // m
-    public static final double GRAVITY = 9.80441715516; // m/s/s
     public static final double SHOOTER_X_OFFSET = 0; // from camera, O_x
-    public static final double SHOOTER_Y_OFFSET = 0; // from camera, O_y
-    public static final double SHOOTER_RADIAN_OFFSET = 0; // shooter angle offset, radians, c
-    public static final double SHOOTER_RADIUS = 0; // meters, r
-
-    public final Arm arm;
+    public static final double SHOOTER_DEGREE_OFFSET = 0; // shooter angle offset, radians, c
     private final ShooterDriveCommand shooterDriveCommand;
 
-    public double phi; // arm angle, radians
+    public final Arm arm;
+
+    public double theta; // arm angle, radians
     public double speakerDistance; // m, d_s
-    public double lastSpeakerDistance; // m
+    
+    private double a = 1, b = 1, c = 1;
 
     public ShooterPitchControlCommand(Arm arm, ShooterDriveCommand shooterDriveCommand){
         this.shooterDriveCommand = shooterDriveCommand;
@@ -38,12 +34,12 @@ public class ShooterPitchControlCommand extends Command{
     public void initialize(){
         Pose2d botPose = LimelightHelpers.getBotPose2d(LIMELIGHT_NAME);
         speakerDistance = botPose.getTranslation().getDistance(Utilities.getSpeaker());
-
-        // Calculate angle of shooter given initial note speed, gravity, speaker distance, and speaker height/shooter height
-        double phi = Math.PI - (SHOOTER_RADIAN_OFFSET + Math.asin((SHOOTER_RADIUS*Math.sin(SHOOTER_RADIAN_OFFSET))/Math.sqrt(Math.pow((SHOOTER_X_OFFSET+speakerDistance), 2)+Math.pow((SPEAKER_HEIGHT-SHOOTER_Y_OFFSET), 2)))) + Math.atan(SPEAKER_HEIGHT/(SHOOTER_X_OFFSET+speakerDistance)); 
+        speakerDistance += SHOOTER_X_OFFSET;        
         
+        //Theta must be in terms of degrees
+        theta = a * Math.pow(speakerDistance, 2) + b * speakerDistance + c;
         // Set the target angle of the arm
-        arm.setTargetAngle(new Rotation2d(phi));
+        arm.setTargetAngle(Rotation2d.fromDegrees(theta + SHOOTER_DEGREE_OFFSET));
         CommandScheduler.getInstance().schedule(shooterDriveCommand);    
     }
 

@@ -38,22 +38,21 @@ public class RobotContainer {
   
   
   public RobotContainer() {
-    driveTrain = new DriveTrain();
-    //intake = new Intake();
+    // driveTrain = new DriveTrain();
+    // intake = new Intake();
     shooter = new Shooter();
     arm = new Arm();
 
-
-    moveArmCommand = new MoveArmCommand(arm, () -> controller2.getRightY());
+    moveArmCommand = new MoveArmCommand(arm, () -> Math.max(controller2.getRightY(), 0.03));
     //indexNoteCommand = new NoteIndexingCommand(intake);
     // shooterDriveCommand = new ShooterDriveCommand(driveTrain, shooter, indexNoteCommand);
     // shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shooterDriveCommand);
-    teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> controller1.getRightTriggerAxis(), () -> controller1.getLeftTriggerAxis(), () -> -controller1.getLeftX());
+    // teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> controller1.getRightTriggerAxis(), () -> controller1.getLeftTriggerAxis(), () -> -controller1.getLeftX());
     // Example Pathplanner named command registration 
     // NamedCommands.registerCommand("ShootCommand", shooterPitchControlCommand);
     
     arm.setDefaultCommand(moveArmCommand);
-    driveTrain.setDefaultCommand(teleopDriveCommand);
+    // driveTrain.setDefaultCommand(teleopDriveCommand);
     configureBindings();
   }
 
@@ -67,7 +66,7 @@ public class RobotContainer {
      * joysticks}.
      */
   private void configureBindings() {
-    controller1.a().whileTrue(driveTrain.getSetSpeedMultiplierCommand(SLOW_MODE_SPEED));
+    //controller1.a().whileTrue(driveTrain.getSetSpeedMultiplierCommand(SLOW_MODE_SPEED));
     //controller2.b().toggleOnTrue(new IntakeDriverCommand(intake));
     //controller2.y().onTrue(indexNoteCommand);
     controller2.x().toggleOnTrue(shooter.getToggleShooterCommand(() -> Shooter.PEAK_OUTPUT));
