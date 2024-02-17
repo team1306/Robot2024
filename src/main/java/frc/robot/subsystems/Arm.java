@@ -12,6 +12,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.PIDSubsystem;
+import frc.robot.commands.arm.MoveArmCommand;
 import frc.robot.util.MotorUtil;
 
 import com.revrobotics.SparkRelativeEncoder;
@@ -39,7 +40,7 @@ public class Arm extends PIDSubsystem {
 
     public static final double INITIAL_POSITION = 0;
 
-    private Rotation2d targetAngle;
+    private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
     private double power;
 
     private long velocityIndex = 0;
@@ -78,6 +79,8 @@ public class Arm extends PIDSubsystem {
         SmartDashboard.putNumber("Arm kV", 1);
         SmartDashboard.putNumber("Arm kA", 1);
 
+        m_controller.setTolerance(0.01);
+
     }
     
     public ControlMode getControlMode() {
@@ -90,10 +93,11 @@ public class Arm extends PIDSubsystem {
 
     public Arm() {
         this(ControlMode.MANUAL);
+        m_enabled = true;
     }
         
     public Rotation2d getCurrentAngle() {
-        return Rotation2d.fromRadians(throughBoreEncoder.get());
+        return Rotation2d.fromRadians(throughBoreEncoder.get() * -1);
     }
 
     public Rotation2d getTargetAngle() {
@@ -114,9 +118,10 @@ public class Arm extends PIDSubsystem {
 
     @Override
     protected void useOutput(double output, double setpoint) {
-        output += feedforward.calculate(getCurrentAngle().getRadians(), neoEncoder.getVelocity(), calculateAcceleration());
-        leftArmMotor.setVoltage(MathUtil.clamp(output, -NEO_MAX_VOLTAGE, NEO_MAX_VOLTAGE));
-        rightArmMotor.setVoltage(MathUtil.clamp(output, -NEO_MAX_VOLTAGE, NEO_MAX_VOLTAGE)); 
+        if (Double.isNaN(output) || Double.isInfinite(output)) output = 0;
+        output += feedforward.calculate(getTargetAngle().getRadians(), neoEncoder.getVelocity(), calculateAcceleration());
+        leftArmMotor.set(MathUtil.clamp(output, -MoveArmCommand.peakOutput, MoveArmCommand.peakOutput));
+        rightArmMotor.set(MathUtil.clamp(output, -MoveArmCommand.peakOutput, MoveArmCommand.peakOutput)); 
     }
 
     /**
@@ -127,7 +132,7 @@ public class Arm extends PIDSubsystem {
      */
     @Override
     protected double getMeasurement() {
-       return getTargetAngle().getDegrees();
+       return getCurrentAngle().getDegrees();
     }
 
     public void setManualPower(double power) {
@@ -153,13 +158,15 @@ public class Arm extends PIDSubsystem {
         velocities[calcVelocityIndex(velocityIndex)] = neoEncoder.getVelocity();
         switch (controlMode){
             case AUTOMATIC:
+                m_controller.setSetpoint(getTargetAngle().getDegrees());
                 super.periodic();
+                break;
             case MANUAL:
                 leftArmMotor.set(power);
                 rightArmMotor.set(power);
-                SmartDashboard.putNumber("right arm power", rightArmMotor.get());
-                SmartDashboard.putNumber("left arm power", leftArmMotor.get());
         }
+        SmartDashboard.putNumber("right arm power", rightArmMotor.get());
+        SmartDashboard.putNumber("left arm power", leftArmMotor.get());
         ++velocityIndex;
         lastControlMode = controlMode;
     }

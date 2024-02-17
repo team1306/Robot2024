@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.IntakeDriverCommand;
@@ -35,14 +36,13 @@ public class RobotContainer {
   private NoteIndexingCommand indexNoteCommand;
   private ShooterPitchControlCommand shooterPitchControlCommand;
   private TeleopDriveCommand teleopDriveCommand;
-  
+  private IntakeDriverCommand intakeDriverCommand;
   
   public RobotContainer() {
     // driveTrain = new DriveTrain();
-    // intake = new Intake();
+    intake = new Intake();
     shooter = new Shooter();
     arm = new Arm();
-
     moveArmCommand = new MoveArmCommand(arm, () -> Math.max(controller2.getRightY(), 0.03));
     //indexNoteCommand = new NoteIndexingCommand(intake);
     // shooterDriveCommand = new ShooterDriveCommand(driveTrain, shooter, indexNoteCommand);
@@ -50,7 +50,8 @@ public class RobotContainer {
     // teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> controller1.getRightTriggerAxis(), () -> controller1.getLeftTriggerAxis(), () -> -controller1.getLeftX());
     // Example Pathplanner named command registration 
     // NamedCommands.registerCommand("ShootCommand", shooterPitchControlCommand);
-    
+    intakeDriverCommand = new IntakeDriverCommand(intake);
+    intake.setDefaultCommand(intakeDriverCommand);
     arm.setDefaultCommand(moveArmCommand);
     // driveTrain.setDefaultCommand(teleopDriveCommand);
     configureBindings();
@@ -67,8 +68,8 @@ public class RobotContainer {
      */
   private void configureBindings() {
     //controller1.a().whileTrue(driveTrain.getSetSpeedMultiplierCommand(SLOW_MODE_SPEED));
-    //controller2.b().toggleOnTrue(new IntakeDriverCommand(intake));
-    //controller2.y().onTrue(indexNoteCommand);
+
+    controller2.y().onTrue(new InstantCommand(() -> intakeDriverCommand.buttonPress()));
     controller2.x().toggleOnTrue(shooter.getToggleShooterCommand(() -> Shooter.PEAK_OUTPUT));
     // controller2.x().onTrue(shooterPitchControlCommand);
   }
