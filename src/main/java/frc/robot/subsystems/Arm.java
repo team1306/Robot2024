@@ -34,9 +34,9 @@ public class Arm extends PIDSubsystem {
 
     private ArmFeedforward feedforward;
 
-    public static double kP = 1, kI = 0, kD = 0; // Do we want PID Controller? Or do we want to do state space model?
+    public static double kP = .05, kI = 0, kD = 0; // Do we want PID Controller? Or do we want to do state space model?
                                                  // need to read https://file.tavsys.net/control/controls-engineering-in-frc.pdf more so I know what I am doing
-    public static double kS = 1, kG = 1, kA = 1, kV = 1; // PLACEHOLDER
+    public static double kS = 0, kG = 0, kA = 0, kV = 0; // PLACEHOLDER
 
     public static final double INITIAL_POSITION = 0;
 
@@ -70,14 +70,14 @@ public class Arm extends PIDSubsystem {
         this.controlMode = controlMode;
         this.lastControlMode = controlMode;
 
-        SmartDashboard.putNumber("Arm kP", 1);
+        SmartDashboard.putNumber("Arm kP", .05);
         SmartDashboard.putNumber("Arm kI", 0);
         SmartDashboard.putNumber("Arm kD", 0);
 
-        SmartDashboard.putNumber("Arm kS", 1);
-        SmartDashboard.putNumber("Arm kG", 1);
-        SmartDashboard.putNumber("Arm kV", 1);
-        SmartDashboard.putNumber("Arm kA", 1);
+        SmartDashboard.putNumber("Arm kS", 0);
+        SmartDashboard.putNumber("Arm kG", 0);
+        SmartDashboard.putNumber("Arm kV", 0);
+        SmartDashboard.putNumber("Arm kA", 0);
 
         m_controller.setTolerance(0.01);
 

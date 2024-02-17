@@ -43,7 +43,7 @@ public class RobotContainer {
     intake = new Intake();
     shooter = new Shooter();
     arm = new Arm();
-    moveArmCommand = new MoveArmCommand(arm, () -> Math.max(controller2.getRightY(), 0.03));
+    moveArmCommand = new MoveArmCommand(arm, () -> controller2.getRightY());
     //indexNoteCommand = new NoteIndexingCommand(intake);
     // shooterDriveCommand = new ShooterDriveCommand(driveTrain, shooter, indexNoteCommand);
     // shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shooterDriveCommand);

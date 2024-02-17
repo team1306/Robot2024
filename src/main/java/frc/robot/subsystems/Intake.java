@@ -28,7 +28,7 @@ public class Intake extends SubsystemBase {
     private boolean sensorReading = false;
 
     public Intake() {
-        motor = MotorUtil.initSparkMax(INTAKE_MOTOR_ID, MotorType.kBrushless, IdleMode.kCoast);
+        motor = MotorUtil.initSparkMax(INTAKE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
         encoder = motor.getEncoder(SparkRelativeEncoder.Type.kHallSensor, NEO_COUNTS_PER_REVOLUTION);
         sensor = new DigitalInput(1);
     }
@@ -38,7 +38,7 @@ public class Intake extends SubsystemBase {
     }
 
     public void setTargetRPM(double targetSpeed) {
-        this.targetSpeed = MathUtil.clamp(targetSpeed, 0, MAX_RPM);
+        this.targetSpeed = MathUtil.clamp(targetSpeed / MAX_RPM, -1, 1);
     }
 
     /**
