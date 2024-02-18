@@ -31,7 +31,7 @@ public class RobotContainer {
   private Shooter shooter; 
   Arm arm;
   
-  private MoveArmCommand moveArmCommand;
+  MoveArmCommand moveArmCommand;
   private ShooterDriveCommand shooterDriveCommand;
   private NoteIndexingCommand indexNoteCommand;
   private ShooterPitchControlCommand shooterPitchControlCommand;
@@ -39,7 +39,7 @@ public class RobotContainer {
   private IntakeDriverCommand intakeDriverCommand;
   
   public RobotContainer() {
-    // driveTrain = new DriveTrain();
+    driveTrain = new DriveTrain();
     intake = new Intake();
     shooter = new Shooter();
     arm = new Arm();
@@ -47,13 +47,13 @@ public class RobotContainer {
     //indexNoteCommand = new NoteIndexingCommand(intake);
     // shooterDriveCommand = new ShooterDriveCommand(driveTrain, shooter, indexNoteCommand);
     // shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shooterDriveCommand);
-    // teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> controller1.getRightTriggerAxis(), () -> controller1.getLeftTriggerAxis(), () -> -controller1.getLeftX());
+    teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> controller1.getRightTriggerAxis(), () -> controller1.getLeftTriggerAxis(), () -> -controller1.getLeftX());
     // Example Pathplanner named command registration 
     // NamedCommands.registerCommand("ShootCommand", shooterPitchControlCommand);
     intakeDriverCommand = new IntakeDriverCommand(intake);
     intake.setDefaultCommand(intakeDriverCommand);
     arm.setDefaultCommand(moveArmCommand);
-    // driveTrain.setDefaultCommand(teleopDriveCommand);
+    driveTrain.setDefaultCommand(teleopDriveCommand);
     configureBindings();
   }
 

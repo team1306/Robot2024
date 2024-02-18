@@ -41,7 +41,7 @@ public class DriveTrain extends SubsystemBase{
     private static final String AUTO_NAME = "Path";
     
     //Percentage
-    public static double MAX_SPEED = 1;
+    public static double MAX_SPEED = .5;
 
     private double currentSpeedMultipler = 1;
 
