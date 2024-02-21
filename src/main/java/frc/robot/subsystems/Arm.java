@@ -111,7 +111,7 @@ public class Arm extends PIDSubsystem {
     }
         
     public Rotation2d getCurrentAngle() {
-        return Rotation2d.fromRadians(throughBoreEncoder.get() * -1);
+        return Rotation2d.fromRotations(throughBoreEncoder.get() * -1);
     }
 
     public Rotation2d getTargetAngle() {
