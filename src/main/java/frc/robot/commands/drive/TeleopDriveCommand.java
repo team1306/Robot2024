@@ -29,18 +29,10 @@ public class TeleopDriveCommand extends Command{
     public void execute() {
         DEADBAND_VALUE = SmartDashboard.getNumber("Teleop Drive Deadband", 0.00);
         
-        final double forward = forwardSupplier.getAsDouble();
-        final double backward = backwardSupplier.getAsDouble();
-        final double power;
-        boolean backwardRotation = false;
-        if (forward > backward) {
-            power = forward;
-        } else {
-            power = -backward;
-            backwardRotation = true;
-        }
-        double speed = MathUtil.applyDeadband(power, DEADBAND_VALUE);
-        double rotation = MathUtil.applyDeadband(rotationSupplier.getAsDouble() * (backwardRotation ? -1 : 1), DEADBAND_VALUE);
+        final double forward = forwardSupplier.getAsDouble(), backward = backwardSupplier.getAsDouble();
+        final boolean isForward = forward > backward;
+        double speed = MathUtil.applyDeadband(isForward ? forward : -backward, DEADBAND_VALUE);
+        double rotation = MathUtil.applyDeadband(rotationSupplier.getAsDouble() * (isForward ? 1 : -1), DEADBAND_VALUE);
 
         driveTrain.arcadeDrive(speed, rotation);
     }

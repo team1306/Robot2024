@@ -1,4 +1,4 @@
-package frc.robot.commands.drive;
+package frc.robot.commands.shooter;
 
 import static frc.robot.Constants.LIMELIGHT_NAME;
 
@@ -10,7 +10,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.shooter.NoteIndexingCommand;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Shooter;
 import frc.robot.util.LimelightHelpers;

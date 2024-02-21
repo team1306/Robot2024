@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -12,16 +11,15 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.arm.MoveArmCommand;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
-import frc.robot.commands.drive.ShooterDriveCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.intake.IntakeDriverCommand;
 import frc.robot.commands.shooter.NoteIndexingCommand;
+import frc.robot.commands.shooter.ShooterDriveCommand;
 import frc.robot.commands.shooter.ShooterPitchControlCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
-import static frc.robot.Constants.*;
 
 import java.util.function.BooleanSupplier;
 
