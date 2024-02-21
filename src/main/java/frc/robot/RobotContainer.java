@@ -4,15 +4,17 @@
 
 package frc.robot;
 
+import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.IntakeDriverCommand;
 import frc.robot.commands.arm.MoveArmCommand;
+import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.commands.drive.ShooterDriveCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
+import frc.robot.commands.intake.IntakeDriverCommand;
 import frc.robot.commands.shooter.NoteIndexingCommand;
 import frc.robot.commands.shooter.ShooterPitchControlCommand;
 import frc.robot.subsystems.Arm;
@@ -20,6 +22,8 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import static frc.robot.Constants.*;
+
+import java.util.function.BooleanSupplier;
 
 public class RobotContainer {
 
@@ -29,14 +33,16 @@ public class RobotContainer {
   private DriveTrain driveTrain;
   private Intake intake;
   private Shooter shooter; 
-  Arm arm;
+  public Arm arm;
   
-  MoveArmCommand moveArmCommand;
+  public MoveArmCommand moveArmCommand;
   private ShooterDriveCommand shooterDriveCommand;
   private NoteIndexingCommand indexNoteCommand;
   private ShooterPitchControlCommand shooterPitchControlCommand;
   private TeleopDriveCommand teleopDriveCommand;
   private IntakeDriverCommand intakeDriverCommand;
+  
+  private final BooleanSupplier cancelSetpoint = () -> controller2.getRightY() > 0 || controller2.getRightY() < 0 || controller2.a().getAsBoolean();
   
   public RobotContainer() {
     driveTrain = new DriveTrain();
@@ -45,12 +51,13 @@ public class RobotContainer {
     arm = new Arm();
     moveArmCommand = new MoveArmCommand(arm, () -> controller2.getRightY());
     //indexNoteCommand = new NoteIndexingCommand(intake);
-    // shooterDriveCommand = new ShooterDriveCommand(driveTrain, shooter, indexNoteCommand);
-    // shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shooterDriveCommand);
+    shooterDriveCommand = new ShooterDriveCommand(driveTrain, shooter, indexNoteCommand);
+    shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shooterDriveCommand);
+    intakeDriverCommand = new IntakeDriverCommand(intake);
     teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> controller1.getRightTriggerAxis(), () -> controller1.getLeftTriggerAxis(), () -> -controller1.getLeftX());
     // Example Pathplanner named command registration 
     // NamedCommands.registerCommand("ShootCommand", shooterPitchControlCommand);
-    intakeDriverCommand = new IntakeDriverCommand(intake);
+
     intake.setDefaultCommand(intakeDriverCommand);
     arm.setDefaultCommand(moveArmCommand);
     driveTrain.setDefaultCommand(teleopDriveCommand);
@@ -71,7 +78,12 @@ public class RobotContainer {
 
     controller2.y().onTrue(new InstantCommand(() -> intakeDriverCommand.buttonPress()));
     controller2.x().toggleOnTrue(shooter.getToggleShooterCommand(() -> Shooter.PEAK_OUTPUT));
-    // controller2.x().onTrue(shooterPitchControlCommand);
+
+    controller2.povUp().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.AMP, cancelSetpoint));
+    controller2.povLeft().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.STAGE_SHOT, cancelSetpoint));
+    controller2.povRight().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.SHOOT_CLOSE, cancelSetpoint));
+    controller2.povDown().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.INTAKE, cancelSetpoint));
+    controller2.a().onTrue(shooterPitchControlCommand);
   }
 
   public Command getAutonomousCommand() {

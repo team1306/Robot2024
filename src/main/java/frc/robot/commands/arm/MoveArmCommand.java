@@ -2,7 +2,6 @@ package frc.robot.commands.arm;
 
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -13,7 +12,6 @@ public class MoveArmCommand extends Command {
     private final Arm arm;
     private double minAngle = -1e+9;
     private double maxAngle = 1e+9;
-    private double currentAngle = 0;
     private double targetAngle = 0;
     private final DoubleSupplier rotationSupplier;
 
@@ -32,19 +30,21 @@ public class MoveArmCommand extends Command {
 
     @Override
     public void initialize(){
-        arm.setControlMode(Arm.ControlMode.AUTOMATIC);
+        arm.setControlMode(Arm.ControlMode.MANUAL);
     }
 
     @Override
     public void execute(){
         //targetAngle = SmartDashboard.getNumber("Arm Target Angle", targetAngle);
-        targetAngle = MathUtil.clamp(Math.max(0, targetAngle + (rotationSupplier.getAsDouble() * -0.12)), minAngle, maxAngle);
+        targetAngle = Math.max(0, targetAngle + (rotationSupplier.getAsDouble() * -0.12));
+        Rotation2d armAngle = arm.getCurrentAngle();
         SmartDashboard.putNumber("Arm Target Angle", targetAngle); // to not overwrite value
         SmartDashboard.putNumber("Arm Current Angle", arm.getCurrentAngle().getDegrees());
         minAngle = SmartDashboard.getNumber("Arm Min Angle", minAngle);
         maxAngle = SmartDashboard.getNumber("Arm Max Angle", maxAngle);
         peakOutput = SmartDashboard.getNumber("Arm Peak Output", peakOutput);
-        arm.setTargetAngle(Rotation2d.fromDegrees(targetAngle));
+        arm.setManualPower(armAngle.getDegrees() < Rotation2d.fromDegrees(minAngle).getDegrees() || armAngle.getDegrees() > Rotation2d.fromDegrees(maxAngle).getDegrees() ? 0 : rotationSupplier.getAsDouble());
+        // arm.setTargetAngle(Rotation2d.fromDegrees(targetAngle));
     }
 
     public void reset() {
