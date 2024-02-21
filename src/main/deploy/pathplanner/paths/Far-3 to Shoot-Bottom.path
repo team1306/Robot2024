@@ -3,45 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.83,
-        "y": 7.3
+        "x": 7.866441839728484,
+        "y": 4.134293346837168
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.782926437370735,
-        "y": 7.603201591288568
+        "x": 6.866441839728484,
+        "y": 4.134293346837168
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "far-3"
     },
     {
       "anchor": {
-        "x": 8.366402897842747,
-        "y": 6.15336685076015
+        "x": 5.693534164078037,
+        "y": 1.4518099773394924
       },
       "prevControl": {
-        "x": 8.404851475262667,
-        "y": 6.268745800914877
-      },
-      "nextControl": {
-        "x": 8.327954320422826,
-        "y": 6.037987900605424
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 7.404939324546088,
-        "y": 6.57
-      },
-      "prevControl": {
-        "x": 7.164572115754734,
-        "y": 6.550787178955487
+        "x": 6.1935134075689975,
+        "y": 1.0191723844616263
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "shoot-bottom"
     }
   ],
   "rotationTargets": [],
@@ -58,7 +42,7 @@
     "rotation": 0,
     "rotateFast": false
   },
-  "reversed": false,
+  "reversed": true,
   "folder": null,
   "previewStartingState": {
     "rotation": 0,

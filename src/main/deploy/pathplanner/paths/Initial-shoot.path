@@ -12,20 +12,20 @@
         "y": 7.14367433125571
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "spawnpoint"
     },
     {
       "anchor": {
-        "x": 2.2,
-        "y": 6.99945479526121
+        "x": 2.511089736466097,
+        "y": 6.797547444868912
       },
       "prevControl": {
-        "x": 1.7865654066640313,
-        "y": 6.643719382508192
+        "x": 2.116889671414467,
+        "y": 6.576410823010682
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "intake-shot"
     }
   ],
   "rotationTargets": [],
