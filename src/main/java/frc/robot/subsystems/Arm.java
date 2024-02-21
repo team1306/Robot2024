@@ -23,7 +23,21 @@ import static frc.robot.Constants.*;
 public class Arm extends PIDSubsystem {
     public enum ControlMode {
         MANUAL,
-        AUTOMATIC
+        AUTOMATIC,
+        VISION
+    }
+
+    public enum Setpoint {
+        AMP(100),
+        INTAKE(0),
+        SHOOT_CLOSE(5),
+        STAGE_SHOT(10);
+
+        public final int pos;
+
+        private Setpoint(int pos) {
+            this.pos = pos;
+        }
     }
 
     private final CANSparkMax leftArmMotor;
@@ -38,7 +52,7 @@ public class Arm extends PIDSubsystem {
                                                  // need to read https://file.tavsys.net/control/controls-engineering-in-frc.pdf more so I know what I am doing
     public static double kS = 0, kG = 0, kA = 0, kV = 0; // PLACEHOLDER
 
-    public static final double INITIAL_POSITION = 0;
+    public static final double INITIAL_POSITION = 0, DELTA_AT_SETPOINT = 0.01;
 
     private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
     private double power;
@@ -79,7 +93,7 @@ public class Arm extends PIDSubsystem {
         SmartDashboard.putNumber("Arm kV", 0);
         SmartDashboard.putNumber("Arm kA", 0);
 
-        m_controller.setTolerance(0.01);
+        m_controller.setTolerance(DELTA_AT_SETPOINT);
 
     }
     
@@ -157,17 +171,22 @@ public class Arm extends PIDSubsystem {
         feedforward = new ArmFeedforward(kS, kG, kV, kA);
         velocities[calcVelocityIndex(velocityIndex)] = neoEncoder.getVelocity();
         switch (controlMode){
-            case AUTOMATIC:
+            case AUTOMATIC, VISION:
                 m_controller.setSetpoint(getTargetAngle().getDegrees());
                 super.periodic();
                 break;
             case MANUAL:
                 leftArmMotor.set(power);
                 rightArmMotor.set(power);
+                break;
         }
         SmartDashboard.putNumber("right arm power", rightArmMotor.get());
         SmartDashboard.putNumber("left arm power", leftArmMotor.get());
         ++velocityIndex;
         lastControlMode = controlMode;
+    }
+
+    public boolean atSetpoint() {
+        return m_controller.atSetpoint();
     }
 }
