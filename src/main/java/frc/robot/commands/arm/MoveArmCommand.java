@@ -48,6 +48,6 @@ public class MoveArmCommand extends Command {
     }
 
     public void reset() {
-        targetAngle = 0;
+        targetAngle = arm.getCurrentAngle().getDegrees();
     }
 }

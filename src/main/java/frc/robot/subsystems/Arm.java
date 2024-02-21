@@ -183,6 +183,7 @@ public class Arm extends PIDSubsystem {
         SmartDashboard.putNumber("right arm power", rightArmMotor.get());
         SmartDashboard.putNumber("left arm power", leftArmMotor.get());
         ++velocityIndex;
+        SmartDashboard.putNumber("arm current", rightArmMotor.getOutputCurrent() + leftArmMotor.getOutputCurrent());
         lastControlMode = controlMode;
     }
 
