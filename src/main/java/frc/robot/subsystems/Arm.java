@@ -30,7 +30,8 @@ public class Arm extends PIDSubsystem {
     public enum Setpoint {
         AMP(100),
         INTAKE(0),
-        SHOOT_CLOSE(5);
+        SHOOT_CLOSE(5),
+        STAGE_SHOT(10);
 
         public final int pos;
 
@@ -51,7 +52,7 @@ public class Arm extends PIDSubsystem {
                                                  // need to read https://file.tavsys.net/control/controls-engineering-in-frc.pdf more so I know what I am doing
     public static double kS = 0, kG = 0, kA = 0, kV = 0; // PLACEHOLDER
 
-    public static final double INITIAL_POSITION = 0;
+    public static final double INITIAL_POSITION = 0, DELTA_AT_SETPOINT = 0.01;
 
     private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
     private double power;
@@ -92,7 +93,7 @@ public class Arm extends PIDSubsystem {
         SmartDashboard.putNumber("Arm kV", 0);
         SmartDashboard.putNumber("Arm kA", 0);
 
-        m_controller.setTolerance(0.01);
+        m_controller.setTolerance(DELTA_AT_SETPOINT);
 
     }
     
@@ -183,5 +184,9 @@ public class Arm extends PIDSubsystem {
         SmartDashboard.putNumber("left arm power", leftArmMotor.get());
         ++velocityIndex;
         lastControlMode = controlMode;
+    }
+
+    public boolean atSetpoint() {
+        return m_controller.atSetpoint();
     }
 }
