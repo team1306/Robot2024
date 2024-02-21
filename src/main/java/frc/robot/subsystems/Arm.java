@@ -23,7 +23,20 @@ import static frc.robot.Constants.*;
 public class Arm extends PIDSubsystem {
     public enum ControlMode {
         MANUAL,
-        AUTOMATIC
+        AUTOMATIC,
+        VISION
+    }
+
+    public enum Setpoint {
+        AMP(100),
+        INTAKE(0),
+        SHOOT_CLOSE(5);
+
+        public final int pos;
+
+        private Setpoint(int pos) {
+            this.pos = pos;
+        }
     }
 
     private final CANSparkMax leftArmMotor;
@@ -157,13 +170,14 @@ public class Arm extends PIDSubsystem {
         feedforward = new ArmFeedforward(kS, kG, kV, kA);
         velocities[calcVelocityIndex(velocityIndex)] = neoEncoder.getVelocity();
         switch (controlMode){
-            case AUTOMATIC:
+            case AUTOMATIC, VISION:
                 m_controller.setSetpoint(getTargetAngle().getDegrees());
                 super.periodic();
                 break;
             case MANUAL:
                 leftArmMotor.set(power);
                 rightArmMotor.set(power);
+                break;
         }
         SmartDashboard.putNumber("right arm power", rightArmMotor.get());
         SmartDashboard.putNumber("left arm power", leftArmMotor.get());

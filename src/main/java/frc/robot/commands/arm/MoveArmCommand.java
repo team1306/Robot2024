@@ -2,6 +2,7 @@ package frc.robot.commands.arm;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -37,13 +38,12 @@ public class MoveArmCommand extends Command {
     @Override
     public void execute(){
         //targetAngle = SmartDashboard.getNumber("Arm Target Angle", targetAngle);
-        targetAngle = Math.max(0, targetAngle + (rotationSupplier.getAsDouble() * -0.12));
+        targetAngle = MathUtil.clamp(Math.max(0, targetAngle + (rotationSupplier.getAsDouble() * -0.12)), minAngle, maxAngle);
         SmartDashboard.putNumber("Arm Target Angle", targetAngle); // to not overwrite value
         SmartDashboard.putNumber("Arm Current Angle", arm.getCurrentAngle().getDegrees());
         minAngle = SmartDashboard.getNumber("Arm Min Angle", minAngle);
         maxAngle = SmartDashboard.getNumber("Arm Max Angle", maxAngle);
         peakOutput = SmartDashboard.getNumber("Arm Peak Output", peakOutput);
-        // arm.setManualPower(armAngle < minAngle || armAngle > maxAngle ? 0 : rotationSupplier.getAsDouble());
         arm.setTargetAngle(Rotation2d.fromDegrees(targetAngle));
     }
 
