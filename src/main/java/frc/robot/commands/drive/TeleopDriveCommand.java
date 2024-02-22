@@ -31,10 +31,10 @@ public class TeleopDriveCommand extends Command{
         
         final double forward = forwardSupplier.getAsDouble(), backward = backwardSupplier.getAsDouble();
         final boolean isForward = forward > backward;
-        double speed = MathUtil.applyDeadband(isForward ? forward : -backward, DEADBAND_VALUE);
-        double rotation = MathUtil.applyDeadband(rotationSupplier.getAsDouble() * (isForward ? 1 : -1), DEADBAND_VALUE);
-
-        driveTrain.arcadeDrive(speed, rotation);
+        driveTrain.arcadeDrive(
+            MathUtil.applyDeadband(isForward ? forward : -backward, DEADBAND_VALUE), 
+            MathUtil.applyDeadband(rotationSupplier.getAsDouble() * (isForward ? 1 : -1), DEADBAND_VALUE)
+        );
     }
 
     @Override

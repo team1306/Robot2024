@@ -7,11 +7,16 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.PIDSubsystem;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDSubsystem;
 import frc.robot.commands.arm.MoveArmCommand;
 import frc.robot.util.MotorUtil;
 
@@ -20,7 +25,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
 
 import static frc.robot.Constants.*;
 
-public class Arm extends PIDSubsystem {
+public class Arm extends ProfiledPIDSubsystem  {
     public enum ControlMode {
         MANUAL,
         AUTOMATIC,
@@ -63,7 +68,7 @@ public class Arm extends PIDSubsystem {
     private ControlMode controlMode, lastControlMode;
 
     public Arm(ControlMode controlMode) {
-        super(new PIDController(kP, kI, kD), INITIAL_POSITION);
+        super(new ProfiledPIDController(kP, kI, kD, new TrapezoidProfile.Constraints(360, 720)), INITIAL_POSITION);
         
         leftArmMotor = MotorUtil.initSparkMax(ARM_LEFT_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
         rightArmMotor = MotorUtil.initSparkMax(ARM_RIGHT_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
@@ -131,9 +136,11 @@ public class Arm extends PIDSubsystem {
     }
 
     @Override
-    protected void useOutput(double output, double setpoint) {
+    protected void useOutput(double output, State state) {
         if (Double.isNaN(output) || Double.isInfinite(output)) output = 0;
-        output += feedforward.calculate(getTargetAngle().getRadians(), neoEncoder.getVelocity(), calculateAcceleration());
+        final double feedforwardVal = feedforward.calculate(state.position, state.velocity);
+        output += feedforwardVal;
+        SmartDashboard.putNumber("feedForward", feedforwardVal);
         leftArmMotor.set(MathUtil.clamp(output, -MoveArmCommand.peakOutput, MoveArmCommand.peakOutput));
         rightArmMotor.set(MathUtil.clamp(output, -MoveArmCommand.peakOutput, MoveArmCommand.peakOutput)); 
     }
@@ -172,7 +179,7 @@ public class Arm extends PIDSubsystem {
         velocities[calcVelocityIndex(velocityIndex)] = neoEncoder.getVelocity();
         switch (controlMode){
             case AUTOMATIC, VISION:
-                m_controller.setSetpoint(getTargetAngle().getDegrees());
+                m_controller.setGoal(getTargetAngle().getDegrees());
                 super.periodic();
                 break;
             case MANUAL:
@@ -188,6 +195,6 @@ public class Arm extends PIDSubsystem {
     }
 
     public boolean atSetpoint() {
-        return m_controller.atSetpoint();
+        return m_controller.atGoal();
     }
 }

@@ -30,7 +30,7 @@ public class MoveArmCommand extends Command {
 
     @Override
     public void initialize(){
-        arm.setControlMode(Arm.ControlMode.MANUAL);
+        arm.setControlMode(Arm.ControlMode.AUTOMATIC);
     }
 
     @Override
@@ -43,8 +43,8 @@ public class MoveArmCommand extends Command {
         minAngle = SmartDashboard.getNumber("Arm Min Angle", minAngle);
         maxAngle = SmartDashboard.getNumber("Arm Max Angle", maxAngle);
         peakOutput = SmartDashboard.getNumber("Arm Peak Output", peakOutput);
-        arm.setManualPower(armAngle.getDegrees() < Rotation2d.fromDegrees(minAngle).getDegrees() || armAngle.getDegrees() > Rotation2d.fromDegrees(maxAngle).getDegrees() ? 0 : rotationSupplier.getAsDouble());
-        // arm.setTargetAngle(Rotation2d.fromDegrees(targetAngle));
+        //arm.setManualPower(armAngle.getDegrees() < Rotation2d.fromDegrees(minAngle).getDegrees() || armAngle.getDegrees() > Rotation2d.fromDegrees(maxAngle).getDegrees() ? 0 : rotationSupplier.getAsDouble());
+        arm.setTargetAngle(Rotation2d.fromDegrees(targetAngle));
     }
 
     public void reset() {
