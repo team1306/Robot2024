@@ -5,6 +5,7 @@ import static frc.robot.Constants.BACK_RIGHT_DRIVE_MOTOR_ID;
 import static frc.robot.Constants.FRONT_LEFT_DRIVE_MOTOR_ID;
 import static frc.robot.Constants.FRONT_RIGHT_DRIVE_MOTOR_ID;
 import static frc.robot.Constants.INCLUDE_AUTO;
+import static frc.robot.Constants.INCLUDE_LIMELIGHT;
 import static frc.robot.Constants.LIMELIGHT_NAME;
 import static frc.robot.Constants.LOOP_TIME_SECONDS;
 
@@ -169,7 +170,7 @@ public class DriveTrain extends SubsystemBase{
     @Override
     public void periodic() {
         poseEstimator.update(gyro.getRotation2d(), new DifferentialDriveWheelPositions(lEncoder.getPosition(), rEncoder.getPosition()));
-        poseEstimator.addVisionMeasurement(LimelightHelpers.getBotPose2d(LIMELIGHT_NAME), Timer.getFPGATimestamp());
+        if (INCLUDE_LIMELIGHT) poseEstimator.addVisionMeasurement(LimelightHelpers.getBotPose2d(LIMELIGHT_NAME), Timer.getFPGATimestamp());
         MAX_SPEED = SmartDashboard.getNumber("Max Speed", 1);
         SmartDashboard.putNumber("Left Encoder Output", lEncoder.getVelocity());
         SmartDashboard.putNumber("Right Encoder Output", rEncoder.getVelocity());
