@@ -35,8 +35,8 @@ public class MoveArmCommand extends Command {
 
     @Override
     public void execute(){
-        //targetAngle = SmartDashboard.getNumber("Arm Target Angle", targetAngle);
-        targetAngle = Math.max(0, targetAngle + (rotationSupplier.getAsDouble() * -0.12));
+        targetAngle = SmartDashboard.getNumber("Arm Target Angle", targetAngle);
+        //targetAngle = Math.max(0, targetAngle + (rotationSupplier.getAsDouble() * -0.42));
         Rotation2d armAngle = arm.getCurrentAngle();
         SmartDashboard.putNumber("Arm Target Angle", targetAngle); // to not overwrite value
         SmartDashboard.putNumber("Arm Current Angle", arm.getCurrentAngle().getDegrees());

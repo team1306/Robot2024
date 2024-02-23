@@ -31,7 +31,7 @@ public class IntakeDriverCommand extends Command {
         switch (state) {
             case POWERED_NO_ELEMENT:
                 if (!intake.notePresent()) {
-                    intake.setTargetRPM(.6 * Intake.MAX_RPM);
+                    intake.setTargetRPM(Intake.MAX_RPM);
                     break;
                 }
                 state = State.UNPOWERED_WITH_ELEMENT;
@@ -43,7 +43,7 @@ public class IntakeDriverCommand extends Command {
                 if (timer.get() > 2) {
                     buttonPress();
                 } else {
-                    intake.setTargetRPM(.6 * Intake.MAX_RPM);
+                    intake.setTargetRPM(Intake.MAX_RPM);
                 }
                 break;
         }
@@ -52,19 +52,13 @@ public class IntakeDriverCommand extends Command {
     public void buttonPress() {
         state = switch (state) {
             case UNPOWERED_NO_ELEMENT -> State.POWERED_NO_ELEMENT;
+            case POWERED_NO_ELEMENT -> State.UNPOWERED_NO_ELEMENT;
             case UNPOWERED_WITH_ELEMENT -> {
-                timer.reset();
+                timer.restart();
                 yield State.INDEXING;
             }
             // THIS COULD BE QUITE BUGGY, MAKE SURE TO TEST
-            case INDEXING -> {
-                if (intake.notePresent()) {
-                    yield State.UNPOWERED_WITH_ELEMENT;
-                } else {
-                    yield State.UNPOWERED_NO_ELEMENT;
-                }
-            }
-            case POWERED_NO_ELEMENT -> State.UNPOWERED_NO_ELEMENT;
+            case INDEXING -> intake.notePresent() ? State.UNPOWERED_WITH_ELEMENT : State.UNPOWERED_NO_ELEMENT;
         };
     }
 
