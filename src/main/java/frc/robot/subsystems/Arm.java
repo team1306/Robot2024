@@ -57,7 +57,7 @@ public class Arm extends SubsystemBase  {
     public static double kS = 0, kG = 0.0725, kA = 0, kV = .17;
     private static double kMaxVelocity = 360, kMaxAcceleration = 280; // kMA MIGHT BE WRONG
 
-    public static final double INITIAL_POSITION = 0, DELTA_AT_SETPOINT = 0.01;
+    public static final double INITIAL_POSITION = 0, DELTA_AT_SETPOINT = 0.5;
 
     private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
     private double power;
@@ -88,14 +88,15 @@ public class Arm extends SubsystemBase  {
         this.controlMode = controlMode;
         this.lastControlMode = controlMode;
 
-        SmartDashboard.putNumber("Arm kP", .05);
-        SmartDashboard.putNumber("Arm kI", 0);
-        SmartDashboard.putNumber("Arm kD", 0);
+        SmartDashboard.putNumber("Arm kP", kP);
+        SmartDashboard.putNumber("Arm kI", kI);
+        SmartDashboard.putNumber("Arm kD", kD);
 
-        SmartDashboard.putNumber("Arm kS", 0);
-        SmartDashboard.putNumber("Arm kG", 0);
-        SmartDashboard.putNumber("Arm kV", 0);
-        SmartDashboard.putNumber("Arm kA", 0);
+        SmartDashboard.putNumber("Arm kS", kS);
+        SmartDashboard.putNumber("Arm kG", kG);
+        SmartDashboard.putNumber("Arm kV", kV);
+        SmartDashboard.putNumber("Arm kA", kA);
+        SmartDashboard.putNumber("Arm kMaxAcceleration", kMaxAcceleration);
 
         profiledPIDController.setTolerance(DELTA_AT_SETPOINT);
     }
@@ -149,14 +150,16 @@ public class Arm extends SubsystemBase  {
 
     @Override
     public void periodic() {
-        kP = SmartDashboard.getNumber("Arm kP", 1);
+        kP = SmartDashboard.getNumber("Arm kP", 0);
         kI = SmartDashboard.getNumber("Arm kI", 0);
         kD = SmartDashboard.getNumber("Arm kD",0);
 
-        kS = SmartDashboard.getNumber("Arm kS", 1);
-        kG = SmartDashboard.getNumber("Arm kG", 1);
-        kV = SmartDashboard.getNumber("Arm kV", 1);
-        kA = SmartDashboard.getNumber("Arm kA", 1);
+        kS = SmartDashboard.getNumber("Arm kS", 0);
+        kG = SmartDashboard.getNumber("Arm kG", 0);
+        kV = SmartDashboard.getNumber("Arm kV", 0);
+        kA = SmartDashboard.getNumber("Arm kA", 0);
+        
+        kMaxAcceleration = SmartDashboard.getNumber("Arm kMaxAcceleration", 0);
 
         if (lastControlMode != controlMode && controlMode == ControlMode.MANUAL) {
             setManualPower(0);
@@ -175,6 +178,7 @@ public class Arm extends SubsystemBase  {
                 SmartDashboard.putNumber("feedForward", feedforwardOutput);
                 pidOutput += feedforwardOutput;
                 SmartDashboard.putNumber("total arm output", pidOutput);
+                SmartDashboard.putNumber("arm acceleration", calculateAcceleration());
 
                 leftArmMotor.set(MathUtil.clamp(pidOutput, -MoveArmCommand.peakOutput, MoveArmCommand.peakOutput));
                 rightArmMotor.set(MathUtil.clamp(pidOutput, -MoveArmCommand.peakOutput, MoveArmCommand.peakOutput)); 
