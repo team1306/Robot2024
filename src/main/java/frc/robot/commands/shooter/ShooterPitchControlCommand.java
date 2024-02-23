@@ -1,5 +1,6 @@
 package frc.robot.commands.shooter;
 
+import static frc.robot.Constants.INCLUDE_LIMELIGHT;
 import static frc.robot.Constants.LIMELIGHT_NAME;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -31,7 +32,7 @@ public class ShooterPitchControlCommand extends Command{
 
     @Override
     public void initialize(){
-        Pose2d botPose = LimelightHelpers.getBotPose2d(LIMELIGHT_NAME);
+        Pose2d botPose = INCLUDE_LIMELIGHT ? LimelightHelpers.getBotPose2d(LIMELIGHT_NAME) : new Pose2d();
         speakerDistance = botPose.getTranslation().getDistance(Utilities.getSpeaker());
         speakerDistance += SHOOTER_X_OFFSET;        
         
