@@ -17,6 +17,8 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   private UsbCamera front, back;
   private RobotContainer m_robotContainer;
+  private final SysIdTest m_robot = new SysIdTest();
+
 
   @Override
   public void robotInit() {
@@ -30,7 +32,10 @@ public class Robot extends TimedRobot {
     back.setFPS(8);
     back.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
     CameraServer.startAutomaticCapture(back);
-    m_robotContainer = new RobotContainer();
+    // m_robotContainer = new RobotContainer();
+
+    //See sysidtest
+    m_robot.configureBindings();
   }
 
   @Override
@@ -69,7 +74,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    m_robotContainer.moveArmCommand.reset();
+    // m_robotContainer.moveArmCommand.reset();
   }
 
   @Override
