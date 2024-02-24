@@ -40,7 +40,7 @@ public class RobotContainer {
   private TeleopDriveCommand teleopDriveCommand;
   private IntakeDriverCommand intakeDriverCommand;
   
-  private final BooleanSupplier cancelSetpoint = () -> controller2.getRightY() > 0 || controller2.getRightY() < 0 || controller2.a().getAsBoolean();
+  private final BooleanSupplier cancelSetpoint = () -> controller2.getRightY() > 0 || controller2.getRightY() < 0 || controller2.b().getAsBoolean(); // b acts as cancel button
   
   public RobotContainer() {
     driveTrain = new DriveTrain();

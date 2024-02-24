@@ -30,9 +30,9 @@ public class Arm extends SubsystemBase  {
     }
 
     public enum Setpoint {
-        AMP(100),
+        AMP(95),
         INTAKE(0),
-        SHOOT_CLOSE(5),
+        SHOOT_CLOSE(7),
         STAGE_SHOT(10);
 
         public final int pos;
@@ -47,20 +47,20 @@ public class Arm extends SubsystemBase  {
     private final Encoder relativeThroughBore;
     private final DutyCycleEncoder absoluteThroughBoreEncoder;
 
-    private final TrapezoidProfile.Constraints m_constraints = new TrapezoidProfile.Constraints(kMaxVelocity, kMaxAcceleration);
+    private TrapezoidProfile.Constraints m_constraints = new TrapezoidProfile.Constraints(kMaxVelocity, kMaxAcceleration);
 
     private final ProfiledPIDController profiledPIDController;
     private ArmFeedforward feedforward;
 
-    public static double kP = 0.05, kI = 0, kD = 0; // Do we want PID Controller? Or do we want to do state space model?
+    public static double kP = 0.02, kI = 0.0005, kD = 0.0018; // Do we want PID Controller? Or do we want to do state space model?
                                                  // need to read https://file.tavsys.net/control/controls-engineering-in-frc.pdf more so I know what I am doing
-    public static double kS = 0, kG = 0.0725, kA = 0, kV = .17;
+    public static double kG = 0.0725, kV = .17;
     private static double kMaxVelocity = 360, kMaxAcceleration = 280; // kMA MIGHT BE WRONG
 
     public static final double INITIAL_POSITION = 0, DELTA_AT_SETPOINT = 0.5;
 
     private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
-    private double power;
+    private double manualPower;
 
     private long velocityIndex = 0;
     private double[] velocities = new double[2];
@@ -80,9 +80,7 @@ public class Arm extends SubsystemBase  {
         relativeThroughBore.reset();
         relativeThroughBore.setDistancePerPulse(360/2048); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
 
-    
-
-        feedforward = new ArmFeedforward(kS, kG, kV, kA);
+        feedforward = new ArmFeedforward(0, kG, kV, 0);
         profiledPIDController = new ProfiledPIDController(kP, kI, kD, m_constraints, LOOP_TIME_SECONDS);
 
         this.controlMode = controlMode;
@@ -92,10 +90,8 @@ public class Arm extends SubsystemBase  {
         SmartDashboard.putNumber("Arm kI", kI);
         SmartDashboard.putNumber("Arm kD", kD);
 
-        SmartDashboard.putNumber("Arm kS", kS);
         SmartDashboard.putNumber("Arm kG", kG);
         SmartDashboard.putNumber("Arm kV", kV);
-        SmartDashboard.putNumber("Arm kA", kA);
         SmartDashboard.putNumber("Arm kMaxAcceleration", kMaxAcceleration);
 
         profiledPIDController.setTolerance(DELTA_AT_SETPOINT);
@@ -110,7 +106,7 @@ public class Arm extends SubsystemBase  {
     }
 
     public Arm() {
-        this(ControlMode.MANUAL);
+        this(ControlMode.AUTOMATIC);
     }
         
     public Rotation2d getCurrentAngle() {
@@ -145,7 +141,7 @@ public class Arm extends SubsystemBase  {
     }
 
     public void setManualPower(double power) {
-        this.power = power;
+        this.manualPower = power;
     }
 
     @Override
@@ -154,21 +150,18 @@ public class Arm extends SubsystemBase  {
         kI = SmartDashboard.getNumber("Arm kI", 0);
         kD = SmartDashboard.getNumber("Arm kD",0);
 
-        kS = SmartDashboard.getNumber("Arm kS", 0);
         kG = SmartDashboard.getNumber("Arm kG", 0);
         kV = SmartDashboard.getNumber("Arm kV", 0);
-        kA = SmartDashboard.getNumber("Arm kA", 0);
-        
-        kMaxAcceleration = SmartDashboard.getNumber("Arm kMaxAcceleration", 0);
 
-        if (lastControlMode != controlMode && controlMode == ControlMode.MANUAL) {
-            setManualPower(0);
-        }
+        kMaxAcceleration = SmartDashboard.getNumber("Arm kMaxAcceleration", 0);
+        m_constraints = new TrapezoidProfile.Constraints(m_constraints.maxVelocity, kMaxAcceleration);
+        profiledPIDController.setConstraints(m_constraints);
         profiledPIDController.setPID(kP, kI, kD);
-        feedforward = new ArmFeedforward(kS, kG, kV, kA);
+        feedforward = new ArmFeedforward(0, kG, kV, 0);
+
         velocities[calcVelocityIndex(velocityIndex)] = relativeThroughBore.getRate();
-        switch (controlMode){
-            case AUTOMATIC, VISION:
+        final double motorPower = MathUtil.clamp(switch (controlMode) {
+            case AUTOMATIC, VISION -> {
                 double pidOutput = profiledPIDController.calculate(getCurrentAngle().getDegrees(), getTargetAngle().getDegrees());
                 if (Double.isNaN(pidOutput) || Double.isInfinite(pidOutput)) pidOutput = 0;
                 SmartDashboard.putNumber("pid output", pidOutput);
@@ -179,21 +172,25 @@ public class Arm extends SubsystemBase  {
                 pidOutput += feedforwardOutput;
                 SmartDashboard.putNumber("total arm output", pidOutput);
                 SmartDashboard.putNumber("arm acceleration", calculateAcceleration());
+                yield pidOutput;
+            }
+            case MANUAL -> {
+                if (lastControlMode != ControlMode.MANUAL) {
+                    setManualPower(0);
+                    yield 0;
+                }
+                yield manualPower;
+            }
+        }, -MoveArmCommand.peakOutput, MoveArmCommand.peakOutput);
 
-                leftArmMotor.set(MathUtil.clamp(pidOutput, -MoveArmCommand.peakOutput, MoveArmCommand.peakOutput));
-                rightArmMotor.set(MathUtil.clamp(pidOutput, -MoveArmCommand.peakOutput, MoveArmCommand.peakOutput)); 
-                break;
+        leftArmMotor.set(motorPower);
+        rightArmMotor.set(motorPower);
 
-            case MANUAL:
-                leftArmMotor.set(power);
-                rightArmMotor.set(power);
-                break;
-        }
         SmartDashboard.putNumber("right arm power", rightArmMotor.get());
         SmartDashboard.putNumber("left arm power", leftArmMotor.get());
-        ++velocityIndex;
         SmartDashboard.putNumber("arm current", rightArmMotor.getOutputCurrent() + leftArmMotor.getOutputCurrent());
         lastControlMode = controlMode;
+        ++velocityIndex;
     }
 
     public boolean atSetpoint() {
