@@ -20,7 +20,7 @@ public class DebugArmCommand extends Command {
         SmartDashboard.putNumber("current angle", 0);
         SmartDashboard.putNumber("Arm Max Angle", 90);
         SmartDashboard.putNumber("Arm Current Angle", arm.getCurrentAngle().getDegrees());
-        SmartDashboard.putNumber("Arm Peak Output", 0.3);
+        SmartDashboard.putNumber("Arm Peak Output", 1);
         SmartDashboard.putNumber("Arm Target Angle", 0);
     }
 

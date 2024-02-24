@@ -24,8 +24,7 @@ public class MoveArmCommand extends Command {
         SmartDashboard.putNumber("Arm Min Angle", 0.00);
         SmartDashboard.putNumber("current angle", 0);
         SmartDashboard.putNumber("Arm Max Angle", 90);
-        SmartDashboard.putNumber("Arm Current Angle", arm.getCurrentAngle().getDegrees());
-        SmartDashboard.putNumber("Arm Peak Output", 0.3);
+        SmartDashboard.putNumber("Arm Peak Output", 1);
         SmartDashboard.putNumber("Arm Target Angle", 0);
         SmartDashboard.putNumber("Arm Speed", speed);
     }
@@ -39,7 +38,6 @@ public class MoveArmCommand extends Command {
     public void execute(){
         speed = SmartDashboard.getNumber("Arm Speed", speed);
         targetAngle = Math.max(0, targetAngle + (rotationSupplier.getAsDouble() * -1 * speed));
-        SmartDashboard.putNumber("Arm Current Angle", arm.getCurrentAngle().getDegrees());
         minAngle = SmartDashboard.getNumber("Arm Min Angle", minAngle);
         maxAngle = SmartDashboard.getNumber("Arm Max Angle", maxAngle);
         peakOutput = SmartDashboard.getNumber("Arm Peak Output", peakOutput);

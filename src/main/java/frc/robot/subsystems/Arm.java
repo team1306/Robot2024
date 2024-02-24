@@ -32,8 +32,8 @@ public class Arm extends SubsystemBase  {
     public enum Setpoint {
         AMP(95),
         INTAKE(0),
-        SHOOT_CLOSE(7),
-        STAGE_SHOT(10);
+        SHOOT_CLOSE(16),
+        STAGE_SHOT(25);
 
         public final int pos;
 
@@ -57,8 +57,8 @@ public class Arm extends SubsystemBase  {
     public static double kG = 0.0725, kV = .17;
     private static double kMaxVelocity = 360, kMaxAcceleration = 280; // kMA MIGHT BE WRONG
 
-    public static final double INITIAL_POSITION = 0, DELTA_AT_SETPOINT = 0.5;
-
+    public static final double OFFSET = -219.15, DELTA_AT_SETPOINT = 0.5;
+    
     private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
     private double manualPower;
 
@@ -75,7 +75,6 @@ public class Arm extends SubsystemBase  {
         rightArmMotor.setInverted(true);
         
         absoluteThroughBoreEncoder = new DutyCycleEncoder(0);
-        absoluteThroughBoreEncoder.reset();
         relativeThroughBore = new Encoder(2, 3, true, EncodingType.k1X);
         relativeThroughBore.reset();
         relativeThroughBore.setDistancePerPulse(360/2048); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
@@ -110,7 +109,7 @@ public class Arm extends SubsystemBase  {
     }
         
     public Rotation2d getCurrentAngle() {
-        return Rotation2d.fromRotations(absoluteThroughBoreEncoder.get() * -1);
+        return Rotation2d.fromRotations((absoluteThroughBoreEncoder.get() * -1)).minus(Rotation2d.fromDegrees(OFFSET));
     }
 
     public Rotation2d getTargetAngle() {
@@ -160,7 +159,7 @@ public class Arm extends SubsystemBase  {
         feedforward = new ArmFeedforward(0, kG, kV, 0);
 
         velocities[calcVelocityIndex(velocityIndex)] = relativeThroughBore.getRate();
-        final double motorPower = MathUtil.clamp(switch (controlMode) {
+        final double motorPower = MathUtil.applyDeadband(MathUtil.clamp(switch (controlMode) {
             case AUTOMATIC, VISION -> {
                 double pidOutput = profiledPIDController.calculate(getCurrentAngle().getDegrees(), getTargetAngle().getDegrees());
                 if (Double.isNaN(pidOutput) || Double.isInfinite(pidOutput)) pidOutput = 0;
@@ -181,7 +180,7 @@ public class Arm extends SubsystemBase  {
                 }
                 yield manualPower;
             }
-        }, -MoveArmCommand.peakOutput, MoveArmCommand.peakOutput);
+        }, -MoveArmCommand.peakOutput, MoveArmCommand.peakOutput), .005);
 
         leftArmMotor.set(motorPower);
         rightArmMotor.set(motorPower);
@@ -189,6 +188,7 @@ public class Arm extends SubsystemBase  {
         SmartDashboard.putNumber("right arm power", rightArmMotor.get());
         SmartDashboard.putNumber("left arm power", leftArmMotor.get());
         SmartDashboard.putNumber("arm current", rightArmMotor.getOutputCurrent() + leftArmMotor.getOutputCurrent());
+        SmartDashboard.putNumber("Arm Current Angle", getCurrentAngle().getDegrees());
         lastControlMode = controlMode;
         ++velocityIndex;
     }
