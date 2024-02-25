@@ -8,7 +8,7 @@ public class IntakeDriverCommand extends Command {
     public enum State {
         UNPOWERED_NO_ELEMENT,
         POWERED_NO_ELEMENT,
-        BACKUP,
+        REVERSING,
         UNPOWERED_WITH_ELEMENT,
         INDEXING
     }
@@ -35,11 +35,11 @@ public class IntakeDriverCommand extends Command {
                     intake.setTargetRPM(.6 * Intake.MAX_RPM);
                     break;
                 }
-                state = State.BACKUP;
+                state = State.REVERSING;
                 intake.setTargetRPM(-Intake.MAX_RPM / 8);
                 timer.restart();
-            case BACKUP:
-                if (timer.get() > 0.4) {
+            case REVERSING:
+                if (timer.get() > 0.36) {
                     intake.setTargetRPM(0);
                     state = State.UNPOWERED_WITH_ELEMENT;
                 }
@@ -68,7 +68,7 @@ public class IntakeDriverCommand extends Command {
             }
             // THIS COULD BE QUITE BUGGY, MAKE SURE TO TEST
             case INDEXING -> intake.notePresent() ? State.UNPOWERED_WITH_ELEMENT : State.UNPOWERED_NO_ELEMENT;
-            case BACKUP -> State.BACKUP; // loop
+            case REVERSING -> State.REVERSING; // loop
         };
     }
 
