@@ -27,7 +27,7 @@ public class MoveArmToSetpointCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return arm.atSetpoint() || interruptionFlag.getAsBoolean();
+        return interruptionFlag.getAsBoolean();
     }
 
     @Override

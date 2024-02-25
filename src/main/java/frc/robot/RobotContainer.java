@@ -40,7 +40,7 @@ public class RobotContainer {
   private TeleopDriveCommand teleopDriveCommand;
   private IntakeDriverCommand intakeDriverCommand;
   
-  private final BooleanSupplier cancelSetpoint = () -> controller2.getRightY() > 0 || controller2.getRightY() < 0 || controller2.a().getAsBoolean();
+  private final BooleanSupplier cancelSetpoint = () -> controller2.getRightY() > 0 || controller2.getRightY() < 0 || controller2.b().getAsBoolean(); // b acts as cancel button
   
   public RobotContainer() {
     driveTrain = new DriveTrain();
@@ -52,7 +52,7 @@ public class RobotContainer {
     shooterDriveCommand = new ShooterDriveCommand(driveTrain, shooter, indexNoteCommand);
     shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shooterDriveCommand);
     intakeDriverCommand = new IntakeDriverCommand(intake);
-    teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> controller1.getRightTriggerAxis(), () -> controller1.getLeftTriggerAxis(), () -> -controller1.getLeftX());
+    teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> controller1.getLeftTriggerAxis(), () -> controller1.getRightTriggerAxis(), () -> -controller1.getLeftX());
     // Example Pathplanner named command registration 
     // NamedCommands.registerCommand("ShootCommand", shooterPitchControlCommand);
 
