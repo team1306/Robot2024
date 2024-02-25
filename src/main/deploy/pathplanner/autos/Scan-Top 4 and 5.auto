@@ -5,36 +5,12 @@
       "x": 5.71276343554397,
       "y": 6.278357115288718
     },
-    "rotation": 20.2825590889165
+    "rotation": 9.246112745563149
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Shoot-Top to Far-1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Far-1 to Shoot-Top"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Shoot-Top to Far-2"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Far-2 to Shoot-Top"
-          }
-        },
         {
           "type": "path",
           "data": {
@@ -44,19 +20,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Scan-Top to Far-3"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Far-3 to Shoot-Bottom"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Shoot-Bottom to Far-4"
+            "pathName": "Scan-Top to Far-4"
           }
         },
         {
