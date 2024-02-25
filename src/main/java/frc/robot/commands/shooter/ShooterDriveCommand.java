@@ -1,5 +1,6 @@
-package frc.robot.commands.drive;
+package frc.robot.commands.shooter;
 
+import static frc.robot.Constants.INCLUDE_LIMELIGHT;
 import static frc.robot.Constants.LIMELIGHT_NAME;
 
 import edu.wpi.first.math.MathUtil;
@@ -10,7 +11,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.shooter.NoteIndexingCommand;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Shooter;
 import frc.robot.util.LimelightHelpers;
@@ -49,7 +49,7 @@ public class ShooterDriveCommand extends Command{
         deadbandValue = SmartDashboard.getNumber("Shooter Auto Deadband", 1);
 
         rotationController.setPID(kP, kI, kD);
-        Pose2d botPose = LimelightHelpers.getBotPose2d(LIMELIGHT_NAME);
+        Pose2d botPose = INCLUDE_LIMELIGHT ? LimelightHelpers.getBotPose2d(LIMELIGHT_NAME) : new Pose2d();
         Translation2d targetPos = Utilities.getSpeaker().minus(botPose.getTranslation());
         Rotation2d angle = Rotation2d.fromRadians(Math.atan2(targetPos.getY(), targetPos.getX()));
         Rotation2d robotAngle = botPose.getRotation();

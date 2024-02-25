@@ -13,8 +13,8 @@ public class TeleopDriveCommand extends Command{
     private final DoubleSupplier backwardSupplier;
     private final DoubleSupplier rotationSupplier;
  
-    private double DEADBAND_VALUE = 0.05;
-
+    private double DEADBAND_VALUE = 0.01;
+    private boolean lastIsForward = true;
     public TeleopDriveCommand(DriveTrain driveTrain, DoubleSupplier forwardSupplier, DoubleSupplier backwardSupplier, DoubleSupplier rotationSupplier){
         this.driveTrain = driveTrain;
         this.forwardSupplier = forwardSupplier;
@@ -29,15 +29,15 @@ public class TeleopDriveCommand extends Command{
     public void execute() {
         DEADBAND_VALUE = SmartDashboard.getNumber("Teleop Drive Deadband", 0.00);
         
-        final double forward = forwardSupplier.getAsDouble();
-        final double backward = backwardSupplier.getAsDouble();
-
-        double speed = MathUtil.applyDeadband(forward > backward ? forward : -backward, DEADBAND_VALUE);
-        double rotation = MathUtil.applyDeadband(rotationSupplier.getAsDouble(), DEADBAND_VALUE);
-
-        driveTrain.arcadeDrive(speed, rotation);
+        final double forward = forwardSupplier.getAsDouble(), backward = backwardSupplier.getAsDouble(), rotation = rotationSupplier.getAsDouble();
+        final boolean isForward = forward > backward;
+        final double driveValue = MathUtil.applyDeadband(isForward ? forward : -backward, DEADBAND_VALUE);
+        driveTrain.arcadeDrive(
+            driveValue, 
+            MathUtil.applyDeadband(rotation * (((Math.abs(driveValue) > 1e-5) ? isForward : lastIsForward) ? 1 : -1), DEADBAND_VALUE)
+        );
+        lastIsForward = isForward;
     }
-
     @Override
     public boolean isFinished(){
         return false;

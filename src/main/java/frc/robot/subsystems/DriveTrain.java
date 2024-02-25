@@ -5,6 +5,7 @@ import static frc.robot.Constants.BACK_RIGHT_DRIVE_MOTOR_ID;
 import static frc.robot.Constants.FRONT_LEFT_DRIVE_MOTOR_ID;
 import static frc.robot.Constants.FRONT_RIGHT_DRIVE_MOTOR_ID;
 import static frc.robot.Constants.INCLUDE_AUTO;
+import static frc.robot.Constants.INCLUDE_LIMELIGHT;
 import static frc.robot.Constants.LIMELIGHT_NAME;
 import static frc.robot.Constants.LOOP_TIME_SECONDS;
 
@@ -23,10 +24,16 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import edu.wpi.first.wpilibj.SPI;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.MotorUtil;
@@ -169,7 +176,7 @@ public class DriveTrain extends SubsystemBase{
     @Override
     public void periodic() {
         poseEstimator.update(gyro.getRotation2d(), new DifferentialDriveWheelPositions(lEncoder.getPosition(), rEncoder.getPosition()));
-        poseEstimator.addVisionMeasurement(LimelightHelpers.getBotPose2d(LIMELIGHT_NAME), Timer.getFPGATimestamp());
+        if (INCLUDE_LIMELIGHT) poseEstimator.addVisionMeasurement(LimelightHelpers.getBotPose2d(LIMELIGHT_NAME), Timer.getFPGATimestamp());
         MAX_SPEED = SmartDashboard.getNumber("Max Speed", 1);
         SmartDashboard.putNumber("Left Encoder Output", lEncoder.getVelocity());
         SmartDashboard.putNumber("Right Encoder Output", rEncoder.getVelocity());
@@ -188,4 +195,30 @@ public class DriveTrain extends SubsystemBase{
             }
         };
     }
+
+    private final SysIdRoutine m_sysIdRoutine = new SysIdRoutine(new Config(),new Mechanism(
+        (Measure<Voltage> volts) -> {
+        leftLeader.setVoltage(volts.in(Units.Volts)); rightLeader.setVoltage(volts.in(Units.Volts));}, 
+        log -> {
+            //Log position, distance, velocity for both motors
+            // log.motor("left").linearPosition();
+        }, this));
+
+    /**
+   * Returns a command that will execute a quasistatic test in the given direction.
+   *
+   * @param direction The direction (forward or reverse) to run the test in
+   */
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutine.quasistatic(direction);
+  }
+
+  /**
+   * Returns a command that will execute a dynamic test in the given direction.
+   *
+   * @param direction The direction (forward or reverse) to run the test in
+   */
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutine.dynamic(direction);
+  }
 }
