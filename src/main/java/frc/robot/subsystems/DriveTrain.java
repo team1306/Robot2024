@@ -24,8 +24,11 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -34,10 +37,19 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
+import frc.robot.RobotContainer;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Utilities;
+
+import static edu.wpi.first.units.MutableMeasure.mutable;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
 
 
 //Implemented as Ramsete (Differential)
@@ -196,14 +208,32 @@ public class DriveTrain extends SubsystemBase{
         };
     }
 
-    private final SysIdRoutine m_sysIdRoutine = new SysIdRoutine(new Config(),new Mechanism(
+// Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
+    private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
+    // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
+    private final MutableMeasure<Distance> m_distance = mutable(Meters.of(0));
+    // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
+    private final MutableMeasure<Velocity<Distance>> m_velocity = mutable(MetersPerSecond.of(0));
+    
+    private static final double wheelCircumfrence = 4 * 2 * Math.PI;
+    private final SysIdRoutine m_sysIdRoutine = new SysIdRoutine(new Config(),
+    new Mechanism(
         (Measure<Voltage> volts) -> {
         leftLeader.setVoltage(volts.in(Units.Volts)); rightLeader.setVoltage(volts.in(Units.Volts));}, 
         log -> {
-            //Log position, distance, velocity for both motors
-            // log.motor("left").linearPosition();
+            log.motor("left")
+            .voltage(m_appliedVoltage.mut_replace(leftLeader.getBusVoltage() * RobotController.getBatteryVoltage(), Volts))
+            .linearPosition(m_distance.mut_replace(lEncoder.getPosition() * wheelCircumfrence, Meters))
+            .linearVelocity(m_velocity.mut_replace(lEncoder.getVelocity(), MetersPerSecond));
+
+            log.motor("right")
+            .voltage(m_appliedVoltage.mut_replace(rightLeader.getBusVoltage() * RobotController.getBatteryVoltage(), Volts))
+            .linearPosition(m_distance.mut_replace(rEncoder.getPosition() * wheelCircumfrence, Meters))
+            .linearVelocity(m_velocity.mut_replace(rEncoder.getVelocity(), MetersPerSecond));
         }, this));
 
+
+    
     /**
    * Returns a command that will execute a quasistatic test in the given direction.
    *
