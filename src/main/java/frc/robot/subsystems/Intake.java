@@ -9,7 +9,6 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkRelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -20,7 +19,6 @@ public class Intake extends SubsystemBase {
     private final CANSparkMax motor;
     private final RelativeEncoder encoder;
     private final DigitalInput sensor;
-    public static final double MAX_RPM = 6000;
 
     private double targetSpeed = 0;
     private boolean sensorReading = false;
@@ -35,8 +33,8 @@ public class Intake extends SubsystemBase {
         return targetSpeed;
     }
 
-    public void setTargetRPM(double targetSpeed) {
-        this.targetSpeed = MathUtil.clamp(targetSpeed / MAX_RPM, -1, 1);
+    public void setTargetSpeed(double targetSpeed) {
+        this.targetSpeed = MotorUtil.clampPercent(targetSpeed);
     }
 
     /**
@@ -50,7 +48,7 @@ public class Intake extends SubsystemBase {
     public void periodic() {
         motor.set(targetSpeed);
         sensorReading = sensor.get();
-        SmartDashboard.putBoolean("Current Sensor Reading", sensorReading);
+        SmartDashboard.putBoolean("Current Intake Sensor Reading", sensorReading);
     }
 
     public boolean notePresent() {

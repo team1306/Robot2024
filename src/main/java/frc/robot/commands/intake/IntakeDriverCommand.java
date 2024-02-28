@@ -24,7 +24,7 @@ public class IntakeDriverCommand extends Command {
 
     @Override
     public void initialize(){
-        intake.setTargetRPM(0);
+        intake.setTargetSpeed(0);
     }
 
     @Override
@@ -32,27 +32,27 @@ public class IntakeDriverCommand extends Command {
         switch (state) {
             case POWERED_NO_ELEMENT:
                 if (!intake.notePresent()) {
-                    intake.setTargetRPM(.6 * Intake.MAX_RPM);
+                    intake.setTargetSpeed(.6);
                     break;
                 }
                 state = State.REVERSING;
-                intake.setTargetRPM(-Intake.MAX_RPM / 8);
+                intake.setTargetSpeed(-1.0 / 8.0);
                 timer.restart();
             case REVERSING:
                 if (timer.get() > 0.36) {
-                    intake.setTargetRPM(0);
+                    intake.setTargetSpeed(0);
                     state = State.UNPOWERED_WITH_ELEMENT;
                 }
                 break;
             case UNPOWERED_NO_ELEMENT:
             case UNPOWERED_WITH_ELEMENT:
-                intake.setTargetRPM(0);
+                intake.setTargetSpeed(0);
                 break;
             case INDEXING:
-                if (timer.get() > 2) {
+                if (timer.hasElapsed(2)) {
                     buttonPress();
                 } else {
-                    intake.setTargetRPM(.6 * Intake.MAX_RPM);
+                    intake.setTargetSpeed(.6);
                 }
                 break;
         }
