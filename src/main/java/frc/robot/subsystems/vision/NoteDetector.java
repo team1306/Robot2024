@@ -17,7 +17,7 @@ public interface NoteDetector {
 
     /**
      * read note position
-     * @return
+     * @return command to read note position
      */
     Command read();
 
@@ -28,5 +28,10 @@ public interface NoteDetector {
      * @param ifNotPresent command to run if note not present
      * @return selected command
      */
-    Command notePresenceCommandSwitcher(int noteIndex, Command ifPresent, Command ifNotPresent);
+    default Command notePresenceCommandSwitcher(int noteIndex, Command ifPresent, Command ifNotPresent) {
+        if (noteIndex >= 5) {
+            throw new IllegalArgumentException("Note index out of bounds");
+        }
+        return getNoteState()[noteIndex] == State.NOT_PRESENT ? ifNotPresent : ifPresent;
+    }
 }
