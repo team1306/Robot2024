@@ -57,7 +57,7 @@ public class RobotContainer {
     //indexNoteCommand = new NoteIndexingCommand(intake);
     shooterDriveCommand = new ShooterDriveCommand(driveTrain, shooter, indexNoteCommand);
     shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shooterDriveCommand);
-    intakeDriverCommand = new IntakeDriverCommand(intake);
+    intakeDriverCommand = new IntakeDriverCommand(intake, () -> controller2.b().getAsBoolean());
     climberDriverCommand = new ClimberDriverCommand(climber);
     teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> controller1.getLeftTriggerAxis(), () -> controller1.getRightTriggerAxis(), () -> -controller1.getLeftX());
     // Example Pathplanner named command registration 
