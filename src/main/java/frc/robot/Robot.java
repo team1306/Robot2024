@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.auto.FarRingsFromCloseMiddle;
 import frc.robot.commands.arm.DebugArmCommand;
 
 public class Robot extends TimedRobot {
@@ -52,7 +53,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    //m_autonomousCommand = new FarRingsFromCloseMiddle().getAutonomousCommand(); //currently unfinished
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();

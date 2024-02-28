@@ -25,6 +25,8 @@ import frc.robot.subsystems.Shooter;
 
 import java.util.function.BooleanSupplier;
 
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 public class RobotContainer {
 
   private CommandXboxController controller1 = new CommandXboxController(0); // Creates an XboxController on port 1.
@@ -90,9 +92,5 @@ public class RobotContainer {
     controller2.a().onTrue(shooterPitchControlCommand);
 
     controller2.b().onTrue(new InstantCommand(climberDriverCommand::buttonPress));
-  }
-
-  public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
   }
 }
