@@ -9,7 +9,6 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkRelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.MotorUtil;
 
@@ -19,7 +18,6 @@ public class Climber extends SubsystemBase {
     private final CANSparkMax motorRight;
     private final RelativeEncoder encoderLeft;
     private final RelativeEncoder encoderRight;
-    public static final double MAX_RPM = 500;
 
     private double targetSpeed = 0;
 
@@ -35,8 +33,8 @@ public class Climber extends SubsystemBase {
         return targetSpeed;
     }
 
-    public void setTargetRPM(double targetSpeed) {
-        this.targetSpeed = MathUtil.clamp(targetSpeed / MAX_RPM, -1, 1);
+    public void setTargetSpeed(double targetSpeed) {
+        this.targetSpeed = MotorUtil.clampPercent(targetSpeed);
     }
 
     /**

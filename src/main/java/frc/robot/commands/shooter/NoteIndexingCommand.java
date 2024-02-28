@@ -25,7 +25,7 @@ public class NoteIndexingCommand extends Command{
 
     @Override
     public void initialize(){
-        timer.reset();
+        timer.restart();
     }
     @Override
     public void execute(){
@@ -33,12 +33,12 @@ public class NoteIndexingCommand extends Command{
         TIME_AFTER_SHOT_MS = SmartDashboard.getNumber("Time After Shot (MS)", 1000);
 
         if (timer.hasElapsed(TIME_BEFORE_SHOT_MS/1000) && !done){
-            intake.setTargetRPM(Intake.MAX_RPM);
+            intake.setTargetSpeed(1);
             done = true;
-            timer.reset();
+            timer.restart();
         }
         else if(timer.hasElapsed(TIME_AFTER_SHOT_MS/1000) && done){
-            intake.setTargetRPM(0);
+            intake.setTargetSpeed(0);
             finished = true;
         }
     }
