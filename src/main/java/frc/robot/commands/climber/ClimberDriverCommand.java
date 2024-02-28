@@ -32,6 +32,7 @@ public class ClimberDriverCommand extends Command {
         switch (state) {
             case DOWN_OFF: //if down set rpm to 0
                 climber.setTargetRPM(0);
+                break;
             case ROTATING: //if rotating set RPM to half of max
                 climber.setTargetRPM(climber.MAX_RPM/2);
                 if(timer.get() > 2) { //if timer is at two seconds switch to UP_OFF
