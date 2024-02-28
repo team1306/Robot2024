@@ -53,11 +53,12 @@ public class RobotContainer {
     intake = new Intake();
     shooter = new Shooter();
     arm = new Arm();
+    climber = new Climber();
     moveArmCommand = new MoveArmCommand(arm, () -> controller2.getRightY());
     //indexNoteCommand = new NoteIndexingCommand(intake);
     shooterDriveCommand = new ShooterDriveCommand(driveTrain, shooter, indexNoteCommand);
     shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shooterDriveCommand);
-    intakeDriverCommand = new IntakeDriverCommand(intake);
+    intakeDriverCommand = new IntakeDriverCommand(intake, () -> controller2.b().getAsBoolean());
     climberDriverCommand = new ClimberDriverCommand(climber);
     teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> controller1.getLeftTriggerAxis(), () -> controller1.getRightTriggerAxis(), () -> -controller1.getLeftX());
     // Example Pathplanner named command registration 
@@ -91,6 +92,6 @@ public class RobotContainer {
     controller2.povDown().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.INTAKE, cancelSetpoint));
     controller2.a().onTrue(shooterPitchControlCommand);
 
-    controller2.b().onTrue(new InstantCommand(climberDriverCommand::buttonPress));
+    controller2.back().onTrue(new InstantCommand(climberDriverCommand::buttonPress));
   }
 }

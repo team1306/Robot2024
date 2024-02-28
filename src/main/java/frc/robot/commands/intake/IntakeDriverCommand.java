@@ -1,5 +1,7 @@
 package frc.robot.commands.intake;
 
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Intake;
@@ -16,9 +18,13 @@ public class IntakeDriverCommand extends Command {
     private Intake intake;
     private State state = State.UNPOWERED_NO_ELEMENT;
     private Timer timer = new Timer();
+    private BooleanSupplier reverseOverride;
+    private boolean wasReversed = false;
+    public static final double INTAKE_SPEED = 0.6;
 
-    public IntakeDriverCommand(Intake intake) {
+    public IntakeDriverCommand(Intake intake, BooleanSupplier reverseOverride) {
         this.intake = intake;
+        this.reverseOverride = reverseOverride;
         addRequirements(intake);
     }
 
@@ -29,10 +35,18 @@ public class IntakeDriverCommand extends Command {
 
     @Override
     public void execute() {
+        if (reverseOverride.getAsBoolean()) {
+            intake.setTargetSpeed(-1);
+            wasReversed = true;
+            return;
+        } else if (wasReversed) {
+            state = State.UNPOWERED_NO_ELEMENT;
+            wasReversed = false;
+        }
         switch (state) {
             case POWERED_NO_ELEMENT:
                 if (!intake.notePresent()) {
-                    intake.setTargetSpeed(.6);
+                    intake.setTargetSpeed(INTAKE_SPEED);
                     break;
                 }
                 state = State.REVERSING;
@@ -52,10 +66,11 @@ public class IntakeDriverCommand extends Command {
                 if (timer.hasElapsed(2)) {
                     buttonPress();
                 } else {
-                    intake.setTargetSpeed(.6);
+                    intake.setTargetSpeed(INTAKE_SPEED);
                 }
                 break;
         }
+
     }
 
     public void buttonPress() {
