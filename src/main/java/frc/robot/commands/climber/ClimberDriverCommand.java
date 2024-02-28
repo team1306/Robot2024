@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Climber;
 
-public class ClimberDriveCommand extends Command {
+public class ClimberDriverCommand extends Command {
     public enum State {
         DOWN_OFF,
         ROTATING,
@@ -13,10 +13,11 @@ public class ClimberDriveCommand extends Command {
     }
 
     private Climber climber;
+    
     private State state = State.DOWN_OFF;
     private Timer timer = new Timer();
 
-    public void ClimberDriverCommand(Climber climber) {
+    public ClimberDriverCommand(Climber climber) {
         this.climber = climber;
         addRequirements(climber);
     }
