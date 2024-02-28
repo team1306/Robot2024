@@ -31,6 +31,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -38,6 +39,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
 import frc.robot.RobotContainer;
@@ -46,6 +48,7 @@ import frc.robot.util.MotorUtil;
 import frc.robot.util.Utilities;
 
 import static edu.wpi.first.units.MutableMeasure.mutable;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
@@ -215,25 +218,22 @@ public class DriveTrain extends SubsystemBase{
     // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
     private final MutableMeasure<Velocity<Distance>> m_velocity = mutable(MetersPerSecond.of(0));
     
-    private static final double wheelCircumfrence = 4 * 2 * Math.PI;
+    private static final double wheelCircumfrence = Units.Meters.convertFrom(4 * Math.PI, Inches);
     private final SysIdRoutine m_sysIdRoutine = new SysIdRoutine(new Config(),
     new Mechanism(
         (Measure<Voltage> volts) -> {
         leftLeader.setVoltage(volts.in(Units.Volts)); rightLeader.setVoltage(volts.in(Units.Volts));}, 
         log -> {
             log.motor("left")
-            .voltage(m_appliedVoltage.mut_replace(leftLeader.getBusVoltage() * RobotController.getBatteryVoltage(), Volts))
+            .voltage(m_appliedVoltage.mut_replace(leftLeader.get() * RobotController.getBatteryVoltage(), Volts))
             .linearPosition(m_distance.mut_replace(lEncoder.getPosition() * wheelCircumfrence, Meters))
-            .linearVelocity(m_velocity.mut_replace(lEncoder.getVelocity(), MetersPerSecond));
+            .linearVelocity(m_velocity.mut_replace(lEncoder.getVelocity() * wheelCircumfrence / 60.0, MetersPerSecond));
 
             log.motor("right")
-            .voltage(m_appliedVoltage.mut_replace(rightLeader.getBusVoltage() * RobotController.getBatteryVoltage(), Volts))
+            .voltage(m_appliedVoltage.mut_replace(rightLeader.get() * RobotController.getBatteryVoltage(), Volts))
             .linearPosition(m_distance.mut_replace(rEncoder.getPosition() * wheelCircumfrence, Meters))
-            .linearVelocity(m_velocity.mut_replace(rEncoder.getVelocity(), MetersPerSecond));
+            .linearVelocity(m_velocity.mut_replace(rEncoder.getVelocity() * wheelCircumfrence, MetersPerSecond));
         }, this));
-
-
-    
     /**
    * Returns a command that will execute a quasistatic test in the given direction.
    *
