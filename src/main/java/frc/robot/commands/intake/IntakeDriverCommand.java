@@ -8,7 +8,7 @@ public class IntakeDriverCommand extends Command {
     public enum State {
         UNPOWERED_NO_ELEMENT,
         POWERED_NO_ELEMENT,
-        BACKUP,
+        REVERSING,
         UNPOWERED_WITH_ELEMENT,
         INDEXING
     }
@@ -24,7 +24,7 @@ public class IntakeDriverCommand extends Command {
 
     @Override
     public void initialize(){
-        intake.setTargetRPM(0);
+        intake.setTargetSpeed(0);
     }
 
     @Override
@@ -32,27 +32,27 @@ public class IntakeDriverCommand extends Command {
         switch (state) {
             case POWERED_NO_ELEMENT:
                 if (!intake.notePresent()) {
-                    intake.setTargetRPM(.6 * Intake.MAX_RPM);
+                    intake.setTargetSpeed(.6);
                     break;
                 }
-                state = State.BACKUP;
-                intake.setTargetRPM(-Intake.MAX_RPM / 8);
+                state = State.REVERSING;
+                intake.setTargetSpeed(-1.0 / 8.0);
                 timer.restart();
-            case BACKUP:
-                if (timer.get() > 0.4) {
-                    intake.setTargetRPM(0);
+            case REVERSING:
+                if (timer.get() > 0.36) {
+                    intake.setTargetSpeed(0);
                     state = State.UNPOWERED_WITH_ELEMENT;
                 }
                 break;
             case UNPOWERED_NO_ELEMENT:
             case UNPOWERED_WITH_ELEMENT:
-                intake.setTargetRPM(0);
+                intake.setTargetSpeed(0);
                 break;
             case INDEXING:
-                if (timer.get() > 2) {
+                if (timer.hasElapsed(2)) {
                     buttonPress();
                 } else {
-                    intake.setTargetRPM(.6 * Intake.MAX_RPM);
+                    intake.setTargetSpeed(.6);
                 }
                 break;
         }
@@ -68,7 +68,7 @@ public class IntakeDriverCommand extends Command {
             }
             // THIS COULD BE QUITE BUGGY, MAKE SURE TO TEST
             case INDEXING -> intake.notePresent() ? State.UNPOWERED_WITH_ELEMENT : State.UNPOWERED_NO_ELEMENT;
-            case BACKUP -> State.BACKUP; // loop
+            case REVERSING -> State.REVERSING; // loop
         };
     }
 

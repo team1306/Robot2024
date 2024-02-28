@@ -11,12 +11,14 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.arm.MoveArmCommand;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
+import frc.robot.commands.climber.ClimberDriverCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.intake.IntakeDriverCommand;
 import frc.robot.commands.shooter.NoteIndexingCommand;
 import frc.robot.commands.shooter.ShooterDriveCommand;
 import frc.robot.commands.shooter.ShooterPitchControlCommand;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
@@ -31,6 +33,7 @@ public class RobotContainer {
   private DriveTrain driveTrain;
   private Intake intake;
   private Shooter shooter; 
+  private Climber climber;
   public Arm arm;
   
   public MoveArmCommand moveArmCommand;
@@ -39,6 +42,7 @@ public class RobotContainer {
   private ShooterPitchControlCommand shooterPitchControlCommand;
   private TeleopDriveCommand teleopDriveCommand;
   private IntakeDriverCommand intakeDriverCommand;
+  private ClimberDriverCommand climberDriverCommand;
   
   private final BooleanSupplier cancelSetpoint = () -> controller2.getRightY() > 0 || controller2.getRightY() < 0 || controller2.b().getAsBoolean(); // b acts as cancel button
   
@@ -52,11 +56,13 @@ public class RobotContainer {
     shooterDriveCommand = new ShooterDriveCommand(driveTrain, shooter, indexNoteCommand);
     shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shooterDriveCommand);
     intakeDriverCommand = new IntakeDriverCommand(intake);
+    climberDriverCommand = new ClimberDriverCommand(climber);
     teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> controller1.getLeftTriggerAxis(), () -> controller1.getRightTriggerAxis(), () -> -controller1.getLeftX());
     // Example Pathplanner named command registration 
     // NamedCommands.registerCommand("ShootCommand", shooterPitchControlCommand);
 
     intake.setDefaultCommand(intakeDriverCommand);
+    climber.setDefaultCommand(climberDriverCommand);
     arm.setDefaultCommand(moveArmCommand);
     driveTrain.setDefaultCommand(teleopDriveCommand);
     configureBindings();
@@ -74,7 +80,7 @@ public class RobotContainer {
   private void configureBindings() {
     //controller1.a().whileTrue(driveTrain.getSetSpeedMultiplierCommand(SLOW_MODE_SPEED));
 
-    controller2.y().onTrue(new InstantCommand(() -> intakeDriverCommand.buttonPress()));
+    controller2.y().onTrue(new InstantCommand(intakeDriverCommand::buttonPress));
     controller2.x().toggleOnTrue(shooter.getToggleShooterCommand(() -> Shooter.PEAK_OUTPUT));
 
     controller2.povUp().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.AMP, cancelSetpoint));
@@ -82,6 +88,8 @@ public class RobotContainer {
     controller2.povRight().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.SHOOT_CLOSE, cancelSetpoint));
     controller2.povDown().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.INTAKE, cancelSetpoint));
     controller2.a().onTrue(shooterPitchControlCommand);
+
+    controller2.b().onTrue(new InstantCommand(climberDriverCommand::buttonPress));
   }
 
   public Command getAutonomousCommand() {
