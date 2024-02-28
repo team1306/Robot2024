@@ -16,6 +16,12 @@ public interface NoteDetector {
     State[] getNoteState();
 
     /**
+     * read note position
+     * @return
+     */
+    Command read();
+
+    /**
      * Switches command based off of presence of a note
      * @param noteIndex note to switch on
      * @param ifPresent command to run if note present or unknown
