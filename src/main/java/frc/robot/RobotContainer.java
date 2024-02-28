@@ -53,6 +53,7 @@ public class RobotContainer {
     intake = new Intake();
     shooter = new Shooter();
     arm = new Arm();
+    climber = new Climber();
     moveArmCommand = new MoveArmCommand(arm, () -> controller2.getRightY());
     //indexNoteCommand = new NoteIndexingCommand(intake);
     shooterDriveCommand = new ShooterDriveCommand(driveTrain, shooter, indexNoteCommand);
@@ -91,6 +92,6 @@ public class RobotContainer {
     controller2.povDown().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.INTAKE, cancelSetpoint));
     controller2.a().onTrue(shooterPitchControlCommand);
 
-    controller2.b().onTrue(new InstantCommand(climberDriverCommand::buttonPress));
+    controller2.back().onTrue(new InstantCommand(climberDriverCommand::buttonPress));
   }
 }
