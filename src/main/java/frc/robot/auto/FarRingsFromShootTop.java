@@ -55,7 +55,7 @@ public class FarRingsFromShootTop extends SequentialCommandGroup {
             //if note 3 is present
             new SequentialCommandGroup( //get note 3 and go to Shoot-Bottom
                 AutoBuilder.followPath(PathPlannerPath.fromPathFile("Scan-Top to Far-3")),
-                AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-3 to Shoot-Bottom"))
+                AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-3 to Shoot-Bottom")),
                 detector.read(),
                 detector.notePresenceCommandSwitcher(4,
                     //if note 4 is present
@@ -90,7 +90,7 @@ public class FarRingsFromShootTop extends SequentialCommandGroup {
                     detector.notePresenceCommandSwitcher(5,
                         new SequentialCommandGroup( //if note 5 is present collect it
                             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Scan-Top to Far-4")),
-                            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-4 to Shoot-Bottom")),
+                            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-4 to Shoot-Bottom"))
                         ),
                         new InstantCommand() //if note 5 is not present do nothing
                     )
