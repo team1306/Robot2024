@@ -44,6 +44,27 @@ public final class Paths {
         //shoot
     );
 
+    public static final SequentialCommandGroup far3ScanBottom = new SequentialCommandGroup(
+        AutoBuilder.followPath(PathPlannerPath.fromPathFile("Scan-Bottom to Far-3")),
+        //intake
+        AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-3 to Shoot-Top"))
+        //shoot
+    );
+
+    public static final SequentialCommandGroup far1ScanBottom = new SequentialCommandGroup(
+        AutoBuilder.followPath(PathPlannerPath.fromPathFile("Scan-Bottom to Far-1")),
+        //intake
+        AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-1 to Shoot-Top"))
+        //shoot
+    );
+
+    public static final SequentialCommandGroup far2ScanBottom = new SequentialCommandGroup(
+        AutoBuilder.followPath(PathPlannerPath.fromPathFile("Scan-Bottom to Far-2")),
+        //intake
+        AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-2 to Shoot-Top"))
+        //shoot
+    );
+
     public static final SequentialCommandGroup far4ScanTop = new SequentialCommandGroup(
         AutoBuilder.followPath(PathPlannerPath.fromPathFile("Scan-Top to Far-4")),
         //intake
