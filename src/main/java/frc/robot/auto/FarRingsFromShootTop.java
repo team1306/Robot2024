@@ -1,42 +1,13 @@
 package frc.robot.auto;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
-
+import frc.robot.auto.Paths;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.vision.NoteDetector;
 
 public class FarRingsFromShootTop extends SequentialCommandGroup {
-
-    private static final SequentialCommandGroup far1 = new SequentialCommandGroup( //far-1 path stored as a variable
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Shoot-Top to Far-1")),
-            //intake
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-1 to Shoot-Top"))
-            //shoot
-    );
-
-    private static final SequentialCommandGroup far2 = new SequentialCommandGroup( //far-1 path stored as a variable
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Shoot-Top to Far-2")),
-            //intake
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-2 to Shoot-Top"))
-            //shoot
-    );
-    
-    private static final SequentialCommandGroup far4 = new SequentialCommandGroup( //far-4 path stored as a variable
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Shoot-Bottom to Far-4")),
-            //intake
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-4 to Shoot-Bottom"))
-            //shoot
-    );
-
-    private static final SequentialCommandGroup far5 = new SequentialCommandGroup( //far-5 path stored as a variable
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Shoot-Bottom to Far-5")),
-            //intake
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-5 to Shoot-Bottom"))
-            //shoot
-    );
 
     public FarRingsFromShootTop(NoteDetector detector) {
         addCommands(
@@ -45,16 +16,16 @@ public class FarRingsFromShootTop extends SequentialCommandGroup {
             detector.notePresenceCommandSwitcher(1,
                 //if note 1 present
                 new SequentialCommandGroup(
-                    far1, //collect far-1
+                    Paths.far1ShootTop, //collect far-1
                     detector.read(),
                     detector.notePresenceCommandSwitcher(2,
-                        far2, //if note 2 is present collect it
+                        Paths.far2ShootTop, //if note 2 is present collect it
                         new InstantCommand() //if note 2 is not present do nothing
                     )
                 ),
                 //if note 1 not present
                 detector.notePresenceCommandSwitcher(2,
-                    far2, //if note 2 is present collect it
+                    Paths.far2ShootTop, //if note 2 is present collect it
                     //if note 2 not present
                     new InstantCommand() //if note 2 is not present do nothing
                 )
@@ -74,16 +45,16 @@ public class FarRingsFromShootTop extends SequentialCommandGroup {
                 detector.notePresenceCommandSwitcher(4,
                     //if note 4 is present
                     new SequentialCommandGroup(
-                        far4,
+                        Paths.far4ShootBottom,
                         detector.read(),
                         detector.notePresenceCommandSwitcher(5,
-                            far5, //if note 5 is present collect it
+                            Paths.far5ShootBottom, //if note 5 is present collect it
                             new InstantCommand() //if note 5 is not present do nothing
                         )
                     ),
                     //if note 4 is not present
                     detector.notePresenceCommandSwitcher(5,
-                        far5, //if note 5 is present collect it
+                        Paths.far5ShootBottom, //if note 5 is present collect it
                         new InstantCommand() //if note 5 is not present do nothing
                     )
                 )
@@ -98,7 +69,7 @@ public class FarRingsFromShootTop extends SequentialCommandGroup {
                         //shoot
                         detector.read(),
                         detector.notePresenceCommandSwitcher(5,
-                            far5, //if note 5 is present collect it
+                            Paths.far5ShootBottom, //if note 5 is present collect it
                             new InstantCommand() //if note 5 is not present do nothing
                         )
                     ),
