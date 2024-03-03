@@ -8,7 +8,6 @@ import frc.robot.subsystems.Arm.ControlMode;
 import frc.robot.subsystems.Arm.Setpoint;
 
 public class MoveArmToIntakeCommand extends MoveArmToSetpointCommand {
-    private boolean initialized = false;
     private BooleanSupplier notePresentFlag;
 
     public MoveArmToIntakeCommand(Arm arm, BooleanSupplier notePresentFlag, BooleanSupplier interruptionFlag) {
