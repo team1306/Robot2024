@@ -12,6 +12,7 @@ import com.revrobotics.SparkRelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.MotorUtil;
@@ -23,7 +24,7 @@ public class Shooter extends SubsystemBase {
     private final CANSparkMax topMotor, bottomMotor;
     private final RelativeEncoder topEncoder, bottomEncoder;
     
-    public static final double PEAK_OUTPUT = 1.0;
+    public static double PEAK_OUTPUT = 1.0;
 
     private double targetSpeed = 0;
 
@@ -34,6 +35,7 @@ public class Shooter extends SubsystemBase {
         
         topEncoder = topMotor.getEncoder(SparkRelativeEncoder.Type.kHallSensor, NEO_COUNTS_PER_REVOLUTION);
         bottomEncoder = bottomMotor.getEncoder(SparkRelativeEncoder.Type.kHallSensor, NEO_COUNTS_PER_REVOLUTION);
+        SmartDashboard.putNumber("peak shooter power", PEAK_OUTPUT);
     }
 
     public double getTargetSpeed() {
@@ -60,6 +62,7 @@ public class Shooter extends SubsystemBase {
     
     @Override
     public void periodic() {
+        PEAK_OUTPUT = SmartDashboard.getNumber("peak shooter power", PEAK_OUTPUT);
         topMotor.set(targetSpeed); // CHANGE TO FLYWHEEL STATE MODEL.
         bottomMotor.set(targetSpeed);
     }

@@ -63,7 +63,7 @@ public class IntakeDriverCommand extends Command {
                 intake.setTargetSpeed(0);
                 break;
             case INDEXING:
-                if (timer.hasElapsed(2)) {
+                if (timer.hasElapsed(1)) {
                     buttonPress();
                 } else {
                     intake.setTargetSpeed(INTAKE_SPEED);
