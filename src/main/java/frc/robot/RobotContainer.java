@@ -56,7 +56,7 @@ public class RobotContainer {
     arm = new Arm();
     climber = new Climber();
     moveArmCommand = new MoveArmCommand(arm, () -> controller2.getRightY());
-    shooterDriveCommand = new ShooterDriveCommand(driveTrain, shooter, indexNoteCommand, toggleShooterCommand);
+    shooterDriveCommand = new ShooterDriveCommand(driveTrain, indexNoteCommand, toggleShooterCommand);
     shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shooterDriveCommand);
     intakeDriverCommand = new IntakeDriverCommand(intake, () -> controller2.b().getAsBoolean());
     climberDriverCommand = new ClimberDriverCommand(climber);

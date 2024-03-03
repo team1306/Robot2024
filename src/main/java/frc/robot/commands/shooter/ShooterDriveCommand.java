@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.DriveTrain;
-import frc.robot.subsystems.Shooter;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Utilities;
@@ -20,7 +19,6 @@ import frc.robot.util.Utilities;
 public class ShooterDriveCommand extends Command{
 
     private final DriveTrain driveTrain;
-    private final Shooter shooter;
     private final NoteIndexingCommand noteIndexCommand;
     private final ToggleShooterCommand toggleShooterCommand;
     private final PIDController rotationController;
@@ -29,9 +27,8 @@ public class ShooterDriveCommand extends Command{
     private double deadbandValue = 0.05;
     public static double kP = 1, kI = 0, kD = 0;
 
-    public ShooterDriveCommand(DriveTrain driveTrain, Shooter shooter, NoteIndexingCommand noteIndexCommand, ToggleShooterCommand toggleShooterCommand){
+    public ShooterDriveCommand(DriveTrain driveTrain, NoteIndexingCommand noteIndexCommand, ToggleShooterCommand toggleShooterCommand){
         this.driveTrain = driveTrain;
-        this.shooter = shooter;
         this.noteIndexCommand = noteIndexCommand;
         this.rotationController = new PIDController(kP, kI, kD);
         this.toggleShooterCommand = toggleShooterCommand;
