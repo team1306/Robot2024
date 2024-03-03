@@ -44,7 +44,7 @@ public interface NoteDetector {
      * @return selected command
      */
     default Command notePresenceCommandSwitcher(int noteIndex, Command ifPresent, Command ifNotPresent) {
-        if (noteIndex >= 5) {
+        if (noteIndex > 5) {
             throw new IllegalArgumentException("Note index out of bounds");
         }
         return getNoteState()[noteIndex] == State.NOT_PRESENT ? ifNotPresent : ifPresent;

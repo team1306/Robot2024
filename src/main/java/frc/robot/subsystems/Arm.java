@@ -71,8 +71,8 @@ public class Arm extends SubsystemBase  {
         super("arm");
         leftArmMotor = MotorUtil.initSparkMax(ARM_LEFT_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
         rightArmMotor = MotorUtil.initSparkMax(ARM_RIGHT_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
-        leftArmMotor.setInverted(false);
-        rightArmMotor.setInverted(true);
+        leftArmMotor.setInverted(true);
+        rightArmMotor.setInverted(false);
         
         absoluteThroughBoreEncoder = new DutyCycleEncoder(0);
         relativeThroughBore = new Encoder(2, 3, true, EncodingType.k1X);
