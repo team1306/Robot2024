@@ -16,6 +16,7 @@ import frc.robot.commands.intake.IntakeDriverCommand;
 import frc.robot.commands.shooter.NoteIndexingCommand;
 import frc.robot.commands.shooter.ShooterDriveCommand;
 import frc.robot.commands.shooter.ShooterPitchControlCommand;
+import frc.robot.commands.shooter.ToggleShooterCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DriveTrain;
@@ -24,7 +25,6 @@ import frc.robot.subsystems.Shooter;
 
 import java.util.function.BooleanSupplier;
 
-import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 public class RobotContainer {
@@ -45,6 +45,7 @@ public class RobotContainer {
   private TeleopDriveCommand teleopDriveCommand;
   private IntakeDriverCommand intakeDriverCommand;
   private ClimberDriverCommand climberDriverCommand;
+  private ToggleShooterCommand toggleShooterCommand;
   
   private final BooleanSupplier cancelSetpoint = () -> controller2.getRightY() > 0 || controller2.getRightY() < 0 || controller2.b().getAsBoolean(); // b acts as cancel button
   
@@ -55,12 +56,12 @@ public class RobotContainer {
     arm = new Arm();
     climber = new Climber();
     moveArmCommand = new MoveArmCommand(arm, () -> controller2.getRightY());
-    //indexNoteCommand = new NoteIndexingCommand(intake);
-    shooterDriveCommand = new ShooterDriveCommand(driveTrain, shooter, indexNoteCommand);
+    shooterDriveCommand = new ShooterDriveCommand(driveTrain, shooter, indexNoteCommand, toggleShooterCommand);
     shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shooterDriveCommand);
     intakeDriverCommand = new IntakeDriverCommand(intake, () -> controller2.b().getAsBoolean());
     climberDriverCommand = new ClimberDriverCommand(climber);
     teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> controller1.getLeftTriggerAxis(), () -> controller1.getRightTriggerAxis(), () -> -controller1.getLeftX());
+    toggleShooterCommand = new ToggleShooterCommand(() -> Shooter.PEAK_OUTPUT, () -> arm.getCurrentAngle().getDegrees(), shooter);
     // Example Pathplanner named command registration 
     //NamedCommands.registerCommand("Far Rings from Shoot-Top", getAutonomousCommand());
 
@@ -84,7 +85,7 @@ public class RobotContainer {
     controller1.a().whileTrue(driveTrain.getSetSpeedMultiplierCommand(0.5));
 
     controller2.y().onTrue(new InstantCommand(intakeDriverCommand::buttonPress));
-    controller2.x().toggleOnTrue(shooter.getToggleShooterCommand(() -> Shooter.PEAK_OUTPUT));
+    controller2.x().toggleOnTrue(toggleShooterCommand);
 
     controller2.povUp().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.AMP, cancelSetpoint));
     controller2.povLeft().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.STAGE_SHOT, cancelSetpoint));

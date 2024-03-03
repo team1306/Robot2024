@@ -63,20 +63,4 @@ public class Shooter extends SubsystemBase {
         topMotor.set(targetSpeed); // CHANGE TO FLYWHEEL STATE MODEL.
         bottomMotor.set(targetSpeed);
     }
-
-    public Command getToggleShooterCommand(DoubleSupplier speedSupplier) {
-        return new Command() {
-            {
-                addRequirements(Shooter.this);
-            }
-            @Override
-            public void initialize(){
-               setTargetSpeed(speedSupplier.getAsDouble()); 
-            }
-            @Override
-            public void end(boolean interrupted){
-                setTargetSpeed(0);
-            }
-        };
-    }
 }

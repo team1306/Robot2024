@@ -22,17 +22,19 @@ public class ShooterDriveCommand extends Command{
     private final DriveTrain driveTrain;
     private final Shooter shooter;
     private final NoteIndexingCommand noteIndexCommand;
+    private final ToggleShooterCommand toggleShooterCommand;
     private final PIDController rotationController;
 
     private boolean finished = false;
     private double deadbandValue = 0.05;
     public static double kP = 1, kI = 0, kD = 0;
 
-    public ShooterDriveCommand(DriveTrain driveTrain, Shooter shooter, NoteIndexingCommand noteIndexCommand){
+    public ShooterDriveCommand(DriveTrain driveTrain, Shooter shooter, NoteIndexingCommand noteIndexCommand, ToggleShooterCommand toggleShooterCommand){
         this.driveTrain = driveTrain;
         this.shooter = shooter;
         this.noteIndexCommand = noteIndexCommand;
         this.rotationController = new PIDController(kP, kI, kD);
+        this.toggleShooterCommand = toggleShooterCommand;
         this.addRequirements(driveTrain);
          
         SmartDashboard.putNumber("Shooter Drive kP", kP);
@@ -70,7 +72,7 @@ public class ShooterDriveCommand extends Command{
     @Override
     public void end(boolean interrupted){
         CommandScheduler.getInstance().schedule(
-            noteIndexCommand.alongWith(shooter.getToggleShooterCommand(() -> 1.0)
-            .withTimeout(NoteIndexingCommand.TIME_AFTER_SHOT_MS + NoteIndexingCommand.TIME_BEFORE_SHOT_MS)));
+            noteIndexCommand.alongWith(toggleShooterCommand)
+            .withTimeout(NoteIndexingCommand.TIME_AFTER_SHOT_MS + NoteIndexingCommand.TIME_BEFORE_SHOT_MS));
     }
 }
