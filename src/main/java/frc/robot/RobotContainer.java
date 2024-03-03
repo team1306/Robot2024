@@ -90,7 +90,7 @@ public class RobotContainer {
     controller2.povLeft().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.STAGE_SHOT, cancelSetpoint));
     controller2.povRight().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.SHOOT_CLOSE, cancelSetpoint));
     controller2.povDown().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.INTAKE, cancelSetpoint));
-    controller2.a().onTrue(shooterPitchControlCommand);
+    // controller2.a().onTrue(shooterPitchControlCommand);
 
     controller2.back().onTrue(new InstantCommand(climberDriverCommand::buttonPress));
   }

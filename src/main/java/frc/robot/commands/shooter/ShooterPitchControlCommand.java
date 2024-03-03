@@ -32,6 +32,7 @@ public class ShooterPitchControlCommand extends Command{
 
     @Override
     public void initialize(){
+        if(!INCLUDE_LIMELIGHT) return;
         Pose2d botPose = INCLUDE_LIMELIGHT ? LimelightHelpers.getBotPose2d(LIMELIGHT_NAME) : new Pose2d();
         speakerDistance = botPose.getTranslation().getDistance(Utilities.getSpeaker());
         speakerDistance += SHOOTER_X_OFFSET;        
