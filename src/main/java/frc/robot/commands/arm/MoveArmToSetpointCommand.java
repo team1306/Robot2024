@@ -8,9 +8,9 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Arm.ControlMode;
 
 public class MoveArmToSetpointCommand extends Command {
-    private final Arm.Setpoint setpoint;
-    private final Arm arm;
-    private final BooleanSupplier interruptionFlag;
+    final Arm.Setpoint setpoint;
+    final Arm arm;
+    final BooleanSupplier interruptionFlag;
     
     public MoveArmToSetpointCommand(Arm arm, Arm.Setpoint setpoint, BooleanSupplier interruptionFlag) {
         this.setpoint = setpoint;

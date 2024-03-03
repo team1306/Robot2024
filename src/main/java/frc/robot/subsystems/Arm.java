@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.PIDSubsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.commands.arm.MoveArmCommand;
 import frc.robot.util.MotorUtil;
 
@@ -32,6 +33,7 @@ public class Arm extends SubsystemBase  {
     public enum Setpoint {
         AMP(95),
         INTAKE(0),
+        DOWN(4),
         SHOOT_CLOSE(16),
         STAGE_SHOT(25);
 
@@ -57,7 +59,7 @@ public class Arm extends SubsystemBase  {
     public static double kG = 0.0725, kV = .17;
     private static double kMaxVelocity = 360, kMaxAcceleration = 280; // kMA MIGHT BE WRONG
 
-    public static final double OFFSET = -219.15 + 180 + 10 - 1.5, DELTA_AT_SETPOINT = 0.5;
+    public static final double OFFSET = -219.15 + 180 + 10 - 1.5, DELTA_AT_SETPOINT = 1;
     
     private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
     private double manualPower;
