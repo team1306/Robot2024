@@ -4,12 +4,15 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.vision.NoteDetector;
 import frc.robot.subsystems.vision.NoteDetector.Checkpoints;
 
 public class FarRingsFromShootTop extends SequentialCommandGroup {
 
-    public FarRingsFromShootTop(NoteDetector detector) {
+    public FarRingsFromShootTop(NoteDetector detector, Intake intake, Arm arm, Shooter shooter) {
         addCommands(
 
             //Collect 1 and 2
@@ -17,16 +20,16 @@ public class FarRingsFromShootTop extends SequentialCommandGroup {
             detector.notePresenceCommandSwitcher(1,
                 //if note 1 present
                 new SequentialCommandGroup(
-                    Paths.far1ShootTop, //collect far-1
+                    AutoCommands.getFar1ShootTop(intake), //collect far-1
                     detector.read(Checkpoints.TOP),
                     detector.notePresenceCommandSwitcher(2,
-                        Paths.far2ShootTop, //if note 2 is present collect it
+                        AutoCommands.getFar2ShootTop(intake), //if note 2 is present collect it
                         new InstantCommand() //if note 2 is not present do nothing
                     )
                 ),
                 //if note 1 not present
                 detector.notePresenceCommandSwitcher(2,
-                    Paths.far2ShootTop, //if note 2 is present collect it
+                    AutoCommands.getFar2ShootTop(intake), //if note 2 is present collect it
                     //if note 2 not present
                     new InstantCommand() //if note 2 is not present do nothing
                 )
@@ -39,21 +42,21 @@ public class FarRingsFromShootTop extends SequentialCommandGroup {
             detector.notePresenceCommandSwitcher(3,
             //if note 3 is present
             new SequentialCommandGroup( //get note 3 and go to Shoot-Bottom
-                Paths.far3ScanTop,
+                AutoCommands.getFar3ScanTop(intake),
                 detector.read(Checkpoints.TOP), // fix this checkpoint
                 detector.notePresenceCommandSwitcher(4,
                     //if note 4 is present
                     new SequentialCommandGroup(
-                        Paths.far4ShootBottom,
+                        AutoCommands.getFar4ShootBottom(intake),
                         detector.read(Checkpoints.TOP), // fix this checkpoint
                         detector.notePresenceCommandSwitcher(5,
-                            Paths.far5ShootBottom, //if note 5 is present collect it
+                            AutoCommands.getFar5ShootBottom(intake), //if note 5 is present collect it
                             new InstantCommand() //if note 5 is not present do nothing
                         )
                     ),
                     //if note 4 is not present
                     detector.notePresenceCommandSwitcher(5,
-                        Paths.far5ShootBottom, //if note 5 is present collect it
+                        AutoCommands.getFar5ShootBottom(intake), //if note 5 is present collect it
                         new InstantCommand() //if note 5 is not present do nothing
                     )
                 )
@@ -62,16 +65,16 @@ public class FarRingsFromShootTop extends SequentialCommandGroup {
             detector.notePresenceCommandSwitcher(4,
                     //if note 4 is present
                     new SequentialCommandGroup(
-                        Paths.far4ScanTop,
+                        AutoCommands.getFar4ScanTop(intake),
                         detector.read(Checkpoints.BOTTOM_MIDDLE), // fix this checkpoint
                         detector.notePresenceCommandSwitcher(5,
-                            Paths.far5ShootBottom, //if note 5 is present collect it
+                            AutoCommands.getFar5ShootBottom(intake), //if note 5 is present collect it
                             new InstantCommand() //if note 5 is not present do nothing
                         )
                     ),
                     //if note 4 is not present
                     detector.notePresenceCommandSwitcher(5,
-                        Paths.far5ScanTop,
+                        AutoCommands.getFar5ScanTop(intake),
                         new InstantCommand() //if note 5 is not present do nothing
                     )
                 )

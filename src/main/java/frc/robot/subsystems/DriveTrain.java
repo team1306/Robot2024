@@ -24,16 +24,10 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import edu.wpi.first.wpilibj.SPI;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.MotorUtil;
@@ -44,11 +38,16 @@ import frc.robot.util.Utilities;
 public class DriveTrain extends SubsystemBase{
     //Track width in meters
     public static final double TRACK_WIDTH = 0;
+    //Above 1
+    public static double leftMultiplier = 0;
+    public static double rightMulitplier = 0;
+    public static double leftFriction = 0;
+    public static double rightFriction = 0;
 
     private static final String AUTO_NAME = "Path";
     
     //Percentage
-    public static double MAX_SPEED = .5;
+    public static double MAX_SPEED = 1;
 
     private double currentSpeedMultipler = 1;
 
@@ -103,11 +102,15 @@ public class DriveTrain extends SubsystemBase{
             INCLUDE_AUTO ? PathPlannerAuto.getStaringPoseFromAutoFile(AUTO_NAME) : new Pose2d());
 
         SmartDashboard.putNumber("Max Speed", MAX_SPEED);
-    }
+        SmartDashboard.putNumber("Left Drive Multiplier", 0);  
+        SmartDashboard.putNumber("Right Drive Multiplier", 0); 
+        SmartDashboard.putNumber("Left Drive Static Friction", 0);  
+        SmartDashboard.putNumber("Right Drive Static Friction", 0); 
+     }
 
     private void setSides(double left, double right) {
-        leftLeader.set(left * currentSpeedMultipler * MAX_SPEED);
-        rightLeader.set(right * currentSpeedMultipler * MAX_SPEED);   
+        leftLeader.set(left * currentSpeedMultipler * MAX_SPEED * (1 + leftMultiplier) + leftFriction);
+        rightLeader.set(right * currentSpeedMultipler * MAX_SPEED * (1 + rightMulitplier) + rightFriction);   
     }
 
     public void arcadeDrive(double speed, double rotation){
@@ -180,6 +183,12 @@ public class DriveTrain extends SubsystemBase{
         MAX_SPEED = SmartDashboard.getNumber("Max Speed", 1);
         SmartDashboard.putNumber("Left Encoder Output", lEncoder.getVelocity());
         SmartDashboard.putNumber("Right Encoder Output", rEncoder.getVelocity());
+
+        rightMulitplier = SmartDashboard.getNumber("Right Drive Multiplier", 0);
+        leftMultiplier = SmartDashboard.getNumber("Left Drive Multiplier", 0);
+
+        rightFriction = SmartDashboard.getNumber("Left Drive Static Friction", 0);  
+        leftFriction = SmartDashboard.getNumber("Right Drive Static Friction", 0); 
     }
 
     public Command getSetSpeedMultiplierCommand(double multiplier) {
@@ -195,30 +204,4 @@ public class DriveTrain extends SubsystemBase{
             }
         };
     }
-
-    private final SysIdRoutine m_sysIdRoutine = new SysIdRoutine(new Config(),new Mechanism(
-        (Measure<Voltage> volts) -> {
-        leftLeader.setVoltage(volts.in(Units.Volts)); rightLeader.setVoltage(volts.in(Units.Volts));}, 
-        log -> {
-            //Log position, distance, velocity for both motors
-            // log.motor("left").linearPosition();
-        }, this));
-
-    /**
-   * Returns a command that will execute a quasistatic test in the given direction.
-   *
-   * @param direction The direction (forward or reverse) to run the test in
-   */
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return m_sysIdRoutine.quasistatic(direction);
-  }
-
-  /**
-   * Returns a command that will execute a dynamic test in the given direction.
-   *
-   * @param direction The direction (forward or reverse) to run the test in
-   */
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return m_sysIdRoutine.dynamic(direction);
-  }
 }

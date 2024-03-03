@@ -81,7 +81,7 @@ public class RobotContainer {
      * joysticks}.
      */
   private void configureBindings() {
-    //controller1.a().whileTrue(driveTrain.getSetSpeedMultiplierCommand(SLOW_MODE_SPEED));
+    controller1.a().whileTrue(driveTrain.getSetSpeedMultiplierCommand(0.5));
 
     controller2.y().onTrue(new InstantCommand(intakeDriverCommand::buttonPress));
     controller2.x().toggleOnTrue(shooter.getToggleShooterCommand(() -> Shooter.PEAK_OUTPUT));
