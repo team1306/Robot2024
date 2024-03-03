@@ -59,7 +59,7 @@ public class Arm extends SubsystemBase  {
     public static double kG = 0.0725, kV = .17;
     private static double kMaxVelocity = 360, kMaxAcceleration = 280; // kMA MIGHT BE WRONG
 
-    public static final double OFFSET = -219.15 + 180 + 10 - 1.5, DELTA_AT_SETPOINT = 1;
+    public static final double OFFSET = -219.15 + 180 + 10 + .5, DELTA_AT_SETPOINT = 1;
     
     private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
     private double manualPower;
