@@ -55,7 +55,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    //m_autonomousCommand = new PathPlannerAuto("Copy of Far Rings from Shoot-Top"); //trying to manually run path
+    //m_autonomousCommand =
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
