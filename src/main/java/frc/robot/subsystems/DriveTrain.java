@@ -18,6 +18,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -116,11 +117,6 @@ public class DriveTrain extends SubsystemBase{
         SmartDashboard.putNumber("Max Speed", MAX_SPEED);
     }
 
-    private void setSides(double left, double right) {
-        leftLeader.set(left * currentSpeedMultipler * MAX_SPEED);
-        rightLeader.set(right * currentSpeedMultipler * MAX_SPEED);   
-    }
-
     public void arcadeDrive(double speed, double rotation){
         SmartDashboard.putNumber("Speed", speed);
         SmartDashboard.putNumber("Rotation", rotation);
@@ -176,6 +172,12 @@ public class DriveTrain extends SubsystemBase{
         return poseEstimator.getEstimatedPosition();
     }
 
+
+    private void setSides(double left, double right) {
+        leftLeader.setVoltage(left + (Math.signum(MathUtil.applyDeadband(left, 5e-2) * 0.0175 * 12)));
+        rightLeader.setVoltage(right + (Math.signum(MathUtil.applyDeadband(right, 5e-2) * 0.0105 * 12)));   
+    }
+
     private void resetPose(Pose2d pose){
         poseEstimator.resetPosition(gyro.getRotation2d(), new DifferentialDriveWheelPositions(0,0), pose);
     }
@@ -218,7 +220,7 @@ public class DriveTrain extends SubsystemBase{
     private final SysIdRoutine m_sysIdRoutine = new SysIdRoutine(new Config(),
     new Mechanism(
         (Measure<Voltage> volts) -> {
-        leftLeader.setVoltage(volts.in(Units.Volts)); rightLeader.setVoltage(volts.in(Units.Volts));}, 
+        setSides(volts.in(Volts), volts.in(Volts));}, 
         log -> {
             log.motor("left")
             .voltage(m_appliedVoltage.mut_replace(leftLeader.get() * RobotController.getBatteryVoltage(), Volts))
