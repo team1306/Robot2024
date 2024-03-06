@@ -26,9 +26,12 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.MotorUtil;
@@ -45,7 +48,7 @@ public class DriveTrain extends SubsystemBase{
     // public static double leftFriction = 0;
     // public static double rightFriction = 0;
 
-    private static final String AUTO_NAME = "Path";
+    private static final String AUTO_NAME = "Close Rings from Start-Mid";
     
     //Percentage
     public static double MAX_SPEED = 1;
@@ -54,11 +57,11 @@ public class DriveTrain extends SubsystemBase{
 
     private CANSparkMax leftLeader;
     private CANSparkMax leftFollower;
-
+private final Field2d m_field = new Field2d();
     private CANSparkMax rightLeader;
     private CANSparkMax rightFollower;
 
-    private RelativeEncoder rEncoder, lEncoder;
+    private Encoder rEncoder, lEncoder;
 
     private DifferentialDrivePoseEstimator poseEstimator;
 
@@ -74,19 +77,20 @@ public class DriveTrain extends SubsystemBase{
         leftFollower = MotorUtil.initSparkMax(BACK_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
         rightLeader = MotorUtil.initSparkMax(FRONT_RIGHT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
         rightFollower = MotorUtil.initSparkMax(BACK_RIGHT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
-
         leftLeader.setInverted(true);
         leftFollower.follow(leftLeader, false);
 
         rightLeader.setInverted(false);
         rightFollower.follow(rightLeader, false);
 
-        rEncoder = rightLeader.getEncoder();
-        lEncoder = leftLeader.getEncoder();
+        rEncoder = new Encoder(4, 5, true, EncodingType.k1X);
+        rEncoder.reset();
+        rEncoder.setDistancePerPulse(360/2048); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
 
-        rEncoder.setPosition(0);
-        lEncoder.setPosition(0);
-
+        lEncoder = new Encoder(6, 7, true, EncodingType.k1X);;
+        lEncoder.reset();
+        lEncoder.setDistancePerPulse(360/2048); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
+        
         //Pathplanner configuration
         AutoBuilder.configureLTV(
                 this::getPose, // Robot pose supplier
@@ -99,7 +103,7 @@ public class DriveTrain extends SubsystemBase{
                 this // Reference to this subsystem to set requirements
         );
         
-        poseEstimator = new DifferentialDrivePoseEstimator(kinematics, gyro.getRotation2d(), lEncoder.getPosition(), rEncoder.getPosition(),
+        poseEstimator = new DifferentialDrivePoseEstimator(kinematics, gyro.getRotation2d(), lEncoder.getDistance(), rEncoder.getDistance(),
             INCLUDE_AUTO ? PathPlannerAuto.getStaringPoseFromAutoFile(AUTO_NAME) : new Pose2d());
 
         SmartDashboard.putNumber("Max Speed", MAX_SPEED);
@@ -174,16 +178,18 @@ public class DriveTrain extends SubsystemBase{
     }
 
     private ChassisSpeeds getCurrentSpeeds(){
-        return lastSpeeds;
+        return kinematics.toChassisSpeeds(new DifferentialDriveWheelSpeeds(lEncoder.getRate(), rEncoder.getRate()));
     }
 
     @Override
     public void periodic() {
-        poseEstimator.update(gyro.getRotation2d(), new DifferentialDriveWheelPositions(lEncoder.getPosition(), rEncoder.getPosition()));
+        poseEstimator.update(gyro.getRotation2d(), new DifferentialDriveWheelPositions(lEncoder.getDistance(), rEncoder.getDistance()));
+        m_field.setRobotPose(getPose());
+        SmartDashboard.putData("Field", m_field);
         if (INCLUDE_LIMELIGHT) poseEstimator.addVisionMeasurement(LimelightHelpers.getBotPose2d(LIMELIGHT_NAME), Timer.getFPGATimestamp());
         MAX_SPEED = SmartDashboard.getNumber("Max Speed", 1);
-        SmartDashboard.putNumber("Left Encoder Output", lEncoder.getVelocity());
-        SmartDashboard.putNumber("Right Encoder Output", rEncoder.getVelocity());
+        SmartDashboard.putNumber("Left Encoder Output", lEncoder.getRate());
+        SmartDashboard.putNumber("Right Encoder Output", rEncoder.getRate());
 
         rightMulitplier = SmartDashboard.getNumber("Right Drive Multiplier", 0);
         leftMultiplier = SmartDashboard.getNumber("Left Drive Multiplier", 0);
