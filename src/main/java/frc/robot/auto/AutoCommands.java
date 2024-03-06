@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.Intake;
 
 public final class AutoCommands {
-    //variables naming guide: Ring ID + Starting Location
+    //variables naming guide: get Ring ID + Starting Location
 
     public static final double waitTime = 1;
 
@@ -21,8 +21,8 @@ public final class AutoCommands {
             getIntakeWaiterCommand(intake),
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-1 to Shoot-Top"))
             // shoot todo
-    );
-}
+        );
+    }
 
     public static SequentialCommandGroup getFar2ShootTop (Intake intake){
         return new SequentialCommandGroup(
@@ -30,8 +30,8 @@ public final class AutoCommands {
             getIntakeWaiterCommand(intake),
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-2 to Shoot-Top"))
             // shoot todo
-    );
-}
+        );
+    }
     
     public static SequentialCommandGroup getFar4ShootBottom (Intake intake){ 
         return new SequentialCommandGroup(
@@ -39,8 +39,8 @@ public final class AutoCommands {
             getIntakeWaiterCommand(intake),
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-4 to Shoot-Bottom"))
              // shoot todo
-   );
-}
+        );
+    }
 
     public static SequentialCommandGroup getFar5ShootBottom (Intake intake){ 
         return new SequentialCommandGroup(
@@ -48,8 +48,8 @@ public final class AutoCommands {
             getIntakeWaiterCommand(intake),
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-5 to Shoot-Bottom"))
             // shoot todo
-    );
-}
+        );
+    }
 
     public static SequentialCommandGroup getFar3ScanTop (Intake intake){
         return new SequentialCommandGroup(
@@ -57,8 +57,8 @@ public final class AutoCommands {
             getIntakeWaiterCommand(intake),
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-3 to Shoot-Bottom"))
                 // shoot todo
-    );
-}
+        );
+    }
 
     public static SequentialCommandGroup getFar3ScanBottom (Intake intake){
         return new SequentialCommandGroup(
@@ -66,8 +66,8 @@ public final class AutoCommands {
             getIntakeWaiterCommand(intake),
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-3 to Shoot-Top"))
                // shoot todo
-    );
-}
+        );
+    }
 
     public static SequentialCommandGroup getFar1ScanBottom (Intake intake){
         return new SequentialCommandGroup(
@@ -75,8 +75,8 @@ public final class AutoCommands {
             getIntakeWaiterCommand(intake),
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-1 to Shoot-Top"))
                // shoot todo
-    );
-}
+        );
+    }
 
     public static SequentialCommandGroup getFar2ScanBottom (Intake intake){ 
         return new SequentialCommandGroup(
@@ -84,8 +84,8 @@ public final class AutoCommands {
             getIntakeWaiterCommand(intake),
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-2 to Shoot-Top"))
              // shoot todo
-   );
-}
+        );
+    }
 
     public static SequentialCommandGroup getFar4ScanTop (Intake intake){ 
         return new SequentialCommandGroup(
@@ -93,8 +93,8 @@ public final class AutoCommands {
             getIntakeWaiterCommand(intake),
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-4 to Shoot-Bottom"))
             // shoot todo
-    );
-}
+        );
+    }
 
     public static SequentialCommandGroup getFar5ScanTop (Intake intake){ 
         return new SequentialCommandGroup(
@@ -102,8 +102,16 @@ public final class AutoCommands {
             getIntakeWaiterCommand(intake),
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-5 to Shoot-Bottom"))
             // shoot todo
-    );
-}
+        );
+    }
+
+    public static SequentialCommandGroup getClose1StartMid (Intake intake) {
+        return new SequentialCommandGroup(
+            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Start-Mid to Close-1")),
+            getIntakeWaiterCommand(intake)
+            //shoot
+        );
+    }
 
 
     public static Command getIntakeWaiterCommand(Intake intake) {

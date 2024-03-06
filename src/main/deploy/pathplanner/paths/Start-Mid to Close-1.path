@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.261187091180438,
+        "x": 1.7611870911804413,
         "y": 5.566874071049189
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "start-speaker-mid"
     },
     {
       "anchor": {
-        "x": 5.71276343554397,
-        "y": 6.278357115288718
+        "x": 2.549548279397963,
+        "y": 6.778318173402979
       },
       "prevControl": {
-        "x": 4.7580545522894,
-        "y": 5.9808156085458535
+        "x": 2.1255242313197504,
+        "y": 6.513358541286376
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "shoot-top"
+      "linkedName": "close-1"
     }
   ],
   "rotationTargets": [],
