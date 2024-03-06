@@ -99,6 +99,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new CloseRingsFromStartMid(new NoteDetector.NoteDetectorPlaceHolder(), intake, shooter, arm);
+    return new PathPlannerAuto("Close Rings from Start-Mid");
   }
 }
