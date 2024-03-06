@@ -113,6 +113,22 @@ public final class AutoCommands {
         );
     }
 
+    public static SequentialCommandGroup getClose2Close1 (Intake intake) {
+        return new SequentialCommandGroup(
+            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Close-1 to Close-2")),
+            getIntakeWaiterCommand(intake)
+            //shoot
+        );
+    }
+
+    public static SequentialCommandGroup getClose3Close2 (Intake intake) {
+        return new SequentialCommandGroup(
+            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Close-2 to Close-3")),
+            getIntakeWaiterCommand(intake)
+            //shoot
+        );
+    }
+
 
     public static Command getIntakeWaiterCommand(Intake intake) {
         return new ParallelRaceGroup(new WaitUntilCommand(() -> intake.notePresent()), new WaitCommand(waitTime));
