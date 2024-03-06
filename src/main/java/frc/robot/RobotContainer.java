@@ -8,10 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.auto.AutoCommands;
-import frc.robot.auto.CloseRings;
-import frc.robot.auto.FarRingsFromShootBottom;
-import frc.robot.auto.FarRingsFromShootTop;
+import frc.robot.auto.CloseRingsFromStartMid;
 import frc.robot.commands.arm.MoveArmCommand;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.commands.climber.ClimberDriverCommand;
@@ -102,6 +99,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new CloseRings(new NoteDetector.NoteDetectorPlaceHolder(), intake, shooter, arm);
+    return new CloseRingsFromStartMid(new NoteDetector.NoteDetectorPlaceHolder(), intake, shooter, arm);
   }
 }

@@ -26,6 +26,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -56,7 +57,7 @@ public class DriveTrain extends SubsystemBase{
 
     private CANSparkMax leftLeader;
     private CANSparkMax leftFollower;
-
+private final Field2d m_field = new Field2d();
     private CANSparkMax rightLeader;
     private CANSparkMax rightFollower;
 
@@ -76,7 +77,6 @@ public class DriveTrain extends SubsystemBase{
         leftFollower = MotorUtil.initSparkMax(BACK_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
         rightLeader = MotorUtil.initSparkMax(FRONT_RIGHT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
         rightFollower = MotorUtil.initSparkMax(BACK_RIGHT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
-
         leftLeader.setInverted(true);
         leftFollower.follow(leftLeader, false);
 
@@ -184,6 +184,8 @@ public class DriveTrain extends SubsystemBase{
     @Override
     public void periodic() {
         poseEstimator.update(gyro.getRotation2d(), new DifferentialDriveWheelPositions(lEncoder.getDistance(), rEncoder.getDistance()));
+        m_field.setRobotPose(getPose());
+        SmartDashboard.putData("Field", m_field);
         if (INCLUDE_LIMELIGHT) poseEstimator.addVisionMeasurement(LimelightHelpers.getBotPose2d(LIMELIGHT_NAME), Timer.getFPGATimestamp());
         MAX_SPEED = SmartDashboard.getNumber("Max Speed", 1);
         SmartDashboard.putNumber("Left Encoder Output", lEncoder.getRate());
