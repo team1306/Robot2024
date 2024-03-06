@@ -109,7 +109,4 @@ public final class AutoCommands {
     public static Command getIntakeWaiterCommand(Intake intake) {
         return new ParallelRaceGroup(new WaitUntilCommand(() -> intake.notePresent()), new WaitCommand(waitTime));
     }
-
-
-
 }
