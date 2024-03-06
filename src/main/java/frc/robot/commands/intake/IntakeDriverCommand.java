@@ -21,7 +21,7 @@ public class IntakeDriverCommand extends Command {
     private BooleanSupplier reverseOverride;
     private boolean wasReversed = false;
     public static final double INTAKE_SPEED = 0.6;
-
+    private int noteNotPresentConfidence = 0;
     public IntakeDriverCommand(Intake intake, BooleanSupplier reverseOverride) {
         this.intake = intake;
         this.reverseOverride = reverseOverride;
@@ -57,10 +57,18 @@ public class IntakeDriverCommand extends Command {
                     intake.setTargetSpeed(0);
                     state = State.UNPOWERED_WITH_ELEMENT;
                 }
+                noteNotPresentConfidence = 0;
                 break;
             case UNPOWERED_NO_ELEMENT:
+                intake.setTargetSpeed(0);
             case UNPOWERED_WITH_ELEMENT:
                 intake.setTargetSpeed(0);
+                if (!intake.notePresent()) {
+                    ++noteNotPresentConfidence;
+                }
+                if (noteNotPresentConfidence >= 5) {
+                    state = State.UNPOWERED_NO_ELEMENT;
+                }
                 break;
             case INDEXING:
                 if (timer.hasElapsed(1)) {
