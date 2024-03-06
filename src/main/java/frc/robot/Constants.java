@@ -38,6 +38,6 @@ public final class Constants {
            
     public static final double        SLOW_MODE_SPEED             = 0.3;
 
-    public static final boolean       INCLUDE_AUTO                = false;
+    public static final boolean       INCLUDE_AUTO                = true;
     public static final boolean       INCLUDE_LIMELIGHT           = false;
 }

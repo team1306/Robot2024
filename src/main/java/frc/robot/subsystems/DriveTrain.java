@@ -42,8 +42,8 @@ public class DriveTrain extends SubsystemBase{
     //Track width in meters
     public static final double TRACK_WIDTH = 0;
     //Above 1
-    public static double leftMultiplier = 0;
-    public static double rightMulitplier = 0;
+    // public static double leftMultiplier = 0;
+    // public static double rightMulitplier = 0;
     // public static double leftFriction = 0;
     // public static double rightFriction = 0;
 
@@ -114,8 +114,8 @@ public class DriveTrain extends SubsystemBase{
      }
     
     private void setSides(double left, double right) {
-        leftLeader.set(left * currentSpeedMultipler * MAX_SPEED * (1 + leftMultiplier) + (Math.signum(MathUtil.applyDeadband(left, 5e-2) * 0.0175)));
-        rightLeader.set(right * currentSpeedMultipler * MAX_SPEED * (1 + rightMulitplier) + (Math.signum(MathUtil.applyDeadband(right, 5e-2) * 0.0105)));   
+        leftLeader.set((left * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(left, 5e-2) * 0.0175))) * MAX_SPEED);
+        rightLeader.set((right * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(right, 5e-2) * 0.0105))) * MAX_SPEED);   
     }
 
     public void arcadeDrive(double speed, double rotation){
@@ -189,8 +189,8 @@ public class DriveTrain extends SubsystemBase{
         SmartDashboard.putNumber("Left Encoder Output", lEncoder.getRate());
         SmartDashboard.putNumber("Right Encoder Output", rEncoder.getRate());
 
-        rightMulitplier = SmartDashboard.getNumber("Right Drive Multiplier", 0);
-        leftMultiplier = SmartDashboard.getNumber("Left Drive Multiplier", 0);
+        // rightMulitplier = SmartDashboard.getNumber("Right Drive Multiplier", 0);
+        // leftMultiplier = SmartDashboard.getNumber("Left Drive Multiplier", 0);
 
         //rightFriction = SmartDashboard.getNumber("Left Drive Static Friction", 0);  
         //leftFriction = SmartDashboard.getNumber("Right Drive Static Friction", 0); 
