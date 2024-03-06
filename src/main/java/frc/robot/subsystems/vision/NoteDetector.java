@@ -4,8 +4,18 @@ import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 public interface NoteDetector {
+    public static class NoteDetectorPlaceHolder implements NoteDetector{
+        @Override
+        public State[] getNoteState() {
+            return new State[]{State.UNKNOWN, State.UNKNOWN, State.UNKNOWN, State.UNKNOWN, State.UNKNOWN};
+        }
+
+        @Override
+        public Command read(Checkpoints checkpoint) {return new InstantCommand();}
+    }
     public enum State {
         PRESENT,
         NOT_PRESENT,
