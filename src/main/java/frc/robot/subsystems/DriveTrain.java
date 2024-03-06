@@ -18,6 +18,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -41,8 +42,8 @@ public class DriveTrain extends SubsystemBase{
     //Above 1
     public static double leftMultiplier = 0;
     public static double rightMulitplier = 0;
-    public static double leftFriction = 0;
-    public static double rightFriction = 0;
+    // public static double leftFriction = 0;
+    // public static double rightFriction = 0;
 
     private static final String AUTO_NAME = "Path";
     
@@ -104,13 +105,13 @@ public class DriveTrain extends SubsystemBase{
         SmartDashboard.putNumber("Max Speed", MAX_SPEED);
         SmartDashboard.putNumber("Left Drive Multiplier", 0);  
         SmartDashboard.putNumber("Right Drive Multiplier", 0); 
-        SmartDashboard.putNumber("Left Drive Static Friction", 0);  
-        SmartDashboard.putNumber("Right Drive Static Friction", 0); 
+        //SmartDashboard.putNumber("Left Drive Static Friction", 0);  
+        //SmartDashboard.putNumber("Right Drive Static Friction", 0); 
      }
-
+    
     private void setSides(double left, double right) {
-        leftLeader.set(left * currentSpeedMultipler * MAX_SPEED * (1 + leftMultiplier) + leftFriction);
-        rightLeader.set(right * currentSpeedMultipler * MAX_SPEED * (1 + rightMulitplier) + rightFriction);   
+        leftLeader.set(left * currentSpeedMultipler * MAX_SPEED * (1 + leftMultiplier) + (Math.signum(MathUtil.applyDeadband(left, 5e-2) * 0.0175)));
+        rightLeader.set(right * currentSpeedMultipler * MAX_SPEED * (1 + rightMulitplier) + (Math.signum(MathUtil.applyDeadband(right, 5e-2) * 0.0105)));   
     }
 
     public void arcadeDrive(double speed, double rotation){
@@ -187,8 +188,8 @@ public class DriveTrain extends SubsystemBase{
         rightMulitplier = SmartDashboard.getNumber("Right Drive Multiplier", 0);
         leftMultiplier = SmartDashboard.getNumber("Left Drive Multiplier", 0);
 
-        rightFriction = SmartDashboard.getNumber("Left Drive Static Friction", 0);  
-        leftFriction = SmartDashboard.getNumber("Right Drive Static Friction", 0); 
+        //rightFriction = SmartDashboard.getNumber("Left Drive Static Friction", 0);  
+        //leftFriction = SmartDashboard.getNumber("Right Drive Static Friction", 0); 
     }
 
     public Command getSetSpeedMultiplierCommand(double multiplier) {
