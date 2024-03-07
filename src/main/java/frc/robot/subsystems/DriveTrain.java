@@ -47,7 +47,7 @@ public class DriveTrain extends SubsystemBase{
     // public static double leftFriction = 0;
     // public static double rightFriction = 0;
 
-    private static final String AUTO_NAME = "Close Rings from Start-Mid";
+    private static final String AUTO_NAME = "testPath";
     
     //Percentage
     public static double MAX_SPEED = 1;
@@ -82,14 +82,13 @@ private final Field2d m_field = new Field2d();
         rightLeader.setInverted(false);
         rightFollower.follow(rightLeader, false);
 
-        rEncoder = new Encoder(4, 5, true, EncodingType.k1X);
+        rEncoder = new Encoder(4, 5, false, EncodingType.k1X);
         rEncoder.reset();
-        rEncoder.setDistancePerPulse(360/2048); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
+        rEncoder.setDistancePerPulse(360/2048 * (0.1524 * Math.PI)); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
 
         lEncoder = new Encoder(6, 7, true, EncodingType.k1X);;
         lEncoder.reset();
-        lEncoder.setDistancePerPulse(360/2048); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
-        
+        lEncoder.setDistancePerPulse(360/2048 * (0.1524 * Math.PI)); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
         //Pathplanner configuration
         AutoBuilder.configureLTV(
                 this::getPose, // Robot pose supplier
@@ -113,8 +112,8 @@ private final Field2d m_field = new Field2d();
      }
     
     private void setSides(double left, double right) {
-        leftLeader.set((left * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(left, 5e-2) * 0.0175))) * MAX_SPEED);
-        rightLeader.set((right * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(right, 5e-2) * 0.0105))) * MAX_SPEED);   
+        leftLeader.set((left * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(left, 5e-2))) * 0.0175) * MAX_SPEED);
+        rightLeader.set((right * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(right, 5e-2))) * 0.0105) * MAX_SPEED);   
     }
 
     public void arcadeDrive(double speed, double rotation){

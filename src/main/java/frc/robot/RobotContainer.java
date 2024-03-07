@@ -27,6 +27,8 @@ import frc.robot.subsystems.vision.NoteDetector;
 
 import java.util.function.BooleanSupplier;
 
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 public class RobotContainer {
 
   private CommandXboxController controller1 = new CommandXboxController(0); // Creates an XboxController on port 1.
@@ -97,6 +99,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new CloseRingsFromStartMid(new NoteDetector.NoteDetectorPlaceHolder(), intake, shooter, arm);
+    return new PathPlannerAuto("testPath");
   }
 }

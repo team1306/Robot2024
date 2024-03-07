@@ -22,7 +22,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    front = new UsbCamera("front", 0);
+    /*front = new UsbCamera("front", 0);
     front.setResolution(100, 100);
     front.setFPS(8);
     front.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
@@ -31,7 +31,7 @@ public class Robot extends TimedRobot {
     back.setResolution(100, 100);
     back.setFPS(8);
     back.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-    CameraServer.startAutomaticCapture(back);
+    CameraServer.startAutomaticCapture(back);*/
     m_robotContainer = new RobotContainer();
 
     PortForwarder.add(5800, "photonvision.local", 5800);
