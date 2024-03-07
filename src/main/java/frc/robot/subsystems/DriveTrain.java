@@ -84,11 +84,11 @@ private final Field2d m_field = new Field2d();
 
         rEncoder = new Encoder(4, 5, false, EncodingType.k1X);
         rEncoder.reset();
-        rEncoder.setDistancePerPulse(360/2048 * (0.1524 * Math.PI)); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
+        rEncoder.setDistancePerPulse(0.1524 * Math.PI / 2048D); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
 
         lEncoder = new Encoder(6, 7, true, EncodingType.k1X);;
         lEncoder.reset();
-        lEncoder.setDistancePerPulse(360/2048 * (0.1524 * Math.PI)); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
+        lEncoder.setDistancePerPulse(0.1524 * Math.PI / 2048D); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
         //Pathplanner configuration
         AutoBuilder.configureLTV(
                 this::getPose, // Robot pose supplier

@@ -78,7 +78,7 @@ public class Arm extends SubsystemBase  {
         absoluteThroughBoreEncoder = new DutyCycleEncoder(0);
         relativeThroughBore = new Encoder(2, 3, true, EncodingType.k1X);
         relativeThroughBore.reset();
-        relativeThroughBore.setDistancePerPulse(360/2048); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
+        relativeThroughBore.setDistancePerPulse(360D/2048D); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
 
         feedforward = new ArmFeedforward(0, kG, kV, 0);
         profiledPIDController = new ProfiledPIDController(kP, kI, kD, m_constraints, LOOP_TIME_SECONDS);
@@ -190,6 +190,8 @@ public class Arm extends SubsystemBase  {
         SmartDashboard.putNumber("left arm power", leftArmMotor.get());
         SmartDashboard.putNumber("arm current", rightArmMotor.getOutputCurrent() + leftArmMotor.getOutputCurrent());
         SmartDashboard.putNumber("Arm Current Angle", getCurrentAngle().getDegrees());
+        SmartDashboard.putNumber("Arm Raw Velocity", relativeThroughBore.getRate());
+        
         lastControlMode = controlMode;
         ++velocityIndex;
     }
