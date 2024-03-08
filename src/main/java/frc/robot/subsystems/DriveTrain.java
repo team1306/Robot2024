@@ -32,12 +32,14 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
 import frc.robot.util.LimelightHelpers;
@@ -70,7 +72,7 @@ public class DriveTrain extends SubsystemBase{
     private CANSparkMax rightLeader;
     private CANSparkMax rightFollower;
 
-    private RelativeEncoder rEncoder, lEncoder;
+    private Encoder rEncoder, lEncoder;
 
     private DifferentialDrivePoseEstimator poseEstimator;
 
@@ -93,11 +95,15 @@ public class DriveTrain extends SubsystemBase{
         rightLeader.setInverted(false);
         rightFollower.follow(rightLeader, false);
 
-        rEncoder = rightLeader.getEncoder();
-        lEncoder = leftLeader.getEncoder();
+        rEncoder = new Encoder(4, 5, false, EncodingType.k1X);
+        lEncoder = new Encoder(6, 7, true, EncodingType.k1X);
 
-        rEncoder.setPosition(0);
-        lEncoder.setPosition(0);
+        rEncoder.reset();
+        lEncoder.reset();
+
+        rEncoder.setDistancePerPulse(0.1524 * Math.PI / 2048D);
+        lEncoder.setDistancePerPulse(0.1524 * Math.PI / 2048D);
+
 
         //Pathplanner configuration
         AutoBuilder.configureLTV(
@@ -111,7 +117,7 @@ public class DriveTrain extends SubsystemBase{
                 this // Reference to this subsystem to set requirements
         );
         
-        poseEstimator = new DifferentialDrivePoseEstimator(kinematics, gyro.getRotation2d(), lEncoder.getPosition(), rEncoder.getPosition(),
+        poseEstimator = new DifferentialDrivePoseEstimator(kinematics, gyro.getRotation2d(), lEncoder.getDistance(), rEncoder.getDistance(),
             INCLUDE_AUTO ? PathPlannerAuto.getStaringPoseFromAutoFile(AUTO_NAME) : new Pose2d());
 
         SmartDashboard.putNumber("Max Speed", MAX_SPEED);
@@ -188,11 +194,11 @@ public class DriveTrain extends SubsystemBase{
 
     @Override
     public void periodic() {
-        poseEstimator.update(gyro.getRotation2d(), new DifferentialDriveWheelPositions(lEncoder.getPosition(), rEncoder.getPosition()));
+        poseEstimator.update(gyro.getRotation2d(), new DifferentialDriveWheelPositions(lEncoder.getDistance(), rEncoder.getDistance()));
         if (INCLUDE_LIMELIGHT) poseEstimator.addVisionMeasurement(LimelightHelpers.getBotPose2d(LIMELIGHT_NAME), Timer.getFPGATimestamp());
         MAX_SPEED = SmartDashboard.getNumber("Max Speed", 1);
-        SmartDashboard.putNumber("Left Encoder Output", lEncoder.getVelocity());
-        SmartDashboard.putNumber("Right Encoder Output", rEncoder.getVelocity());
+        SmartDashboard.putNumber("Left Encoder Output", lEncoder.getRate());
+        SmartDashboard.putNumber("Right Encoder Output", rEncoder.getRate());
     }
 
     public Command getSetSpeedMultiplierCommand(double multiplier) {
@@ -216,7 +222,6 @@ public class DriveTrain extends SubsystemBase{
     // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
     private final MutableMeasure<Velocity<Distance>> m_velocity = mutable(MetersPerSecond.of(0));
     
-    private static final double wheelCircumfrence = Units.Meters.convertFrom(4 * Math.PI, Inches);
     private final SysIdRoutine m_sysIdRoutine = new SysIdRoutine(new Config(),
     new Mechanism(
         (Measure<Voltage> volts) -> {
@@ -224,13 +229,13 @@ public class DriveTrain extends SubsystemBase{
         log -> {
             log.motor("left")
             .voltage(m_appliedVoltage.mut_replace(leftLeader.get() * RobotController.getBatteryVoltage(), Volts))
-            .linearPosition(m_distance.mut_replace(lEncoder.getPosition() * wheelCircumfrence, Meters))
-            .linearVelocity(m_velocity.mut_replace(lEncoder.getVelocity() * wheelCircumfrence / 60.0, MetersPerSecond));
+            .linearPosition(m_distance.mut_replace(lEncoder.getDistance(), Meters))
+            .linearVelocity(m_velocity.mut_replace(lEncoder.getRate(), MetersPerSecond));
 
             log.motor("right")
             .voltage(m_appliedVoltage.mut_replace(rightLeader.get() * RobotController.getBatteryVoltage(), Volts))
-            .linearPosition(m_distance.mut_replace(rEncoder.getPosition() * wheelCircumfrence, Meters))
-            .linearVelocity(m_velocity.mut_replace(rEncoder.getVelocity() * wheelCircumfrence, MetersPerSecond));
+            .linearPosition(m_distance.mut_replace(rEncoder.getDistance(), Meters))
+            .linearVelocity(m_velocity.mut_replace(rEncoder.getRate(), MetersPerSecond));
         }, this));
     /**
    * Returns a command that will execute a quasistatic test in the given direction.
