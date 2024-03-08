@@ -112,8 +112,8 @@ private final Field2d m_field = new Field2d();
      }
     
     private void setSides(double left, double right) {
-        leftLeader.set((left * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(left, 5e-2))) * 0.0175) * MAX_SPEED);
-        rightLeader.set((right * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(right, 5e-2))) * 0.0105) * MAX_SPEED);   
+        leftLeader.set((left * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(left, 1e-2))) * 0.0175) * MAX_SPEED);
+        rightLeader.set((right * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(right, 1e-2))) * 0.0105) * MAX_SPEED);   
     }
 
     public void arcadeDrive(double speed, double rotation){
@@ -155,8 +155,16 @@ private final Field2d m_field = new Field2d();
         setSides(leftMotorOutput, rightMotorOutput);
     }
 
-    public void drive(DifferentialDriveWheelSpeeds wheelSpeeds){
+    public void drivePercentage(DifferentialDriveWheelSpeeds wheelSpeeds){
         setSides(wheelSpeeds.leftMetersPerSecond, wheelSpeeds.rightMetersPerSecond);
+    }
+
+    public void driveVoltage(DifferentialDriveWheelSpeeds wheelVoltages) {
+        drivePercentage(wheelVoltages.div(12));
+    }
+
+    public void driveMetersPerSecond(DifferentialDriveWheelSpeeds wheelSpeeds) {
+        driveVoltage(wheelSpeeds.times(12)); // VERY BAD, PLEASE IMPLEMENT BRADLEY (OR ETHAN IF HE DOESNT GET TO IT)
     }
 
     public void drive(ChassisSpeeds speeds){
@@ -164,7 +172,7 @@ private final Field2d m_field = new Field2d();
 
         // Convert to wheel speeds
         DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(speeds);
-        drive(wheelSpeeds);
+        driveMetersPerSecond(wheelSpeeds);
     }
 
     private Pose2d getPose(){

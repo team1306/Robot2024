@@ -23,14 +23,12 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.vision.NoteDetector;
 
 import java.util.function.BooleanSupplier;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 public class RobotContainer {
-
   private CommandXboxController controller1 = new CommandXboxController(0); // Creates an XboxController on port 1.
   private CommandXboxController controller2 = new CommandXboxController(1); // Creates an XboxController on port 1.
 
