@@ -24,6 +24,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -40,7 +41,7 @@ import frc.robot.util.Utilities;
 //Implemented as Ramsete (Differential)
 public class DriveTrain extends SubsystemBase{
     //Track width in meters
-    public static final double TRACK_WIDTH = 0;
+    public static final double TRACK_WIDTH = Units.inchesToMeters(25.875);
     //Above 1
     // public static double leftMultiplier = 0;
     // public static double rightMulitplier = 0;
@@ -84,11 +85,11 @@ private final Field2d m_field = new Field2d();
 
         rEncoder = new Encoder(4, 5, false, EncodingType.k1X);
         rEncoder.reset();
-        rEncoder.setDistancePerPulse(0.1524 * Math.PI / 2048D); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
+        rEncoder.setDistancePerPulse(Units.inchesToMeters(6) * Math.PI / 2048D); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
 
         lEncoder = new Encoder(6, 7, true, EncodingType.k1X);;
         lEncoder.reset();
-        lEncoder.setDistancePerPulse(0.1524 * Math.PI / 2048D); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
+        lEncoder.setDistancePerPulse(Units.inchesToMeters(6) * Math.PI / 2048D); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
         //Pathplanner configuration
         AutoBuilder.configureLTV(
                 this::getPose, // Robot pose supplier
