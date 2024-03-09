@@ -23,7 +23,7 @@ public class MoveOutMid extends ParallelCommandGroup {
             shooterCommand, //turns on shooter
             new SequentialCommandGroup( //following commands run in sequence
                 new MoveArmToSetpointCommand(arm, Arm.Setpoint.SHOOT_CLOSE, () -> true), //aim
-                new WaitCommand(3),
+                new WaitCommand(1.5),
                 new IntakeIndexCommand(intake), //fire
                 new InstantCommand(() -> {shooterCommand.stop();}), //turn off shooter
                 new MoveArmToSetpointCommand(arm, Arm.Setpoint.DOWN, () -> true), //arm down

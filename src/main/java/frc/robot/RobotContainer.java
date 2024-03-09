@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.auto.MoveOutLeft;
 import frc.robot.auto.MoveOutMid;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.commands.climber.ClimberDriverCommand;
@@ -114,7 +115,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new MoveOutMid(driveTrain, shooter, arm, intake);
+    return new MoveOutLeft(driveTrain, shooter, arm, intake);
   }
 
   public void configureSysIDBindings() {
