@@ -33,13 +33,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
+import frc.robot.subsystems.vision.SwitchableDriverCam;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Utilities;
 
 
 //Implemented as Ramsete (Differential)
-public class DriveTrain extends SubsystemBase{
+public class DriveTrain extends SubsystemBase {
     //Track width in meters
     public static final double TRACK_WIDTH = Units.inchesToMeters(25.875);
     //Above 1
@@ -57,7 +58,7 @@ public class DriveTrain extends SubsystemBase{
 
     private CANSparkMax leftLeader;
     private CANSparkMax leftFollower;
-private final Field2d m_field = new Field2d();
+    private final Field2d m_field = new Field2d();
     private CANSparkMax rightLeader;
     private CANSparkMax rightFollower;
 
@@ -68,11 +69,12 @@ private final Field2d m_field = new Field2d();
     private final DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(TRACK_WIDTH);
     private final AHRS gyro = new AHRS(SPI.Port.kMXP);
 
-    private ChassisSpeeds lastSpeeds;
+    private final SwitchableDriverCam switchableDriverCam;
 
-    public DriveTrain(){
+    private DifferentialDriveWheelSpeeds lastDriveVoltages;
+
+    public DriveTrain(SwitchableDriverCam switchableDriverCam){
         gyro.reset();
-    
         leftLeader = MotorUtil.initSparkMax(FRONT_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
         leftFollower = MotorUtil.initSparkMax(BACK_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
         rightLeader = MotorUtil.initSparkMax(FRONT_RIGHT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
@@ -109,12 +111,20 @@ private final Field2d m_field = new Field2d();
         SmartDashboard.putNumber("Left Drive Multiplier", 0);  
         SmartDashboard.putNumber("Right Drive Multiplier", 0); 
         //SmartDashboard.putNumber("Left Drive Static Friction", 0);  
-        //SmartDashboard.putNumber("Right Drive Static Friction", 0); 
+        //SmartDashboard.putNumber("Right Drive Static Friction", 0);
+        this.switchableDriverCam = switchableDriverCam;      
      }
     
-    private void setSides(double left, double right) {
-        leftLeader.set((left * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(left, 1e-2))) * 0.0175) * MAX_SPEED);
-        rightLeader.set((right * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(right, 1e-2))) * 0.0105) * MAX_SPEED);   
+    private void setSideVoltages(double left, double right) {
+        final double leftOutput = (left * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(left, 12e-2))) * 12 * 0.0175) * MAX_SPEED;
+        final double rightOutput = (right * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(right, 12e-2))) * 12 * 0.0105) * MAX_SPEED;
+        lastDriveVoltages = new DifferentialDriveWheelSpeeds(leftOutput, rightOutput);
+        leftLeader.setVoltage(leftOutput);
+        rightLeader.setVoltage(rightOutput);   
+    }
+
+    private void setSidePercentages(double left, double right) {
+        setSideVoltages(left * 12D, right * 12D);
     }
 
     public void arcadeDrive(double speed, double rotation){
@@ -153,24 +163,22 @@ private final Field2d m_field = new Field2d();
             rightMotorOutput = 0;
         }
 
-        setSides(leftMotorOutput, rightMotorOutput);
+        setSidePercentages(leftMotorOutput, rightMotorOutput);
     }
 
     public void drivePercentage(DifferentialDriveWheelSpeeds wheelSpeeds){
-        setSides(wheelSpeeds.leftMetersPerSecond, wheelSpeeds.rightMetersPerSecond);
+        setSidePercentages(wheelSpeeds.leftMetersPerSecond, wheelSpeeds.rightMetersPerSecond);
     }
 
     public void driveVoltage(DifferentialDriveWheelSpeeds wheelVoltages) {
-        drivePercentage(wheelVoltages.div(12));
+        setSideVoltages(wheelVoltages.leftMetersPerSecond, wheelVoltages.rightMetersPerSecond);
     }
 
     public void driveMetersPerSecond(DifferentialDriveWheelSpeeds wheelSpeeds) {
-        driveVoltage(wheelSpeeds.times(12)); // VERY BAD, PLEASE IMPLEMENT BRADLEY (OR ETHAN IF HE DOESNT GET TO IT)
+        driveVoltage(wheelSpeeds.times(2)); // VERY BAD, PLEASE IMPLEMENT BRADLEY (OR ETHAN IF HE DOESNT GET TO IT)
     }
 
     public void drive(ChassisSpeeds speeds){
-        lastSpeeds = speeds;
-
         // Convert to wheel speeds
         DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(speeds);
         driveMetersPerSecond(wheelSpeeds);
@@ -202,7 +210,8 @@ private final Field2d m_field = new Field2d();
         // leftMultiplier = SmartDashboard.getNumber("Left Drive Multiplier", 0);
 
         //rightFriction = SmartDashboard.getNumber("Left Drive Static Friction", 0);  
-        //leftFriction = SmartDashboard.getNumber("Right Drive Static Friction", 0); 
+        //leftFriction = SmartDashboard.getNumber("Right Drive Static Friction", 0);
+        switchableDriverCam.setStreamToIndex(kinematics.toChassisSpeeds(lastDriveVoltages).vxMetersPerSecond >= 0 ? 0 : 1); // magnitude won't be right from this, but sign will be, so I don't care
     }
 
     public Command getSetSpeedMultiplierCommand(double multiplier) {

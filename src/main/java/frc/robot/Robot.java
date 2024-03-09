@@ -13,25 +13,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.arm.DebugArmCommand;
+import frc.robot.subsystems.vision.SwitchableDriverCam;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand, m_armDebugCommand;
-  private UsbCamera front, back;
   private RobotContainer m_robotContainer;
-
 
   @Override
   public void robotInit() {
-    /*front = new UsbCamera("front", 0);
-    front.setResolution(100, 100);
-    front.setFPS(8);
-    front.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-    CameraServer.startAutomaticCapture(front);
-    back = new UsbCamera("back", 1);
-    back.setResolution(100, 100);
-    back.setFPS(8);
-    back.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-    CameraServer.startAutomaticCapture(back);*/
+
     m_robotContainer = new RobotContainer();
 
     PortForwarder.add(5800, "photonvision.local", 5800);

@@ -4,11 +4,13 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.auto.CloseRingsFromStartMid;
 import frc.robot.commands.arm.MoveArmCommand;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.commands.climber.ClimberDriverCommand;
@@ -23,10 +25,12 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.vision.SwitchableDriverCam;
 
 import java.util.function.BooleanSupplier;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
+
 
 public class RobotContainer {
   private CommandXboxController controller1 = new CommandXboxController(0); // Creates an XboxController on port 1.
@@ -46,11 +50,27 @@ public class RobotContainer {
   private IntakeDriverCommand intakeDriverCommand;
   private ClimberDriverCommand climberDriverCommand;
   private ToggleShooterCommand toggleShooterCommand;
-  
+
+  private SwitchableDriverCam switchableDriverCam;
+  private UsbCamera front, back;
+
   private final BooleanSupplier cancelSetpoint = () -> controller2.getRightY() > 0 || controller2.getRightY() < 0 || controller2.b().getAsBoolean(); // b acts as cancel button
   
   public RobotContainer() {
-    driveTrain = new DriveTrain();
+    front = new UsbCamera("front", 0);
+    front.setResolution(160, 120);
+    front.setFPS(20);
+    back = new UsbCamera("back", 1);
+    back.setResolution(160, 120);
+    back.setFPS(20);
+    CameraServer.startAutomaticCapture(front);
+    CameraServer.startAutomaticCapture(back);
+
+    switchableDriverCam = new SwitchableDriverCam(CameraServer.getServer(), front, back);
+    front.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+    back.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+
+    driveTrain = new DriveTrain(switchableDriverCam);
     intake = new Intake();
     shooter = new Shooter();
     arm = new Arm();
