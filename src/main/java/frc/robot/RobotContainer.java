@@ -116,7 +116,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new MoveOutMid(shooter, arm, intake);
+    return new MoveOutMid(driveTrain, shooter, arm, intake);
   }
 
   public void configureSysIDBindings() {

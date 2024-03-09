@@ -15,8 +15,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 
 public class MoveOutMid extends ParallelCommandGroup {
-    private DriveTrain driveTrain = new DriveTrain(null);
-    public MoveOutMid(Shooter shooter, Arm arm, Intake intake) {
+    public MoveOutMid(DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) {
 
         System.out.println("Running Auto");
         final Command shooterCommand = new ToggleShooterCommand(() -> 1, () -> arm.getCurrentAngle().getDegrees(), shooter);
