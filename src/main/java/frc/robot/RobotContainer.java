@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.arm.MoveArmCommand;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.commands.climber.ClimberDriverCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
@@ -43,7 +42,6 @@ public class RobotContainer {
   private Climber climber;
   public Arm arm;
   
-  public MoveArmCommand moveArmCommand;
   private ShooterDriveCommand shooterDriveCommand;
   private NoteIndexingCommand indexNoteCommand;
   private ShooterPitchControlCommand shooterPitchControlCommand;
@@ -76,7 +74,6 @@ public class RobotContainer {
     shooter = new Shooter();
     arm = new Arm();
     climber = new Climber();
-    moveArmCommand = new MoveArmCommand(arm, () -> controller2.getRightY());
     shooterDriveCommand = new ShooterDriveCommand(driveTrain, indexNoteCommand, toggleShooterCommand);
     shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shooterDriveCommand);
     intakeDriverCommand = new IntakeDriverCommand(intake, () -> controller2.b().getAsBoolean());
@@ -88,7 +85,7 @@ public class RobotContainer {
 
     intake.setDefaultCommand(intakeDriverCommand);
     climber.setDefaultCommand(climberDriverCommand);
-    arm.setDefaultCommand(moveArmCommand);
+    arm.setDefaultCommand(new MoveArmToSetpointCommand(arm, Arm.Setpoint.INTAKE));
     driveTrain.setDefaultCommand(teleopDriveCommand);
     configureBindings();
   }
@@ -122,6 +119,9 @@ public class RobotContainer {
   }
 
   public void configureSysIDBindings() {
+    final Command temp = driveTrain.getDefaultCommand();
+    driveTrain.removeDefaultCommand();
+    temp.cancel();
     controller1
         .a()
         .and(controller1.rightBumper())

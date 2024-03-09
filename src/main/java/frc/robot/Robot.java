@@ -70,7 +70,6 @@ public class Robot extends TimedRobot {
     if (m_armDebugCommand != null) {
       m_armDebugCommand.cancel();
     }
-    m_robotContainer.moveArmCommand.reset();
   }
 
   @Override

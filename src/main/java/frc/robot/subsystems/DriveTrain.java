@@ -214,8 +214,11 @@ public class DriveTrain extends SubsystemBase {
         SmartDashboard.putData("Field", m_field);
         if (INCLUDE_LIMELIGHT) poseEstimator.addVisionMeasurement(LimelightHelpers.getBotPose2d(LIMELIGHT_NAME), Timer.getFPGATimestamp());
         MAX_SPEED = SmartDashboard.getNumber("Max Speed", 1);
-        SmartDashboard.putNumber("Left Encoder Output", lEncoder.getRate());
-        SmartDashboard.putNumber("Right Encoder Output", rEncoder.getRate());
+        SmartDashboard.putNumber("left vel", lEncoder.getRate());
+        SmartDashboard.putNumber("right vel", rEncoder.getRate());
+        SmartDashboard.putNumber("left pos", lEncoder.getDistance());
+        SmartDashboard.putNumber("right pos", rEncoder.getDistance());
+
 
         // rightMulitplier = SmartDashboard.getNumber("Right Drive Multiplier", 0);
         // leftMultiplier = SmartDashboard.getNumber("Left Drive Multiplier", 0);
