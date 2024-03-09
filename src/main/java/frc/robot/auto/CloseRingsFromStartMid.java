@@ -9,7 +9,7 @@ import frc.robot.subsystems.vision.NoteDetector;
 public class CloseRingsFromStartMid extends SequentialCommandGroup {
     public CloseRingsFromStartMid(NoteDetector detector, Intake intake, Shooter shooter, Arm arm) {
 
-        System.out.println("Running Close Rings");
+        System.out.println("Running Auto");
 
         addCommands(
             //shoot

@@ -14,7 +14,7 @@ public class FarRingsFromShootTop extends SequentialCommandGroup {
 
     public FarRingsFromShootTop(NoteDetector detector, Intake intake, Arm arm, Shooter shooter) {
 
-        System.out.println("Running Far Rings");
+        System.out.println("Running Auto");
 
         addCommands(
 

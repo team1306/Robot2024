@@ -15,7 +15,7 @@ public class FarRingsFromShootBottom extends SequentialCommandGroup {
 
     public FarRingsFromShootBottom(NoteDetector detector, Intake intake, Shooter shooter, Arm arm) {
 
-        System.out.println("Running Far Rings");
+        System.out.println("Running Auto");
 
         addCommands(
             //Collect 4 and 5
