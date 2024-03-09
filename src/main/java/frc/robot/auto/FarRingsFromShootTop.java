@@ -13,6 +13,9 @@ import frc.robot.subsystems.vision.NoteDetector.Checkpoints;
 public class FarRingsFromShootTop extends SequentialCommandGroup {
 
     public FarRingsFromShootTop(NoteDetector detector, Intake intake, Arm arm, Shooter shooter) {
+
+        System.out.println("Running Far Rings");
+
         addCommands(
 
             //Collect 1 and 2
