@@ -34,7 +34,7 @@ public class Arm extends SubsystemBase  {
         INTAKE(0),
         DOWN(4),
         SHOOT_CLOSE(16),
-        STAGE_SHOT(25);
+        STAGE_SHOT(35);
 
         public final int pos;
 
@@ -56,9 +56,9 @@ public class Arm extends SubsystemBase  {
     public static double kP = 0.02, kI = 0.0005, kD = 0.0018; // Do we want PID Controller? Or do we want to do state space model?
                                                  // need to read https://file.tavsys.net/control/controls-engineering-in-frc.pdf more so I know what I am doing
     public static double kG = 0.0725, kV = .17;
-    private static double kMaxVelocity = 360, kMaxAcceleration = 280; // kMA MIGHT BE WRONG
+    private static double kMaxVelocity = 360, kMaxAcceleration = 140; // kMA MIGHT BE WRONG
 
-    public static final double OFFSET = -219.15 + 180 + 10 + .5, DELTA_AT_SETPOINT = 1;
+    public static final double OFFSET = -219.15 + 180 + 10 + .5 + 57.15 + 174.425, DELTA_AT_SETPOINT = 1;
     
     private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
     private double manualPower;
@@ -80,7 +80,7 @@ public class Arm extends SubsystemBase  {
         relativeThroughBore.reset();
         relativeThroughBore.setDistancePerPulse(360D/2048D); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
 
-        feedforward = new ArmFeedforward(0, kG, kV, 0);
+        feedforward = new ArmFeedforward(0, Math.min(0.3, kG), kV, 0);
         profiledPIDController = new ProfiledPIDController(kP, kI, kD, m_constraints, LOOP_TIME_SECONDS);
 
         this.controlMode = controlMode;
@@ -157,7 +157,7 @@ public class Arm extends SubsystemBase  {
         m_constraints = new TrapezoidProfile.Constraints(m_constraints.maxVelocity, kMaxAcceleration);
         profiledPIDController.setConstraints(m_constraints);
         profiledPIDController.setPID(kP, kI, kD);
-        feedforward = new ArmFeedforward(0, kG, kV, 0);
+        feedforward = new ArmFeedforward(0, Math.min(0.25,kG), kV, 0);
 
         velocities[calcVelocityIndex(velocityIndex)] = relativeThroughBore.getRate();
         final double motorPower = MathUtil.applyDeadband(MathUtil.clamp(switch (controlMode) {

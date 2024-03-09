@@ -71,7 +71,7 @@ public class DriveTrain extends SubsystemBase {
 
     private final SwitchableDriverCam switchableDriverCam;
 
-    private DifferentialDriveWheelSpeeds lastDriveVoltages;
+    private DifferentialDriveWheelSpeeds lastDriveVoltages = new DifferentialDriveWheelSpeeds();
 
     public DriveTrain(SwitchableDriverCam switchableDriverCam){
         gyro.reset();
