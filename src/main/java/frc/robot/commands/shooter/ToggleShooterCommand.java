@@ -31,7 +31,7 @@ public class ToggleShooterCommand extends Command{
     }
     @Override
     public void initialize(){
-        shooter.setTargetSpeed(MotorUtil.clampPercent(speedSupplier.getAsDouble() * shooterSpeedLookupFromAngle.get(((int)angleSupplier.getAsDouble()) / 10))); 
+        shooter.setTargetSpeed(MotorUtil.clampPercent(speedSupplier.getAsDouble() * /*shooterSpeedLookupFromAngle.get(((int)angleSupplier.getAsDouble()) / 10)*/ 1)); 
     }
     @Override
     public void end(boolean interrupted){
