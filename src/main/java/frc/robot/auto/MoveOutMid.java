@@ -18,16 +18,18 @@ public class MoveOutMid extends ParallelCommandGroup {
     public MoveOutMid(DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) {
 
         System.out.println("Running Auto");
-        final Command shooterCommand = new ToggleShooterCommand(() -> 1, () -> arm.getCurrentAngle().getDegrees(), shooter);
+        final ToggleShooterCommand shooterCommand = new ToggleShooterCommand(() -> .76, () -> arm.getCurrentAngle().getDegrees(), shooter);
         addCommands( //all commands run at once
             shooterCommand, //turns on shooter
             new SequentialCommandGroup( //following commands run in sequence
                 new MoveArmToSetpointCommand(arm, Arm.Setpoint.SHOOT_CLOSE, () -> true), //aim
                 new WaitCommand(3),
                 new IntakeIndexCommand(intake), //fire
-                new InstantCommand(() -> shooterCommand.cancel()), //turn off shooter
-                new MoveArmToSetpointCommand(arm, Arm.Setpoint.DOWN), //arm down
-                driveTrain.driveBySetpointPercentagesCommand(0.2,0.2,2)
+                new InstantCommand(() -> {shooterCommand.stop();}), //turn off shooter
+                new MoveArmToSetpointCommand(arm, Arm.Setpoint.DOWN, () -> true), //arm down
+                new ParallelDeadlineGroup(new WaitCommand(2), //drive out
+                    driveTrain.driveBySetpointPercentagesCommand(0.2,0.2)
+                )
             )
         );
     }

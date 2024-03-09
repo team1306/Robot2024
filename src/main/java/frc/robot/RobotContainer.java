@@ -37,8 +37,8 @@ public class RobotContainer {
   private CommandXboxController controller1 = new CommandXboxController(0); // Creates an XboxController on port 1.
   private CommandXboxController controller2 = new CommandXboxController(1); // Creates an XboxController on port 1.
 
-  private DriveTrain driveTrain;
-  private Intake intake;
+  DriveTrain driveTrain;
+  Intake intake;
   private Shooter shooter; 
   private Climber climber;
   public Arm arm;
@@ -46,8 +46,8 @@ public class RobotContainer {
   private ShooterDriveCommand shooterDriveCommand;
   private NoteIndexingCommand indexNoteCommand;
   private ShooterPitchControlCommand shooterPitchControlCommand;
-  private TeleopDriveCommand teleopDriveCommand;
-  private IntakeDriverCommand intakeDriverCommand;
+  TeleopDriveCommand teleopDriveCommand;
+  IntakeDriverCommand intakeDriverCommand;
   private ClimberDriverCommand climberDriverCommand;
   private ToggleShooterCommand toggleShooterCommand;
 
@@ -58,10 +58,10 @@ public class RobotContainer {
   
   public RobotContainer() {
     front = new UsbCamera("front", 0);
-    front.setResolution(160, 120);
+    front.setResolution(30, 20);
     front.setFPS(2);
     back = new UsbCamera("back", 1);
-    back.setResolution(160, 120);
+    back.setResolution(30, 20);
     back.setFPS(2);
     CameraServer.startAutomaticCapture(front);
     CameraServer.startAutomaticCapture(back);
@@ -84,10 +84,8 @@ public class RobotContainer {
     // Example Pathplanner named command registration 
     //NamedCommands.registerCommand("Far Rings from Shoot-Top", getAutonomousCommand());
 
-    intake.setDefaultCommand(intakeDriverCommand);
     climber.setDefaultCommand(climberDriverCommand);
     arm.setDefaultCommand(new MoveArmToSetpointCommand(arm, Arm.Setpoint.INTAKE));
-    driveTrain.setDefaultCommand(teleopDriveCommand);
     configureBindings();
   }
 
