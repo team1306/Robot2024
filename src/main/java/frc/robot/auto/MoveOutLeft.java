@@ -23,7 +23,7 @@ public class MoveOutLeft extends SequentialCommandGroup {
             shooterCommand, //turns on shooter
             new SequentialCommandGroup( //following commands run in sequence
                 new MoveArmToSetpointCommand(arm, Arm.Setpoint.SHOOT_CLOSE), //aim
-                new WaitCommand(1),
+                new WaitCommand(2),
                 new IntakeIndexCommand(intake), //fire
                 new InstantCommand(() -> shooterCommand.cancel()), //turn off shooter
                 new MoveArmToSetpointCommand(arm, Arm.Setpoint.DOWN), //arm down

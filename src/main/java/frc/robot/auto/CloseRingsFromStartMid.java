@@ -13,9 +13,9 @@ public class CloseRingsFromStartMid extends SequentialCommandGroup {
 
         addCommands(
             //shoot
-            AutoCommands.getClose1StartMid(intake), //collect close 1 and shoot
-            AutoCommands.getClose2Close1(intake), //collect close 2 and shoot
-            AutoCommands.getClose3Close2(intake) //collect close 3 and shoot
+            AutoCommands.getClose1StartMid(intake, shooter), //collect close 1 and shoot
+            AutoCommands.getClose2Close1(intake, shooter), //collect close 2 and shoot
+            AutoCommands.getClose3Close2(intake, shooter) //collect close 3 and shoot
         );
     }
 }
