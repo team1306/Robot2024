@@ -147,12 +147,12 @@ public class Arm extends SubsystemBase  {
 
     @Override
     public void periodic() {
-        kP = SmartDashboard.getNumber("Arm kP", 0);
-        kI = SmartDashboard.getNumber("Arm kI", 0);
-        kD = SmartDashboard.getNumber("Arm kD",0);
+        kP = SmartDashboard.getNumber("Arm kP", kP);
+        kI = SmartDashboard.getNumber("Arm kI", kI);
+        kD = SmartDashboard.getNumber("Arm kD",kD);
 
-        kG = SmartDashboard.getNumber("Arm kG", 0);
-        kV = SmartDashboard.getNumber("Arm kV", 0);
+        kG = SmartDashboard.getNumber("Arm kG", kG);
+        kV = SmartDashboard.getNumber("Arm kV", kV);
 
         kMaxAcceleration = SmartDashboard.getNumber("Arm kMaxAcceleration", 0);
         m_constraints = new TrapezoidProfile.Constraints(m_constraints.maxVelocity, kMaxAcceleration);

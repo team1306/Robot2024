@@ -119,8 +119,6 @@ public class DriveTrain extends SubsystemBase {
             INCLUDE_AUTO ? PathPlannerAuto.getStaringPoseFromAutoFile(AUTO_NAME) : new Pose2d());
 
         SmartDashboard.putNumber("Max Speed", MAX_SPEED);
-        SmartDashboard.putNumber("Left Drive Multiplier", 0);  
-        SmartDashboard.putNumber("Right Drive Multiplier", 0); 
         //SmartDashboard.putNumber("Left Drive Static Friction", 0);  
         //SmartDashboard.putNumber("Right Drive Static Friction", 0);
         this.switchableDriverCam = switchableDriverCam;      
