@@ -295,6 +295,11 @@ public class DriveTrain extends SubsystemBase {
             }
 
             @Override
+            public void initialize() {
+                System.out.println("drivetrain init");
+            }
+
+            @Override
             public void execute() {
                 setSidePercentages(leftSpeed, rightSpeed);
                 System.out.println("Driving");
