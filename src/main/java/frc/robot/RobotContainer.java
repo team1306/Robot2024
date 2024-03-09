@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.auto.MoveOutMid;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.commands.climber.ClimberDriverCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
@@ -58,10 +59,10 @@ public class RobotContainer {
   public RobotContainer() {
     front = new UsbCamera("front", 0);
     front.setResolution(160, 120);
-    front.setFPS(20);
+    front.setFPS(2);
     back = new UsbCamera("back", 1);
     back.setResolution(160, 120);
-    back.setFPS(20);
+    back.setFPS(2);
     CameraServer.startAutomaticCapture(front);
     CameraServer.startAutomaticCapture(back);
 
@@ -115,7 +116,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new PathPlannerAuto("testPath");
+    return new MoveOutMid(shooter, arm, intake);
   }
 
   public void configureSysIDBindings() {

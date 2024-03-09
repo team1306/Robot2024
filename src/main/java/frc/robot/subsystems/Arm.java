@@ -95,6 +95,7 @@ public class Arm extends SubsystemBase  {
         SmartDashboard.putNumber("Arm kMaxAcceleration", kMaxAcceleration);
 
         profiledPIDController.setTolerance(DELTA_AT_SETPOINT);
+        setTargetAngle(getCurrentAngle());
     }
     
     public ControlMode getControlMode() {
@@ -190,6 +191,7 @@ public class Arm extends SubsystemBase  {
         SmartDashboard.putNumber("left arm power", leftArmMotor.get());
         SmartDashboard.putNumber("arm current", rightArmMotor.getOutputCurrent() + leftArmMotor.getOutputCurrent());
         SmartDashboard.putNumber("Arm Current Angle", getCurrentAngle().getDegrees());
+        SmartDashboard.putNumber("Arm Target Angle", getTargetAngle().getDegrees());
         SmartDashboard.putNumber("Arm Raw Velocity", relativeThroughBore.getRate());
         
         lastControlMode = controlMode;
