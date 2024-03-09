@@ -70,6 +70,10 @@ public class Robot extends TimedRobot {
     }
     m_robotContainer.arm.setTargetAngle(m_robotContainer.arm.getCurrentAngle());
     m_robotContainer.arm.periodic();
+
+    m_robotContainer.intake.setDefaultCommand(m_robotContainer.intakeDriverCommand);
+    m_robotContainer.driveTrain.setDefaultCommand(m_robotContainer.teleopDriveCommand);
+
   }
 
   @Override

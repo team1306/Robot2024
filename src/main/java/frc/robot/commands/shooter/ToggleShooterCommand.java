@@ -9,6 +9,7 @@ import frc.robot.util.MotorUtil;
 
 public class ToggleShooterCommand extends Command{
     private final Shooter shooter;
+    private boolean finished = false;
     private final DoubleSupplier speedSupplier;
     private final DoubleSupplier angleSupplier;
     private final HashMap<Integer, Double> shooterSpeedLookupFromAngle = new HashMap<>() {{
@@ -31,11 +32,21 @@ public class ToggleShooterCommand extends Command{
     }
     @Override
     public void initialize(){
+        System.out.println("shooter on");
         shooter.setTargetSpeed(MotorUtil.clampPercent(speedSupplier.getAsDouble() * /*shooterSpeedLookupFromAngle.get(((int)angleSupplier.getAsDouble()) / 10)*/ 1)); 
     }
     @Override
     public void end(boolean interrupted){
         shooter.setTargetSpeed(0);
         System.out.println("Shooter no spinny spinny");
+    }
+
+    public void stop() {
+        finished = true;
+    }
+
+    @Override
+    public boolean isFinished() {
+        return finished;
     }
 }

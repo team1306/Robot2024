@@ -9,14 +9,20 @@ public class IntakeIndexCommand extends Command {
     private Timer timer = new Timer();
     public IntakeIndexCommand(Intake intake) {
         this.intake = intake;
-        timer.restart();
     }
 
     @Override
     public void initialize() {
-        intake.setTargetSpeed(1);
+        timer.restart();
         System.out.println("Intake spinny spinny");
     }
+
+    @Override
+    public void execute() {
+        intake.setTargetSpeed(1);
+    }
+
+
 
     @Override
     public void end(boolean interrupted) {
@@ -26,6 +32,7 @@ public class IntakeIndexCommand extends Command {
 
     @Override
     public boolean isFinished() {
+        System.out.println(timer.get());
         return timer.hasElapsed(0.5);
     }
 }

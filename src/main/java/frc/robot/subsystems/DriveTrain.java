@@ -288,6 +288,29 @@ public class DriveTrain extends SubsystemBase {
      * @param rightSpeed speed of right wheel
      * @return generated command
      */
-    
+    public Command driveBySetpointPercentagesCommand(double leftSpeed, double rightSpeed) {
+        return new Command(){
+            {
+                addRequirements(DriveTrain.this);
+            }
+
+            @Override
+            public void initialize() {
+                System.out.println("drivetrain init");
+            }
+
+            @Override
+            public void execute() {
+                setSidePercentages(leftSpeed, rightSpeed);
+                System.out.println("Driving");
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                setSidePercentages(0, 0);
+                System.out.println("Stop driving");
+            }
+        };
+    }
     
 }
