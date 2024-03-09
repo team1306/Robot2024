@@ -19,6 +19,10 @@ public class MoveArmToSetpointCommand extends Command {
         addRequirements(arm);
     }
 
+    public MoveArmToSetpointCommand(Arm arm, Arm.Setpoint setpoint) {
+        this(arm, setpoint, null);
+    }
+
     @Override
     public void initialize() {
         arm.setControlMode(ControlMode.AUTOMATIC);
@@ -27,7 +31,7 @@ public class MoveArmToSetpointCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return interruptionFlag.getAsBoolean();
+        return interruptionFlag != null && interruptionFlag.getAsBoolean();
     }
 
     @Override

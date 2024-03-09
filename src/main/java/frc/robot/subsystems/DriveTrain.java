@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.Encoder;
@@ -227,4 +228,30 @@ public class DriveTrain extends SubsystemBase {
             }
         };
     }
+
+    /**
+     * returns a command to drive by setpoint percentages
+     * @param drivetrain drivetrain object
+     * @param leftSpeed speed of left wheel
+     * @param rightSpeed speed of right wheel
+     * @return generated command
+     */
+    public Command driveBySetpointPercentagesCommand(double leftSpeed, double rightSpeed) {
+        return new Command(){
+            {
+                addRequirements(DriveTrain.this);
+            }
+
+            @Override
+            public void execute() {
+                setSidePercentages(leftSpeed, rightSpeed);
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                setSidePercentages(0, 0);
+            }
+        };
+    }
+    
 }
