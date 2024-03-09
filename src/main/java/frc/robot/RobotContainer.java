@@ -8,6 +8,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -118,5 +119,24 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     return new PathPlannerAuto("testPath");
+  }
+
+  public void configureSysIDBindings() {
+    controller1
+        .a()
+        .and(controller1.rightBumper())
+        .whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    controller1
+        .b()
+        .and(controller1.rightBumper())
+        .whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    controller1
+        .x()
+        .and(controller1.rightBumper())
+        .whileTrue(driveTrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    controller1
+        .y()
+        .and(controller1.rightBumper())
+        .whileTrue(driveTrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
 }

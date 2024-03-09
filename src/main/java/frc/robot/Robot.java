@@ -86,6 +86,7 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().cancelAll();
     m_armDebugCommand = new DebugArmCommand(m_robotContainer.arm);
     m_armDebugCommand.schedule();
+    m_robotContainer.configureSysIDBindings();
   }
 
   @Override
