@@ -15,11 +15,13 @@ public class IntakeIndexCommand extends Command {
     @Override
     public void initialize() {
         intake.setTargetSpeed(1);
+        System.out.println("Intake spinny spinny");
     }
 
     @Override
     public void end(boolean interrupted) {
         intake.setTargetSpeed(0);
+        System.out.println("Intake no spinny spinny");
     }
 
     @Override
