@@ -19,7 +19,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
 
     m_robotContainer = new RobotContainer();
-
+    
     PortForwarder.add(5800, "photonvision.local", 5800);
   }
 
@@ -42,11 +42,15 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     System.out.println("Initializing Auto");
+    m_robotContainer.arm.setTargetAngle(m_robotContainer.arm.getCurrentAngle());
+    m_robotContainer.arm.periodic();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+
     
   }
 
@@ -64,6 +68,8 @@ public class Robot extends TimedRobot {
     if (m_armDebugCommand != null) {
       m_armDebugCommand.cancel();
     }
+    m_robotContainer.arm.setTargetAngle(m_robotContainer.arm.getCurrentAngle());
+    m_robotContainer.arm.periodic();
   }
 
   @Override
