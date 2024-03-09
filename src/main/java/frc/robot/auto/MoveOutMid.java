@@ -27,9 +27,7 @@ public class MoveOutMid extends ParallelCommandGroup {
                 new IntakeIndexCommand(intake), //fire
                 new InstantCommand(() -> shooterCommand.cancel()), //turn off shooter
                 new MoveArmToSetpointCommand(arm, Arm.Setpoint.DOWN), //arm down
-                new ParallelDeadlineGroup(new WaitCommand(2), //drive out
-                    driveTrain.driveBySetpointPercentagesCommand(0.2,0.2)
-                )
+                driveTrain.driveBySetpointPercentagesCommand(0.2,0.2,2)
             )
         );
     }
