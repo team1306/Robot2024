@@ -35,6 +35,7 @@ public class Intake extends SubsystemBase {
 
     public void setTargetSpeed(double targetSpeed) {
         this.targetSpeed = MotorUtil.clampPercent(targetSpeed);
+        System.out.println("Setting intake target speed to " + targetSpeed);
     }
 
     /**
