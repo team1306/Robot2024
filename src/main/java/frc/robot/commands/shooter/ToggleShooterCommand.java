@@ -36,5 +36,6 @@ public class ToggleShooterCommand extends Command{
     @Override
     public void end(boolean interrupted){
         shooter.setTargetSpeed(0);
+        System.out.println("Shooter no spinny spinny");
     }
 }
