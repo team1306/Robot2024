@@ -24,16 +24,16 @@ public class FarRingsFromShootBottom extends SequentialCommandGroup {
                 //if note 5 present
                 new SequentialCommandGroup(
                     new ParallelCommandGroup(
-                        AutoCommands.getFar5ShootBottom(intake)) , //collect far-5
+                        AutoCommands.getFar5ShootBottom(intake, shooter)) , //collect far-5
                     detector.read(Checkpoints.BOTTOM_MIDDLE), // FIX THIS CHECKPOINT
                     detector.notePresenceCommandSwitcher(4,
-                        AutoCommands.getFar4ShootBottom(intake), //if note 4 is present collect it
+                        AutoCommands.getFar4ShootBottom(intake, shooter), //if note 4 is present collect it
                         new InstantCommand() //if note 4 is not present do nothing
                     )
                 ),
                 //if note 5 not present
                 detector.notePresenceCommandSwitcher(4,
-                    AutoCommands.getFar4ShootBottom(intake), //if note 4 is present collect it
+                    AutoCommands.getFar4ShootBottom(intake, shooter), //if note 4 is present collect it
                     //if note 2 not present
                     new InstantCommand() //if note 4 is not present do nothing
                 )
@@ -46,21 +46,21 @@ public class FarRingsFromShootBottom extends SequentialCommandGroup {
             detector.notePresenceCommandSwitcher(3,
             //if note 3 is present
             new SequentialCommandGroup( //get note 3 and go to Shoot-Top
-                AutoCommands.getFar3ScanBottom(intake),
+                AutoCommands.getFar3ScanBottom(intake, shooter),
                 detector.read(Checkpoints.BOTTOM_MIDDLE),// FIX THIS CHECKPOINT
                 detector.notePresenceCommandSwitcher(2,
                     //if note 2 is present
                     new SequentialCommandGroup(
-                        AutoCommands.getFar2ShootTop(intake),
+                        AutoCommands.getFar2ShootTop(intake, shooter),
                         detector.read(Checkpoints.BOTTOM_MIDDLE), // FIX THIS CHECKPOINT
                         detector.notePresenceCommandSwitcher(1,
-                            AutoCommands.getFar1ShootTop(intake), //if note 1 is present collect it
+                            AutoCommands.getFar1ShootTop(intake, shooter), //if note 1 is present collect it
                             new InstantCommand() //if note 1 is not present do nothing
                         )
                     ),
                     //if note 2 is not present
                     detector.notePresenceCommandSwitcher(1,
-                        AutoCommands.getFar1ShootTop(intake), //if note 1 is present collect it
+                        AutoCommands.getFar1ShootTop(intake, shooter), //if note 1 is present collect it
                         new InstantCommand() //if note 1 is not present do nothing
                     )
                 )
@@ -69,16 +69,16 @@ public class FarRingsFromShootBottom extends SequentialCommandGroup {
             detector.notePresenceCommandSwitcher(2,
                     //if note 2 is present
                     new SequentialCommandGroup(
-                        AutoCommands.getFar2ScanBottom(intake),
+                        AutoCommands.getFar2ScanBottom(intake, shooter),
                         detector.read(Checkpoints.BOTTOM_MIDDLE), // FIX THIS CHECKPOINT
                         detector.notePresenceCommandSwitcher(1,
-                            AutoCommands.getFar1ShootTop(intake), //if note 1 is present collect it
+                            AutoCommands.getFar1ShootTop(intake, shooter), //if note 1 is present collect it
                             new InstantCommand() //if note 1 is not present do nothing
                         )
                     ),
                     //if note 2 is not present
                     detector.notePresenceCommandSwitcher(1,
-                        AutoCommands.getFar1ScanBottom(intake),
+                        AutoCommands.getFar1ScanBottom(intake, shooter),
                         new InstantCommand() //if note 1 is not present do nothing
                     )
                 )
