@@ -1,0 +1,43 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.64585040427058,
+      "y": 4.451576326025066
+    },
+    "rotation": -59.26451229807991
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Start-Bottom to Close-3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Close-3 to Close-2 P1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Close-3 to Close-2 P2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Close-2 to Close-1"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

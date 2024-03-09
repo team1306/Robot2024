@@ -33,6 +33,10 @@ public class IntakeDriverCommand extends Command {
         intake.setTargetSpeed(0);
     }
 
+    public void setState(State state) {
+        this.state = state;
+    }
+
     @Override
     public void execute() {
         if (reverseOverride.getAsBoolean()) {
@@ -71,7 +75,7 @@ public class IntakeDriverCommand extends Command {
                 }
                 break;
             case INDEXING:
-                if (timer.hasElapsed(1)) {
+                if (timer.hasElapsed(.5)) {
                     buttonPress();
                 } else {
                     intake.setTargetSpeed(INTAKE_SPEED);

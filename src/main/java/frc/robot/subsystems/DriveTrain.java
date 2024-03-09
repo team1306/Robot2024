@@ -243,7 +243,7 @@ public class DriveTrain extends SubsystemBase {
     }
 
     
-// Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
+    // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
     private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
     // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
     private final MutableMeasure<Distance> m_distance = mutable(Meters.of(0));
@@ -265,7 +265,8 @@ public class DriveTrain extends SubsystemBase {
             .linearPosition(m_distance.mut_replace(rEncoder.getDistance(), Meters))
             .linearVelocity(m_velocity.mut_replace(rEncoder.getRate(), MetersPerSecond));
         }, this));
-    /**
+
+  /**
    * Returns a command that will execute a quasistatic test in the given direction.
    *
    * @param direction The direction (forward or reverse) to run the test in
@@ -282,4 +283,29 @@ public class DriveTrain extends SubsystemBase {
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     return m_sysIdRoutine.dynamic(direction);
   }
+    /**
+     * returns a command to drive by setpoint percentages
+     * @param drivetrain drivetrain object
+     * @param leftSpeed speed of left wheel
+     * @param rightSpeed speed of right wheel
+     * @return generated command
+     */
+    public Command driveBySetpointPercentagesCommand(double leftSpeed, double rightSpeed) {
+        return new Command(){
+            {
+                addRequirements(DriveTrain.this);
+            }
+
+            @Override
+            public void execute() {
+                setSidePercentages(leftSpeed, rightSpeed);
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                setSidePercentages(0, 0);
+            }
+        };
+    }
+    
 }
