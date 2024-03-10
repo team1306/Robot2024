@@ -28,10 +28,16 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    SmartDashboard.putBoolean("Load Auto", false);
+  }
 
   @Override
   public void disabledPeriodic() {
+    if (SmartDashboard.getBoolean("Load Auto", false)) {
+      m_robotContainer.loadAuto(); 
+    }
+
     SmartDashboard.putNumber("Arm Current Angle", m_robotContainer.arm.getCurrentAngle().getDegrees());
     m_robotContainer.arm.setTargetAngle(m_robotContainer.arm.getCurrentAngle());
   }

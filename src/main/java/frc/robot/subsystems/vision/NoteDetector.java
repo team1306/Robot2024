@@ -57,6 +57,6 @@ public interface NoteDetector {
         if (noteIndex > 5) {
             throw new IllegalArgumentException("Note index out of bounds");
         }
-        return getNoteState()[noteIndex] == State.NOT_PRESENT ? ifNotPresent : ifPresent;
+        return getNoteState()[noteIndex - 1] == State.NOT_PRESENT ? ifNotPresent : ifPresent;
     }
 }
