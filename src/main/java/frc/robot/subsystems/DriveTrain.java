@@ -7,7 +7,6 @@ import static frc.robot.Constants.FRONT_RIGHT_DRIVE_MOTOR_ID;
 import static frc.robot.Constants.INCLUDE_AUTO;
 import static frc.robot.Constants.INCLUDE_LIMELIGHT;
 import static frc.robot.Constants.LIMELIGHT_NAME;
-import static frc.robot.Constants.LOOP_TIME_SECONDS;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -42,7 +41,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
 import frc.robot.subsystems.vision.SwitchableDriverCam;
 import frc.robot.util.LimelightHelpers;
@@ -64,17 +62,17 @@ public class DriveTrain extends SubsystemBase {
 
     private static final String AUTO_NAME = "testPath";
 
-    private static final double leftKS = 0.0087513; // volts
-    private static final double leftKV = 0.24656; // volts seconds per meter
+    private static final double leftKS = 0.0088193;//0.0087513; volts
+    private static final double leftKV = 0.27474; //0.24656; volts seconds per meter
     private static final double leftKA = 0.077361; // volts seconds squared per meter
-    private static final double leftP = 0.14339;
+    private static final double leftP = 0.11574; // 0.14339;
     private final SimpleMotorFeedforward leftFeedforward;
     private final PIDController leftPID;
 
-    private static final double rightKS = -0.010876;
-    private static final double rightKV = 0.24307;
-    private static final double rightKA = 0.080477;
-    private static final double rightP = 0.0032142;
+    private static final double rightKS = 0.0056672; //-0.010876;
+    private static final double rightKV = 0.19594; //0.24307;
+    private static final double rightKA = 0.056995; //0.080477;
+    private static final double rightP = 0.011096; //0.0032142;
     private final SimpleMotorFeedforward rightFeedforward;
     private final PIDController rightPID;
     
@@ -142,8 +140,8 @@ public class DriveTrain extends SubsystemBase {
         SmartDashboard.putNumber("Max Speed", MAX_SPEED);
         //SmartDashboard.putNumber("Left Drive Static Friction", 0);  
         //SmartDashboard.putNumber("Right Drive Static Friction", 0);
-        this.switchableDriverCam = switchableDriverCam;      
-     }
+        this.switchableDriverCam = switchableDriverCam;     
+    }
     
     private void setSideVoltages(double left, double right) {
         final double leftOutput = (left * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(left, 12e-2))) * 12 * 0.0175) * MAX_SPEED * (1 - leftDowntiplier);
