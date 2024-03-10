@@ -4,12 +4,16 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.auto.CloseRingsFromStartMid;
-import frc.robot.commands.arm.MoveArmCommand;
+import frc.robot.auto.MoveOutLeft;
+import frc.robot.auto.MoveOutMid;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.commands.climber.ClimberDriverCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
@@ -23,39 +27,55 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.vision.SwitchableDriverCam;
 
 import java.util.function.BooleanSupplier;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
+
 public class RobotContainer {
   private CommandXboxController controller1 = new CommandXboxController(0); // Creates an XboxController on port 1.
   private CommandXboxController controller2 = new CommandXboxController(1); // Creates an XboxController on port 1.
 
-  private DriveTrain driveTrain;
-  private Intake intake;
+  DriveTrain driveTrain;
+  Intake intake;
   private Shooter shooter; 
   private Climber climber;
   public Arm arm;
   
-  public MoveArmCommand moveArmCommand;
   private ShooterDriveCommand shooterDriveCommand;
   private NoteIndexingCommand indexNoteCommand;
   private ShooterPitchControlCommand shooterPitchControlCommand;
-  private TeleopDriveCommand teleopDriveCommand;
-  private IntakeDriverCommand intakeDriverCommand;
+  TeleopDriveCommand teleopDriveCommand;
+  IntakeDriverCommand intakeDriverCommand;
   private ClimberDriverCommand climberDriverCommand;
   private ToggleShooterCommand toggleShooterCommand;
-  
+
+  private SwitchableDriverCam switchableDriverCam;
+  private UsbCamera front, back;
+
   private final BooleanSupplier cancelSetpoint = () -> controller2.getRightY() > 0 || controller2.getRightY() < 0 || controller2.b().getAsBoolean(); // b acts as cancel button
   
   public RobotContainer() {
-    driveTrain = new DriveTrain();
+    front = new UsbCamera("front", 0);
+    front.setResolution(30, 20);
+    front.setFPS(2);
+    back = new UsbCamera("back", 1);
+    back.setResolution(30, 20);
+    back.setFPS(2);
+    CameraServer.startAutomaticCapture(front);
+    CameraServer.startAutomaticCapture(back);
+
+    switchableDriverCam = new SwitchableDriverCam(CameraServer.getServer(), front, back);
+    front.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+    back.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+
+    driveTrain = new DriveTrain(switchableDriverCam);
     intake = new Intake();
     shooter = new Shooter();
     arm = new Arm();
     climber = new Climber();
-    moveArmCommand = new MoveArmCommand(arm, () -> controller2.getRightY());
     shooterDriveCommand = new ShooterDriveCommand(driveTrain, indexNoteCommand, toggleShooterCommand);
     shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shooterDriveCommand);
     intakeDriverCommand = new IntakeDriverCommand(intake, () -> controller2.b().getAsBoolean());
@@ -65,10 +85,8 @@ public class RobotContainer {
     // Example Pathplanner named command registration 
     //NamedCommands.registerCommand("Far Rings from Shoot-Top", getAutonomousCommand());
 
-    intake.setDefaultCommand(intakeDriverCommand);
     climber.setDefaultCommand(climberDriverCommand);
-    arm.setDefaultCommand(moveArmCommand);
-    driveTrain.setDefaultCommand(teleopDriveCommand);
+    arm.setDefaultCommand(new MoveArmToSetpointCommand(arm, Arm.Setpoint.INTAKE));
     configureBindings();
   }
 
@@ -97,6 +115,28 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new PathPlannerAuto("testPath");
+    return new MoveOutLeft(driveTrain, shooter, arm, intake);
+  }
+
+  public void configureSysIDBindings() {
+    final Command temp = driveTrain.getDefaultCommand();
+    driveTrain.removeDefaultCommand();
+    temp.cancel();
+    controller1
+        .a()
+        .and(controller1.rightBumper())
+        .whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    controller1
+        .b()
+        .and(controller1.rightBumper())
+        .whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    controller1
+        .x()
+        .and(controller1.rightBumper())
+        .whileTrue(driveTrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    controller1
+        .y()
+        .and(controller1.rightBumper())
+        .whileTrue(driveTrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
 }

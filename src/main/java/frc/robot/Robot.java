@@ -4,9 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -16,24 +13,13 @@ import frc.robot.commands.arm.DebugArmCommand;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand, m_armDebugCommand;
-  private UsbCamera front, back;
   private RobotContainer m_robotContainer;
-
 
   @Override
   public void robotInit() {
-    /*front = new UsbCamera("front", 0);
-    front.setResolution(100, 100);
-    front.setFPS(8);
-    front.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-    CameraServer.startAutomaticCapture(front);
-    back = new UsbCamera("back", 1);
-    back.setResolution(100, 100);
-    back.setFPS(8);
-    back.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-    CameraServer.startAutomaticCapture(back);*/
-    m_robotContainer = new RobotContainer();
 
+    m_robotContainer = new RobotContainer();
+    
     PortForwarder.add(5800, "photonvision.local", 5800);
   }
 
@@ -55,14 +41,16 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    System.out.println();
     System.out.println("Initializing Auto");
-    System.out.println();
+    m_robotContainer.arm.setTargetAngle(m_robotContainer.arm.getCurrentAngle());
+    m_robotContainer.arm.periodic();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+
     
   }
 
@@ -80,7 +68,12 @@ public class Robot extends TimedRobot {
     if (m_armDebugCommand != null) {
       m_armDebugCommand.cancel();
     }
-    m_robotContainer.moveArmCommand.reset();
+    m_robotContainer.arm.setTargetAngle(m_robotContainer.arm.getCurrentAngle());
+    m_robotContainer.arm.periodic();
+
+    m_robotContainer.intake.setDefaultCommand(m_robotContainer.intakeDriverCommand);
+    m_robotContainer.driveTrain.setDefaultCommand(m_robotContainer.teleopDriveCommand);
+
   }
 
   @Override
@@ -96,6 +89,7 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().cancelAll();
     m_armDebugCommand = new DebugArmCommand(m_robotContainer.arm);
     m_armDebugCommand.schedule();
+    m_robotContainer.configureSysIDBindings();
   }
 
   @Override

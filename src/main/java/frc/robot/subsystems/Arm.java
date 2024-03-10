@@ -34,7 +34,7 @@ public class Arm extends SubsystemBase  {
         INTAKE(0),
         DOWN(4),
         SHOOT_CLOSE(16),
-        STAGE_SHOT(25);
+        STAGE_SHOT(35);
 
         public final int pos;
 
@@ -56,9 +56,9 @@ public class Arm extends SubsystemBase  {
     public static double kP = 0.02, kI = 0.0005, kD = 0.0018; // Do we want PID Controller? Or do we want to do state space model?
                                                  // need to read https://file.tavsys.net/control/controls-engineering-in-frc.pdf more so I know what I am doing
     public static double kG = 0.0725, kV = .17;
-    private static double kMaxVelocity = 360, kMaxAcceleration = 280; // kMA MIGHT BE WRONG
+    private static double kMaxVelocity = 360, kMaxAcceleration = 140; // kMA MIGHT BE WRONG
 
-    public static final double OFFSET = -219.15 + 180 + 10 + .5, DELTA_AT_SETPOINT = 1;
+    public static final double OFFSET = -219.15 + 180 + 10 + .5 + 57.15 + 174.425, DELTA_AT_SETPOINT = 1;
     
     private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
     private double manualPower;
@@ -80,7 +80,7 @@ public class Arm extends SubsystemBase  {
         relativeThroughBore.reset();
         relativeThroughBore.setDistancePerPulse(360D/2048D); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
 
-        feedforward = new ArmFeedforward(0, kG, kV, 0);
+        feedforward = new ArmFeedforward(0, Math.min(0.3, kG), kV, 0);
         profiledPIDController = new ProfiledPIDController(kP, kI, kD, m_constraints, LOOP_TIME_SECONDS);
 
         this.controlMode = controlMode;
@@ -95,6 +95,7 @@ public class Arm extends SubsystemBase  {
         SmartDashboard.putNumber("Arm kMaxAcceleration", kMaxAcceleration);
 
         profiledPIDController.setTolerance(DELTA_AT_SETPOINT);
+        setTargetAngle(getCurrentAngle());
     }
     
     public ControlMode getControlMode() {
@@ -146,18 +147,18 @@ public class Arm extends SubsystemBase  {
 
     @Override
     public void periodic() {
-        kP = SmartDashboard.getNumber("Arm kP", 0);
-        kI = SmartDashboard.getNumber("Arm kI", 0);
-        kD = SmartDashboard.getNumber("Arm kD",0);
+        kP = SmartDashboard.getNumber("Arm kP", kP);
+        kI = SmartDashboard.getNumber("Arm kI", kI);
+        kD = SmartDashboard.getNumber("Arm kD",kD);
 
-        kG = SmartDashboard.getNumber("Arm kG", 0);
-        kV = SmartDashboard.getNumber("Arm kV", 0);
+        kG = SmartDashboard.getNumber("Arm kG", kG);
+        kV = SmartDashboard.getNumber("Arm kV", kV);
 
         kMaxAcceleration = SmartDashboard.getNumber("Arm kMaxAcceleration", 0);
         m_constraints = new TrapezoidProfile.Constraints(m_constraints.maxVelocity, kMaxAcceleration);
         profiledPIDController.setConstraints(m_constraints);
         profiledPIDController.setPID(kP, kI, kD);
-        feedforward = new ArmFeedforward(0, kG, kV, 0);
+        feedforward = new ArmFeedforward(0, Math.min(0.25,kG), kV, 0);
 
         velocities[calcVelocityIndex(velocityIndex)] = relativeThroughBore.getRate();
         final double motorPower = MathUtil.applyDeadband(MathUtil.clamp(switch (controlMode) {
@@ -172,7 +173,7 @@ public class Arm extends SubsystemBase  {
                 pidOutput += feedforwardOutput;
                 SmartDashboard.putNumber("total arm output", pidOutput);
                 SmartDashboard.putNumber("arm acceleration", calculateAcceleration());
-                yield pidOutput;
+                yield (getCurrentAngle().getDegrees() < 0.5 && getTargetAngle().getDegrees() < 0.5 ? 0 : pidOutput);
             }
             case MANUAL -> {
                 if (lastControlMode != ControlMode.MANUAL) {
@@ -190,6 +191,7 @@ public class Arm extends SubsystemBase  {
         SmartDashboard.putNumber("left arm power", leftArmMotor.get());
         SmartDashboard.putNumber("arm current", rightArmMotor.getOutputCurrent() + leftArmMotor.getOutputCurrent());
         SmartDashboard.putNumber("Arm Current Angle", getCurrentAngle().getDegrees());
+        SmartDashboard.putNumber("Arm Target Angle", getTargetAngle().getDegrees());
         SmartDashboard.putNumber("Arm Raw Velocity", relativeThroughBore.getRate());
         
         lastControlMode = controlMode;

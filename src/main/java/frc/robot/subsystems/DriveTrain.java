@@ -25,21 +25,33 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.MutableMeasure;
+import edu.wpi.first.units.Velocity;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
+import frc.robot.subsystems.vision.SwitchableDriverCam;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Utilities;
+import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.MutableMeasure.mutable;
 
 
 //Implemented as Ramsete (Differential)
-public class DriveTrain extends SubsystemBase{
+public class DriveTrain extends SubsystemBase {
     //Track width in meters
     public static final double TRACK_WIDTH = Units.inchesToMeters(25.875);
     //Above 1
@@ -68,11 +80,12 @@ public class DriveTrain extends SubsystemBase{
     private final DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(TRACK_WIDTH);
     private final AHRS gyro = new AHRS(SPI.Port.kMXP);
 
-    private ChassisSpeeds lastSpeeds;
+    private final SwitchableDriverCam switchableDriverCam;
 
-    public DriveTrain(){
+    private DifferentialDriveWheelSpeeds lastDriveVoltages = new DifferentialDriveWheelSpeeds();
+
+    public DriveTrain(SwitchableDriverCam switchableDriverCam){
         gyro.reset();
-    
         leftLeader = MotorUtil.initSparkMax(FRONT_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
         leftFollower = MotorUtil.initSparkMax(BACK_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
         rightLeader = MotorUtil.initSparkMax(FRONT_RIGHT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
@@ -106,15 +119,21 @@ public class DriveTrain extends SubsystemBase{
             INCLUDE_AUTO ? PathPlannerAuto.getStaringPoseFromAutoFile(AUTO_NAME) : new Pose2d());
 
         SmartDashboard.putNumber("Max Speed", MAX_SPEED);
-        SmartDashboard.putNumber("Left Drive Multiplier", 0);  
-        SmartDashboard.putNumber("Right Drive Multiplier", 0); 
         //SmartDashboard.putNumber("Left Drive Static Friction", 0);  
-        //SmartDashboard.putNumber("Right Drive Static Friction", 0); 
+        //SmartDashboard.putNumber("Right Drive Static Friction", 0);
+        this.switchableDriverCam = switchableDriverCam;      
      }
     
-    private void setSides(double left, double right) {
-        leftLeader.set((left * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(left, 1e-2))) * 0.0175) * MAX_SPEED);
-        rightLeader.set((right * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(right, 1e-2))) * 0.0105) * MAX_SPEED);   
+    private void setSideVoltages(double left, double right) {
+        final double leftOutput = (left * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(left, 12e-2))) * 12 * 0.0175) * MAX_SPEED;
+        final double rightOutput = (right * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(right, 12e-2))) * 12 * 0.0105) * MAX_SPEED;
+        lastDriveVoltages = new DifferentialDriveWheelSpeeds(leftOutput, rightOutput);
+        leftLeader.setVoltage(leftOutput);
+        rightLeader.setVoltage(rightOutput);   
+    }
+
+    private void setSidePercentages(double left, double right) {
+        setSideVoltages(left * 12D, right * 12D);
     }
 
     public void arcadeDrive(double speed, double rotation){
@@ -153,24 +172,22 @@ public class DriveTrain extends SubsystemBase{
             rightMotorOutput = 0;
         }
 
-        setSides(leftMotorOutput, rightMotorOutput);
+        setSidePercentages(leftMotorOutput, rightMotorOutput);
     }
 
     public void drivePercentage(DifferentialDriveWheelSpeeds wheelSpeeds){
-        setSides(wheelSpeeds.leftMetersPerSecond, wheelSpeeds.rightMetersPerSecond);
+        setSidePercentages(wheelSpeeds.leftMetersPerSecond, wheelSpeeds.rightMetersPerSecond);
     }
 
     public void driveVoltage(DifferentialDriveWheelSpeeds wheelVoltages) {
-        drivePercentage(wheelVoltages.div(12));
+        setSideVoltages(wheelVoltages.leftMetersPerSecond, wheelVoltages.rightMetersPerSecond);
     }
 
     public void driveMetersPerSecond(DifferentialDriveWheelSpeeds wheelSpeeds) {
-        driveVoltage(wheelSpeeds.times(12)); // VERY BAD, PLEASE IMPLEMENT BRADLEY (OR ETHAN IF HE DOESNT GET TO IT)
+        driveVoltage(wheelSpeeds.times(2)); // VERY BAD, PLEASE IMPLEMENT BRADLEY (OR ETHAN IF HE DOESNT GET TO IT)
     }
 
     public void drive(ChassisSpeeds speeds){
-        lastSpeeds = speeds;
-
         // Convert to wheel speeds
         DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(speeds);
         driveMetersPerSecond(wheelSpeeds);
@@ -195,14 +212,18 @@ public class DriveTrain extends SubsystemBase{
         SmartDashboard.putData("Field", m_field);
         if (INCLUDE_LIMELIGHT) poseEstimator.addVisionMeasurement(LimelightHelpers.getBotPose2d(LIMELIGHT_NAME), Timer.getFPGATimestamp());
         MAX_SPEED = SmartDashboard.getNumber("Max Speed", 1);
-        SmartDashboard.putNumber("Left Encoder Output", lEncoder.getRate());
-        SmartDashboard.putNumber("Right Encoder Output", rEncoder.getRate());
+        SmartDashboard.putNumber("left vel", lEncoder.getRate());
+        SmartDashboard.putNumber("right vel", rEncoder.getRate());
+        SmartDashboard.putNumber("left pos", lEncoder.getDistance());
+        SmartDashboard.putNumber("right pos", rEncoder.getDistance());
+
 
         // rightMulitplier = SmartDashboard.getNumber("Right Drive Multiplier", 0);
         // leftMultiplier = SmartDashboard.getNumber("Left Drive Multiplier", 0);
 
         //rightFriction = SmartDashboard.getNumber("Left Drive Static Friction", 0);  
-        //leftFriction = SmartDashboard.getNumber("Right Drive Static Friction", 0); 
+        //leftFriction = SmartDashboard.getNumber("Right Drive Static Friction", 0);
+        switchableDriverCam.setStreamToIndex(kinematics.toChassisSpeeds(lastDriveVoltages).vxMetersPerSecond >= 0 ? 0 : 1); // magnitude won't be right from this, but sign will be, so I don't care
     }
 
     public Command getSetSpeedMultiplierCommand(double multiplier) {
@@ -218,4 +239,78 @@ public class DriveTrain extends SubsystemBase{
             }
         };
     }
+
+    
+    // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
+    private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
+    // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
+    private final MutableMeasure<Distance> m_distance = mutable(Meters.of(0));
+    // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
+    private final MutableMeasure<Velocity<Distance>> m_velocity = mutable(MetersPerSecond.of(0));
+    
+    private final SysIdRoutine m_sysIdRoutine = new SysIdRoutine(new Config(),
+    new Mechanism(
+        (Measure<Voltage> volts) ->
+        setSideVoltages(volts.magnitude(), volts.magnitude()),
+        log -> {
+            log.motor("left")
+            .voltage(m_appliedVoltage.mut_replace(leftLeader.get() * RobotController.getBatteryVoltage(), Volts))
+            .linearPosition(m_distance.mut_replace(lEncoder.getDistance(), Meters))
+            .linearVelocity(m_velocity.mut_replace(lEncoder.getRate(), MetersPerSecond));
+
+            log.motor("right")
+            .voltage(m_appliedVoltage.mut_replace(rightLeader.get() * RobotController.getBatteryVoltage(), Volts))
+            .linearPosition(m_distance.mut_replace(rEncoder.getDistance(), Meters))
+            .linearVelocity(m_velocity.mut_replace(rEncoder.getRate(), MetersPerSecond));
+        }, this));
+
+  /**
+   * Returns a command that will execute a quasistatic test in the given direction.
+   *
+   * @param direction The direction (forward or reverse) to run the test in
+   */
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutine.quasistatic(direction);
+  }
+
+  /**
+   * Returns a command that will execute a dynamic test in the given direction.
+   *
+   * @param direction The direction (forward or reverse) to run the test in
+   */
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutine.dynamic(direction);
+  }
+    /**
+     * returns a command to drive by setpoint percentages
+     * @param drivetrain drivetrain object
+     * @param leftSpeed speed of left wheel
+     * @param rightSpeed speed of right wheel
+     * @return generated command
+     */
+    public Command driveBySetpointPercentagesCommand(double leftSpeed, double rightSpeed) {
+        return new Command(){
+            {
+                addRequirements(DriveTrain.this);
+            }
+
+            @Override
+            public void initialize() {
+                System.out.println("drivetrain init");
+            }
+
+            @Override
+            public void execute() {
+                setSidePercentages(leftSpeed, rightSpeed);
+                System.out.println("Driving");
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                setSidePercentages(0, 0);
+                System.out.println("Stop driving");
+            }
+        };
+    }
+    
 }
