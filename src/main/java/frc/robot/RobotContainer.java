@@ -6,7 +6,6 @@ package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -15,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.auto.AutonomousFactory;
 import frc.robot.auto.CloseRingsFromStartMid;
@@ -72,22 +72,26 @@ public class RobotContainer {
   
   private final DigitalOutput ledRedBlueOutput;
 
+  private double beginningAutoWait = 0;
+
   public RobotContainer() {
+    SmartDashboard.putNumber("Beginning Auto Wait", beginningAutoWait);
+
     ledRedBlueOutput = new DigitalOutput(9);
-    new RepeatCommand(new InstantCommand(() ->     ledRedBlueOutput.set(Utilities.isRedAlliance())));
+    new RepeatCommand(new InstantCommand(() -> ledRedBlueOutput.set(Utilities.isRedAlliance())));
+    front = CameraServer.startAutomaticCapture(0);
+    back = CameraServer.startAutomaticCapture(1);
 
-    front = new UsbCamera("front", 0);
-    front.setResolution(30, 20);
-    front.setFPS(2);
-    back = new UsbCamera("back", 1);
-    back.setResolution(30, 20);
-    back.setFPS(2);
-    CameraServer.startAutomaticCapture(front);
-    CameraServer.startAutomaticCapture(back);
+    front.setResolution(320, 240);
+    back.setResolution(320, 240);
+    front.setFPS(12);
+    back.setFPS(12);
 
-    switchableDriverCam = new SwitchableDriverCam(CameraServer.getServer(), front, back);
-    front.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-    back.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+    switchableDriverCam = new SwitchableDriverCam(CameraServer.getServer(), front, front);
+    
+    // TODO: Ideally include these below, if we can't it's whatever
+    // front.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+    // back.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
     driveTrain = new DriveTrain(switchableDriverCam);
     intake = new Intake();
@@ -117,6 +121,10 @@ public class RobotContainer {
     SmartDashboard.putData(autoChooser);
   }
 
+  void autoWaitGetterPeriodic() {
+    beginningAutoWait = SmartDashboard.getNumber("Beginning Auto Wait", beginningAutoWait);
+  }
+
   /**
      * Use this method to define your trigger->command mappings. Triggers can be created via the
      * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
@@ -127,16 +135,18 @@ public class RobotContainer {
      * joysticks}.
      */
   private void configureBindings() {
-    controller1.a().whileTrue(driveTrain.getSetSpeedMultiplierCommand(0.5));
+    controller1.a().onTrue(shooterPitchControlCommand);
+    controller1.b().whileTrue(driveTrain.getSetSpeedMultiplierCommand(0.5));
+
 
     controller2.y().onTrue(new InstantCommand(intakeDriverCommand::buttonPress));
     controller2.x().toggleOnTrue(toggleShooterCommand);
+    controller2.rightBumper().onTrue(new InstantCommand(intakeDriverCommand::clearNote));
 
     controller2.povUp().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.AMP, cancelSetpoint));
     controller2.povLeft().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.STAGE_SHOT, cancelSetpoint));
     controller2.povRight().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.SHOOT_CLOSE, cancelSetpoint));
     controller2.povDown().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.INTAKE, cancelSetpoint));
-    // controller2.a().onTrue(shooterPitchControlCommand);
 
     controller2.back().onTrue(new InstantCommand(climberDriverCommand::buttonPress));
   }
@@ -146,7 +156,9 @@ public class RobotContainer {
   }
 
   public void loadAuto() {
-    autonomousCommand = autoChooser.getSelected().createAutonomousCommand(new NoteDetector.NoteDetectorPlaceHolder(), driveTrain, shooter, arm, intake);
+    autonomousCommand = new WaitCommand(beginningAutoWait).andThen(
+      autoChooser.getSelected().createAutonomousCommand(new NoteDetector.NoteDetectorPlaceHolder(), driveTrain, shooter, arm, intake)
+    );
   }
 
   public void configureSysIDBindings() {

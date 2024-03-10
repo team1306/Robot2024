@@ -57,11 +57,12 @@ public class DriveTrain extends SubsystemBase {
     //Track width in meters
     public static final double TRACK_WIDTH = Units.inchesToMeters(25.875);
     //Above 1
-    public static double leftDowntiplier = 0;
+    public static double leftDowntiplier = 0.12;
     public static double rightDowntiplier = 0;
     // public static double leftFriction = 0;
     // public static double rightFriction = 0;
 
+    // TODO: WHAT SHOULD THIS BE? IS THIS NEEDED?
     private static final String AUTO_NAME = "testPath";
 
     private static final double leftKS = 0.0087513; // volts
@@ -143,7 +144,9 @@ public class DriveTrain extends SubsystemBase {
         //SmartDashboard.putNumber("Left Drive Static Friction", 0);  
         //SmartDashboard.putNumber("Right Drive Static Friction", 0);
         this.switchableDriverCam = switchableDriverCam;      
-     }
+        SmartDashboard.putNumber("Right Drive Downtiplier", leftDowntiplier);
+        SmartDashboard.putNumber("Left Drive Downtiplier", rightDowntiplier);
+    }
     
     private void setSideVoltages(double left, double right) {
         final double leftOutput = (left * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(left, 12e-2))) * 12 * 0.0175) * MAX_SPEED * (1 - leftDowntiplier);
@@ -241,8 +244,8 @@ public class DriveTrain extends SubsystemBase {
         SmartDashboard.putNumber("right pos", rEncoder.getDistance());
 
 
-        rightDowntiplier = SmartDashboard.getNumber("Right Drive Multiplier", leftDowntiplier);
-        leftDowntiplier = SmartDashboard.getNumber("Left Drive Multiplier", rightDowntiplier);
+        rightDowntiplier = SmartDashboard.getNumber("Right Drive Downtiplier", leftDowntiplier);
+        leftDowntiplier = SmartDashboard.getNumber("Left Drive Downtiplier", rightDowntiplier);
 
         //rightFriction = SmartDashboard.getNumber("Left Drive Static Friction", 0);  
         //leftFriction = SmartDashboard.getNumber("Right Drive Static Friction", 0);

@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -36,10 +37,14 @@ public class Robot extends TimedRobot {
   public void disabledPeriodic() {
     if (SmartDashboard.getBoolean("Load Auto", false)) {
       m_robotContainer.loadAuto(); 
+      SmartDashboard.putBoolean("Load Auto", false);
     }
 
-    SmartDashboard.putNumber("Arm Current Angle", m_robotContainer.arm.getCurrentAngle().getDegrees());
-    m_robotContainer.arm.setTargetAngle(m_robotContainer.arm.getCurrentAngle());
+    final Rotation2d armAngle = m_robotContainer.arm.getCurrentAngle();
+    SmartDashboard.putNumber("Arm Current Angle", armAngle.getDegrees());
+    m_robotContainer.arm.setTargetAngle(armAngle);
+
+    m_robotContainer.autoWaitGetterPeriodic();
   }
 
   @Override
