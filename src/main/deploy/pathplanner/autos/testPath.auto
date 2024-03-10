@@ -14,7 +14,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Start-Mid to Close-1"
+            "pathName": "New Path"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "New New Path"
           }
         }
       ]

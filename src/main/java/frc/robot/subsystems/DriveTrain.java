@@ -18,6 +18,8 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -61,6 +63,20 @@ public class DriveTrain extends SubsystemBase {
     // public static double rightFriction = 0;
 
     private static final String AUTO_NAME = "testPath";
+
+    private static final double leftKS = 0.0087513; // volts
+    private static final double leftKV = 0.24656; // volts seconds per meter
+    private static final double leftKA = 0.077361; // volts seconds squared per meter
+    private static final double leftP = 0.14339;
+    private final SimpleMotorFeedforward leftFeedforward;
+    private final PIDController leftPID;
+
+    private static final double rightKS = -0.010876;
+    private static final double rightKV = 0.24307;
+    private static final double rightKA = 0.080477;
+    private static final double rightP = 0.0032142;
+    private final SimpleMotorFeedforward rightFeedforward;
+    private final PIDController rightPID;
     
     //Percentage
     public static double MAX_SPEED = 1;
@@ -103,13 +119,18 @@ public class DriveTrain extends SubsystemBase {
         lEncoder = new Encoder(6, 7, true, EncodingType.k1X);;
         lEncoder.reset();
         lEncoder.setDistancePerPulse(Units.inchesToMeters(6) * Math.PI / 2048D); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
+        
+        leftFeedforward = new SimpleMotorFeedforward(leftKS, leftKV, leftKA);
+        rightFeedforward = new SimpleMotorFeedforward(rightKS, rightKV, rightKA);
+        leftPID = new PIDController(leftP, 0, 0);
+        rightPID = new PIDController(rightP, 0, 0);
+        
         //Pathplanner configuration
-        AutoBuilder.configureLTV(
+        AutoBuilder.configureRamsete(
                 this::getPose, // Robot pose supplier
                 this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
                 this::getCurrentSpeeds, // Current ChassisSpeeds supplier
                 this::drive, // Method that will drive the robot given ChassisSpeeds
-                LOOP_TIME_SECONDS,
                 new ReplanningConfig(), // Default path replanning config. See the API for the options here
                 Utilities::isRedAlliance,
                 this // Reference to this subsystem to set requirements
@@ -125,8 +146,8 @@ public class DriveTrain extends SubsystemBase {
      }
     
     private void setSideVoltages(double left, double right) {
-        final double leftOutput = (left * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(left, 12e-2))) * 12 * 0.0175) * MAX_SPEED;
-        final double rightOutput = (right * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(right, 12e-2))) * 12 * 0.0105) * MAX_SPEED;
+        final double leftOutput = (left * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(left, 12e-2)) * 12 * 0.0175)) * MAX_SPEED;
+        final double rightOutput = (right * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(right, 12e-2)) * 12 * 0.0105)) * MAX_SPEED;
         lastDriveVoltages = new DifferentialDriveWheelSpeeds(leftOutput, rightOutput);
         leftLeader.setVoltage(leftOutput);
         rightLeader.setVoltage(rightOutput);   
@@ -179,12 +200,14 @@ public class DriveTrain extends SubsystemBase {
         setSidePercentages(wheelSpeeds.leftMetersPerSecond, wheelSpeeds.rightMetersPerSecond);
     }
 
-    public void driveVoltage(DifferentialDriveWheelSpeeds wheelVoltages) {
-        setSideVoltages(wheelVoltages.leftMetersPerSecond, wheelVoltages.rightMetersPerSecond);
-    }
-
     public void driveMetersPerSecond(DifferentialDriveWheelSpeeds wheelSpeeds) {
-        driveVoltage(wheelSpeeds.times(2)); // VERY BAD, PLEASE IMPLEMENT BRADLEY (OR ETHAN IF HE DOESNT GET TO IT)
+        double rightVoltage = rightFeedforward.calculate(wheelSpeeds.rightMetersPerSecond);
+        rightVoltage += rightPID.calculate(rEncoder.getRate(), wheelSpeeds.rightMetersPerSecond);
+
+        double leftVoltage = leftFeedforward.calculate(wheelSpeeds.leftMetersPerSecond);
+        leftVoltage += leftPID.calculate(lEncoder.getRate(), wheelSpeeds.leftMetersPerSecond);
+
+        setSideVoltages(rightVoltage, leftVoltage);
     }
 
     public void drive(ChassisSpeeds speeds){
