@@ -23,9 +23,9 @@ public interface NoteDetector {
     }
 
     public enum Checkpoints {
-        TOP(PathPlannerPath.fromPathFile("Shoot-Top to Far-2.path").getStartingDifferentialPose()),
-        TOP_MIDDLE(PathPlannerPath.fromPathFile("Scan-Top to Far-3.path").getStartingDifferentialPose()),
-        BOTTOM_MIDDLE(PathPlannerPath.fromPathFile("Scan-Bottom to Far-2.path").getStartingDifferentialPose());
+        TOP(PathPlannerPath.fromPathFile("Shoot-Top to Far-2").getStartingDifferentialPose()),
+        TOP_MIDDLE(PathPlannerPath.fromPathFile("Scan-Top to Far-3").getStartingDifferentialPose()),
+        BOTTOM_MIDDLE(PathPlannerPath.fromPathFile("Scan-Bottom to Far-2").getStartingDifferentialPose());
 
         final Pose2d pose;
 
