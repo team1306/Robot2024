@@ -254,12 +254,12 @@ public class DriveTrain extends SubsystemBase {
         setSideVoltages(volts.magnitude(), volts.magnitude()),
         log -> {
             log.motor("left")
-            .voltage(m_appliedVoltage.mut_replace(leftLeader.get() * RobotController.getBatteryVoltage(), Volts))
+            .voltage(m_appliedVoltage.mut_replace(leftLeader.getAppliedOutput(), Volts))
             .linearPosition(m_distance.mut_replace(lEncoder.getDistance(), Meters))
             .linearVelocity(m_velocity.mut_replace(lEncoder.getRate(), MetersPerSecond));
 
             log.motor("right")
-            .voltage(m_appliedVoltage.mut_replace(rightLeader.get() * RobotController.getBatteryVoltage(), Volts))
+            .voltage(m_appliedVoltage.mut_replace(rightLeader.getAppliedOutput(), Volts))
             .linearPosition(m_distance.mut_replace(rEncoder.getDistance(), Meters))
             .linearVelocity(m_velocity.mut_replace(rEncoder.getRate(), MetersPerSecond));
         }, this));
