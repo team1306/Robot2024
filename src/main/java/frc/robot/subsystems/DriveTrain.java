@@ -57,8 +57,8 @@ public class DriveTrain extends SubsystemBase {
     //Track width in meters
     public static final double TRACK_WIDTH = Units.inchesToMeters(25.875);
     //Above 1
-    // public static double leftMultiplier = 0;
-    // public static double rightMulitplier = 0;
+    public static double leftDowntiplier = 0;
+    public static double rightDowntiplier = 0;
     // public static double leftFriction = 0;
     // public static double rightFriction = 0;
 
@@ -146,8 +146,8 @@ public class DriveTrain extends SubsystemBase {
      }
     
     private void setSideVoltages(double left, double right) {
-        final double leftOutput = (left * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(left, 12e-2)) * 12 * 0.0175)) * MAX_SPEED;
-        final double rightOutput = (right * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(right, 12e-2)) * 12 * 0.0105)) * MAX_SPEED;
+        final double leftOutput = (left * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(left, 12e-2))) * 12 * 0.0175) * MAX_SPEED * (1 - leftDowntiplier);
+        final double rightOutput = (right * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(right, 12e-2))) * 12 * 0.0105) * MAX_SPEED * (1 - rightDowntiplier);
         lastDriveVoltages = new DifferentialDriveWheelSpeeds(leftOutput, rightOutput);
         leftLeader.setVoltage(leftOutput);
         rightLeader.setVoltage(rightOutput);   
@@ -241,8 +241,8 @@ public class DriveTrain extends SubsystemBase {
         SmartDashboard.putNumber("right pos", rEncoder.getDistance());
 
 
-        // rightMulitplier = SmartDashboard.getNumber("Right Drive Multiplier", 0);
-        // leftMultiplier = SmartDashboard.getNumber("Left Drive Multiplier", 0);
+        rightDowntiplier = SmartDashboard.getNumber("Right Drive Multiplier", leftDowntiplier);
+        leftDowntiplier = SmartDashboard.getNumber("Left Drive Multiplier", rightDowntiplier);
 
         //rightFriction = SmartDashboard.getNumber("Left Drive Static Friction", 0);  
         //leftFriction = SmartDashboard.getNumber("Right Drive Static Friction", 0);
