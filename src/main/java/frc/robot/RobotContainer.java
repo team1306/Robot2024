@@ -7,13 +7,19 @@ package frc.robot;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.auto.CloseRingsFromStartMid;
+import frc.robot.auto.FarRingsFromShootBottom;
+import frc.robot.auto.FarRingsFromShootTop;
 import frc.robot.auto.MoveOutLeft;
 import frc.robot.auto.MoveOutMid;
+import frc.robot.auto.MoveOutRight;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.commands.climber.ClimberDriverCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
@@ -27,6 +33,7 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.vision.NoteDetector;
 import frc.robot.subsystems.vision.SwitchableDriverCam;
 
 import java.util.function.BooleanSupplier;
@@ -37,6 +44,8 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 public class RobotContainer {
   private CommandXboxController controller1 = new CommandXboxController(0); // Creates an XboxController on port 1.
   private CommandXboxController controller2 = new CommandXboxController(1); // Creates an XboxController on port 1.
+
+  private SendableChooser<Command> autoChooser = new SendableChooser<>();
 
   DriveTrain driveTrain;
   Intake intake;
@@ -88,6 +97,15 @@ public class RobotContainer {
     climber.setDefaultCommand(climberDriverCommand);
     arm.setDefaultCommand(new MoveArmToSetpointCommand(arm, Arm.Setpoint.INTAKE));
     configureBindings();
+
+    autoChooser.setDefaultOption("move out mid", new MoveOutMid(driveTrain, shooter, arm, intake));
+    autoChooser.addOption("move out left", new MoveOutLeft(driveTrain, shooter, arm, intake));
+    autoChooser.addOption("move out right", new MoveOutRight(driveTrain, shooter, arm, intake));
+    autoChooser.addOption("Close Rings from Start Mid", new CloseRingsFromStartMid(new NoteDetector.NoteDetectorPlaceHolder(), intake, shooter, arm));
+    autoChooser.addOption("Far Rings from Shoot Bottom", new FarRingsFromShootBottom(new NoteDetector.NoteDetectorPlaceHolder(), intake, shooter, arm));
+    autoChooser.addOption("Far Rings from Shoot Top", new FarRingsFromShootTop(new NoteDetector.NoteDetectorPlaceHolder(), intake, shooter, arm));
+
+    SmartDashboard.putData(autoChooser);
   }
 
   /**
@@ -115,7 +133,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new MoveOutLeft(driveTrain, shooter, arm, intake);
+    return autoChooser.getSelected();
   }
 
   public void configureSysIDBindings() {

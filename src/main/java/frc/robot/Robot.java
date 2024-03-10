@@ -17,7 +17,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-
     m_robotContainer = new RobotContainer();
     
     PortForwarder.add(5800, "photonvision.local", 5800);
@@ -34,6 +33,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     SmartDashboard.putNumber("Arm Current Angle", m_robotContainer.arm.getCurrentAngle().getDegrees());
+    m_robotContainer.arm.setTargetAngle(m_robotContainer.arm.getCurrentAngle());
   }
 
   @Override
@@ -42,16 +42,10 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     System.out.println("Initializing Auto");
-    m_robotContainer.arm.setTargetAngle(m_robotContainer.arm.getCurrentAngle());
-    m_robotContainer.arm.periodic();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
-    }
-
-    
+    }    
   }
 
   @Override
@@ -68,12 +62,8 @@ public class Robot extends TimedRobot {
     if (m_armDebugCommand != null) {
       m_armDebugCommand.cancel();
     }
-    m_robotContainer.arm.setTargetAngle(m_robotContainer.arm.getCurrentAngle());
-    m_robotContainer.arm.periodic();
-
     m_robotContainer.intake.setDefaultCommand(m_robotContainer.intakeDriverCommand);
     m_robotContainer.driveTrain.setDefaultCommand(m_robotContainer.teleopDriveCommand);
-
   }
 
   @Override
