@@ -57,7 +57,7 @@ public class DriveTrain extends SubsystemBase{
 
     private CANSparkMax leftLeader;
     private CANSparkMax leftFollower;
-private final Field2d m_field = new Field2d();
+    private final Field2d m_field = new Field2d();
     private CANSparkMax rightLeader;
     private CANSparkMax rightFollower;
 
