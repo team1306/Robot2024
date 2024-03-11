@@ -15,6 +15,7 @@ public class FarRingsFromStartMid extends SequentialCommandGroup {
     public FarRingsFromStartMid(NoteDetector detector, Intake intake, Shooter shooter, Arm arm) {
 
         System.out.println("Running Auto");
+
         addCommands(
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Start-2 to Shoot-Top")), //go to shoot top
 
