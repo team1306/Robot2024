@@ -14,8 +14,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RepeatCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.auto.AutonomousFactory;
@@ -72,14 +70,12 @@ public class RobotContainer {
   private Command autonomousCommand = new InstantCommand();
   private final BooleanSupplier cancelSetpoint = () -> controller2.getRightY() > 0 || controller2.getRightY() < 0 || controller2.b().getAsBoolean(); // b acts as cancel button
   
-  private final DigitalOutput ledRedBlueOutput;
+  private final DigitalOutput ledRedBlueOutput, notePresentOutput;
   private double beginningAutoWait = 0;
 
   public RobotContainer() {
     SmartDashboard.putNumber("Beginning Auto Wait", beginningAutoWait);
 
-    ledRedBlueOutput = new DigitalOutput(9);
-    Commands.run(() -> ledRedBlueOutput.set(Utilities.isRedAlliance())).ignoringDisable(true);
     front = CameraServer.startAutomaticCapture(0);
     back = CameraServer.startAutomaticCapture(1);
 
@@ -120,6 +116,11 @@ public class RobotContainer {
     autoChooser.addOption("Far Rings from Shoot Top", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromShootTop(detector, intake, shooter, arm));
     autoChooser.addOption("testPath", (NoteDetector a,  DriveTrain b, Shooter c, Arm d, Intake e) -> new PathPlannerAuto("testPath"));
     SmartDashboard.putData(autoChooser);
+
+    notePresentOutput = new DigitalOutput(8);
+    ledRedBlueOutput = new DigitalOutput(9);
+    Commands.run(() -> notePresentOutput.set(intake.notePresent()));
+    Commands.run(() -> ledRedBlueOutput.set(Utilities.isRedAlliance())).ignoringDisable(true);
   }
 
   void autoWaitGetterPeriodic() {
