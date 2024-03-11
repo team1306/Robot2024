@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.auto.AutonomousFactory;
 import frc.robot.auto.CloseRingsFromStartMid;
@@ -158,7 +157,7 @@ public class RobotContainer {
   }
 
   public void loadAuto() {
-    autonomousCommand = new WaitCommand(beginningAutoWait).andThen(
+    autonomousCommand = Commands.waitSeconds(beginningAutoWait).andThen(
       autoChooser.getSelected().createAutonomousCommand(new NoteDetector.NoteDetectorPlaceHolder(), driveTrain, shooter, arm, intake)
     );
   }
