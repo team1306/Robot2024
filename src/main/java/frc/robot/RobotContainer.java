@@ -50,17 +50,19 @@ public class RobotContainer {
 
   private SendableChooser<AutonomousFactory> autoChooser = new SendableChooser<>();
 
-  DriveTrain driveTrain;
-  Intake intake;
+  public DriveTrain driveTrain;
+  public Intake intake;
+  public Arm arm;
+
   private Shooter shooter; 
   private Climber climber;
-  public Arm arm;
   
+  public TeleopDriveCommand teleopDriveCommand;
+  public IntakeDriverCommand intakeDriverCommand;
+ 
   private ShooterDriveCommand shooterDriveCommand;
   private NoteIndexingCommand indexNoteCommand;
   private ShooterPitchControlCommand shooterPitchControlCommand;
-  TeleopDriveCommand teleopDriveCommand;
-  IntakeDriverCommand intakeDriverCommand;
   private ClimberDriverCommand climberDriverCommand;
   private ToggleShooterCommand toggleShooterCommand;
 
@@ -100,8 +102,6 @@ public class RobotContainer {
     climberDriverCommand = new ClimberDriverCommand(climber);
     teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> controller1.getLeftTriggerAxis(), () -> controller1.getRightTriggerAxis(), () -> -controller1.getLeftX());
     toggleShooterCommand = new ToggleShooterCommand(() -> Shooter.PEAK_OUTPUT, () -> arm.getCurrentAngle().getDegrees(), shooter);
-    // Example Pathplanner named command registration 
-    //NamedCommands.registerCommand("Far Rings from Shoot-Top", getAutonomousCommand());
 
     climber.setDefaultCommand(climberDriverCommand);
     arm.setDefaultCommand(new MoveArmToSetpointCommand(arm, Arm.Setpoint.INTAKE));
@@ -122,7 +122,7 @@ public class RobotContainer {
     Commands.run(() -> ledRedBlueOutput.set(Utilities.isRedAlliance())).ignoringDisable(true);
   }
 
-  void autoWaitGetterPeriodic() {
+  public void autoWaitGetterPeriodic() {
     beginningAutoWait = SmartDashboard.getNumber("Beginning Auto Wait", beginningAutoWait);
   }
 
