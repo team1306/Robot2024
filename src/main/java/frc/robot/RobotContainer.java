@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.auto.CloseRingsFromStartMid;
 import frc.robot.auto.MoveOutLeft;
 import frc.robot.auto.MoveOutMid;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
@@ -27,6 +28,7 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.vision.NoteDetector;
 import frc.robot.subsystems.vision.SwitchableDriverCam;
 
 import java.util.function.BooleanSupplier;
@@ -71,6 +73,7 @@ public class RobotContainer {
     front.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
     back.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
+      
     driveTrain = new DriveTrain(switchableDriverCam);
     intake = new Intake();
     shooter = new Shooter();
@@ -115,7 +118,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new MoveOutLeft(driveTrain, shooter, arm, intake);
+    return new CloseRingsFromStartMid(null, intake, shooter, arm);
   }
 
   public void configureSysIDBindings() {
