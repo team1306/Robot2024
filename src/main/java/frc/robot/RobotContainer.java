@@ -114,6 +114,7 @@ public class RobotContainer {
     autoChooser.addOption("Far Rings from Shoot Bottom", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromShootBottom(detector, intake, shooter, arm));
     autoChooser.addOption("Far Rings from Shoot Top", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromShootTop(detector, intake, shooter, arm));
     autoChooser.addOption("testPath", (NoteDetector a,  DriveTrain b, Shooter c, Arm d, Intake e) -> new PathPlannerAuto("testPath"));
+    
     SmartDashboard.putData(autoChooser);
 
     notePresentOutput = new DigitalOutput(8);
