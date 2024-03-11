@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -17,7 +18,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-
     m_robotContainer = new RobotContainer();
     
     PortForwarder.add(5800, "photonvision.local", 5800);
@@ -29,11 +29,22 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    SmartDashboard.putBoolean("Load Auto", false);
+  }
 
   @Override
   public void disabledPeriodic() {
-    SmartDashboard.putNumber("Arm Current Angle", m_robotContainer.arm.getCurrentAngle().getDegrees());
+    if (SmartDashboard.getBoolean("Load Auto", false)) {
+      m_robotContainer.loadAuto(); 
+      SmartDashboard.putBoolean("Load Auto", false);
+    }
+
+    final Rotation2d armAngle = m_robotContainer.arm.getCurrentAngle();
+    SmartDashboard.putNumber("Arm Current Angle", armAngle.getDegrees());
+    m_robotContainer.arm.setTargetAngle(armAngle);
+
+    m_robotContainer.autoWaitGetterPeriodic();
   }
 
   @Override
@@ -42,16 +53,10 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     System.out.println("Initializing Auto");
-    m_robotContainer.arm.setTargetAngle(m_robotContainer.arm.getCurrentAngle());
-    m_robotContainer.arm.periodic();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
-    }
-
-    
+    }    
   }
 
   @Override
@@ -68,12 +73,8 @@ public class Robot extends TimedRobot {
     if (m_armDebugCommand != null) {
       m_armDebugCommand.cancel();
     }
-    m_robotContainer.arm.setTargetAngle(m_robotContainer.arm.getCurrentAngle());
-    m_robotContainer.arm.periodic();
-
     m_robotContainer.intake.setDefaultCommand(m_robotContainer.intakeDriverCommand);
     m_robotContainer.driveTrain.setDefaultCommand(m_robotContainer.teleopDriveCommand);
-
   }
 
   @Override

@@ -23,9 +23,9 @@ public interface NoteDetector {
     }
 
     public enum Checkpoints {
-        TOP(PathPlannerPath.fromPathFile("Shoot-Top to Far-2.path").getStartingDifferentialPose()),
-        TOP_MIDDLE(PathPlannerPath.fromPathFile("Scan-Top to Far-3.path").getStartingDifferentialPose()),
-        BOTTOM_MIDDLE(PathPlannerPath.fromPathFile("Scan-Bottom to Far-2.path").getStartingDifferentialPose());
+        TOP(PathPlannerPath.fromPathFile("Shoot-Top to Far-2").getStartingDifferentialPose()),
+        TOP_MIDDLE(PathPlannerPath.fromPathFile("Scan-Top to Far-3").getStartingDifferentialPose()),
+        BOTTOM_MIDDLE(PathPlannerPath.fromPathFile("Scan-Bottom to Far-2").getStartingDifferentialPose());
 
         final Pose2d pose;
 
@@ -57,6 +57,6 @@ public interface NoteDetector {
         if (noteIndex > 5) {
             throw new IllegalArgumentException("Note index out of bounds");
         }
-        return getNoteState()[noteIndex] == State.NOT_PRESENT ? ifNotPresent : ifPresent;
+        return getNoteState()[noteIndex - 1] == State.NOT_PRESENT ? ifNotPresent : ifPresent;
     }
 }

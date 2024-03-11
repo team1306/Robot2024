@@ -6,15 +6,22 @@ package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
+import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.auto.AutonomousFactory;
 import frc.robot.auto.CloseRingsFromStartMid;
+import frc.robot.auto.FarRingsFromShootBottom;
+import frc.robot.auto.FarRingsFromShootTop;
 import frc.robot.auto.MoveOutLeft;
 import frc.robot.auto.MoveOutMid;
+import frc.robot.auto.MoveOutRight;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.commands.climber.ClimberDriverCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
@@ -30,6 +37,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.vision.NoteDetector;
 import frc.robot.subsystems.vision.SwitchableDriverCam;
+import frc.robot.util.Utilities;
 
 import java.util.function.BooleanSupplier;
 
@@ -39,6 +47,8 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 public class RobotContainer {
   private CommandXboxController controller1 = new CommandXboxController(0); // Creates an XboxController on port 1.
   private CommandXboxController controller2 = new CommandXboxController(1); // Creates an XboxController on port 1.
+
+  private SendableChooser<AutonomousFactory> autoChooser = new SendableChooser<>();
 
   DriveTrain driveTrain;
   Intake intake;
@@ -56,24 +66,29 @@ public class RobotContainer {
 
   private SwitchableDriverCam switchableDriverCam;
   private UsbCamera front, back;
-
+  private Command autonomousCommand = new InstantCommand();
   private final BooleanSupplier cancelSetpoint = () -> controller2.getRightY() > 0 || controller2.getRightY() < 0 || controller2.b().getAsBoolean(); // b acts as cancel button
   
+  private final DigitalOutput ledRedBlueOutput, notePresentOutput;
+  private double beginningAutoWait = 0;
+
   public RobotContainer() {
-    front = new UsbCamera("front", 0);
-    front.setResolution(30, 20);
-    front.setFPS(2);
-    back = new UsbCamera("back", 1);
-    back.setResolution(30, 20);
-    back.setFPS(2);
-    CameraServer.startAutomaticCapture(front);
-    CameraServer.startAutomaticCapture(back);
+    SmartDashboard.putNumber("Beginning Auto Wait", beginningAutoWait);
 
-    switchableDriverCam = new SwitchableDriverCam(CameraServer.getServer(), front, back);
-    front.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-    back.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+    front = CameraServer.startAutomaticCapture(0);
+    back = CameraServer.startAutomaticCapture(1);
 
-      
+    front.setResolution(320, 240);
+    back.setResolution(320, 240);
+    front.setFPS(12);
+    back.setFPS(12);
+
+    switchableDriverCam = new SwitchableDriverCam(CameraServer.getServer(), front, front);
+    
+    // TODO: Ideally include these below, if we can't it's whatever
+    // front.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+    // back.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+
     driveTrain = new DriveTrain(switchableDriverCam);
     intake = new Intake();
     shooter = new Shooter();
@@ -91,6 +106,24 @@ public class RobotContainer {
     climber.setDefaultCommand(climberDriverCommand);
     arm.setDefaultCommand(new MoveArmToSetpointCommand(arm, Arm.Setpoint.INTAKE));
     configureBindings();
+    
+    autoChooser.setDefaultOption("move out mid", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutMid(driveTrain, shooter, arm, intake));
+    autoChooser.addOption("move out left", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutLeft(driveTrain, shooter, arm, intake));
+    autoChooser.addOption("move out right", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutRight(driveTrain, shooter, arm, intake));
+    autoChooser.addOption("Close Rings from Start Mid", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new CloseRingsFromStartMid(detector, intake, shooter, arm));
+    autoChooser.addOption("Far Rings from Shoot Bottom", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromShootBottom(detector, intake, shooter, arm));
+    autoChooser.addOption("Far Rings from Shoot Top", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromShootTop(detector, intake, shooter, arm));
+    autoChooser.addOption("testPath", (NoteDetector a,  DriveTrain b, Shooter c, Arm d, Intake e) -> new PathPlannerAuto("testPath"));
+    SmartDashboard.putData(autoChooser);
+
+    notePresentOutput = new DigitalOutput(8);
+    ledRedBlueOutput = new DigitalOutput(9);
+    Commands.run(() -> notePresentOutput.set(intake.notePresent()));
+    Commands.run(() -> ledRedBlueOutput.set(Utilities.isRedAlliance())).ignoringDisable(true);
+  }
+
+  void autoWaitGetterPeriodic() {
+    beginningAutoWait = SmartDashboard.getNumber("Beginning Auto Wait", beginningAutoWait);
   }
 
   /**
@@ -103,28 +136,37 @@ public class RobotContainer {
      * joysticks}.
      */
   private void configureBindings() {
-    controller1.a().whileTrue(driveTrain.getSetSpeedMultiplierCommand(0.5));
+    controller1.a().onTrue(shooterPitchControlCommand);
+    controller1.b().whileTrue(driveTrain.getSetSpeedMultiplierCommand(0.5));
+
 
     controller2.y().onTrue(new InstantCommand(intakeDriverCommand::buttonPress));
     controller2.x().toggleOnTrue(toggleShooterCommand);
+    controller2.rightBumper().onTrue(new InstantCommand(intakeDriverCommand::clearNote));
 
     controller2.povUp().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.AMP, cancelSetpoint));
     controller2.povLeft().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.STAGE_SHOT, cancelSetpoint));
     controller2.povRight().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.SHOOT_CLOSE, cancelSetpoint));
     controller2.povDown().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.INTAKE, cancelSetpoint));
-    // controller2.a().onTrue(shooterPitchControlCommand);
 
     controller2.back().onTrue(new InstantCommand(climberDriverCommand::buttonPress));
   }
 
   public Command getAutonomousCommand() {
-    return new CloseRingsFromStartMid(null, intake, shooter, arm);
+    return autonomousCommand;
+  }
+
+  public void loadAuto() {
+    autonomousCommand = Commands.waitSeconds(beginningAutoWait).andThen(
+      autoChooser.getSelected().createAutonomousCommand(new NoteDetector.NoteDetectorPlaceHolder(), driveTrain, shooter, arm, intake)
+    );
   }
 
   public void configureSysIDBindings() {
     final Command temp = driveTrain.getDefaultCommand();
     driveTrain.removeDefaultCommand();
-    temp.cancel();
+    
+    if (temp != null) temp.cancel();
     controller1
         .a()
         .and(controller1.rightBumper())

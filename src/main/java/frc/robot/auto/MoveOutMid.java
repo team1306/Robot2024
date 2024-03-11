@@ -15,8 +15,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 
 public class MoveOutMid extends ParallelCommandGroup {
-    public MoveOutMid(DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) {
-
+    MoveOutMid(double leftSpeed, double rightSpeed, DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) {
         System.out.println("Running Auto");
         final ToggleShooterCommand shooterCommand = new ToggleShooterCommand(() -> .76, () -> arm.getCurrentAngle().getDegrees(), shooter);
         addCommands( //all commands run at once
@@ -28,9 +27,13 @@ public class MoveOutMid extends ParallelCommandGroup {
                 new InstantCommand(() -> {shooterCommand.stop();}), //turn off shooter
                 new MoveArmToSetpointCommand(arm, Arm.Setpoint.DOWN, () -> true), //arm down
                 new ParallelDeadlineGroup(new WaitCommand(2), //drive out
-                    driveTrain.driveBySetpointPercentagesCommand(0.2,0.2)
+                    driveTrain.driveBySetpointPercentagesCommand(leftSpeed, rightSpeed)
                 )
             )
         );
+    }
+
+    public MoveOutMid(DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) {
+        this(0.2, 0.2, driveTrain, shooter, arm, intake);
     }
 }

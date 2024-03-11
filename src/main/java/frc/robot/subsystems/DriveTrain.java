@@ -7,7 +7,6 @@ import static frc.robot.Constants.FRONT_RIGHT_DRIVE_MOTOR_ID;
 import static frc.robot.Constants.INCLUDE_AUTO;
 import static frc.robot.Constants.INCLUDE_LIMELIGHT;
 import static frc.robot.Constants.LIMELIGHT_NAME;
-import static frc.robot.Constants.LOOP_TIME_SECONDS;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -18,6 +17,8 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -40,7 +41,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
 import frc.robot.subsystems.vision.SwitchableDriverCam;
 import frc.robot.util.LimelightHelpers;
@@ -55,12 +55,27 @@ public class DriveTrain extends SubsystemBase {
     //Track width in meters
     public static final double TRACK_WIDTH = Units.inchesToMeters(25.875);
     //Above 1
-    // public static double leftMultiplier = 0;
-    // public static double rightMulitplier = 0;
+    public static double leftDowntiplier = 0.12;
+    public static double rightDowntiplier = 0;
     // public static double leftFriction = 0;
     // public static double rightFriction = 0;
 
+    // TODO: WHAT SHOULD THIS BE? IS THIS NEEDED?
     private static final String AUTO_NAME = "testPath";
+
+    private static final double leftKS = 0.0088193;//0.0087513; volts
+    private static final double leftKV = 0.27474; //0.24656; volts seconds per meter
+    private static final double leftKA = 0.077361; // volts seconds squared per meter
+    private static final double leftP = 0.11574; // 0.14339;
+    private final SimpleMotorFeedforward leftFeedforward;
+    private final PIDController leftPID;
+
+    private static final double rightKS = 0.0056672; //-0.010876;
+    private static final double rightKV = 0.19594; //0.24307;
+    private static final double rightKA = 0.056995; //0.080477;
+    private static final double rightP = 0.011096; //0.0032142;
+    private final SimpleMotorFeedforward rightFeedforward;
+    private final PIDController rightPID;
     
     //Percentage
     public static double MAX_SPEED = 1;
@@ -103,13 +118,18 @@ public class DriveTrain extends SubsystemBase {
         lEncoder = new Encoder(6, 7, true, EncodingType.k1X);;
         lEncoder.reset();
         lEncoder.setDistancePerPulse(Units.inchesToMeters(6) * Math.PI / 2048D); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
+        
+        leftFeedforward = new SimpleMotorFeedforward(leftKS, leftKV, leftKA);
+        rightFeedforward = new SimpleMotorFeedforward(rightKS, rightKV, rightKA);
+        leftPID = new PIDController(leftP, 0, 0);
+        rightPID = new PIDController(rightP, 0, 0);
+        
         //Pathplanner configuration
-        AutoBuilder.configureLTV(
+        AutoBuilder.configureRamsete(
                 this::getPose, // Robot pose supplier
                 this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
                 this::getCurrentSpeeds, // Current ChassisSpeeds supplier
                 this::drive, // Method that will drive the robot given ChassisSpeeds
-                LOOP_TIME_SECONDS,
                 new ReplanningConfig(), // Default path replanning config. See the API for the options here
                 Utilities::isRedAlliance,
                 this // Reference to this subsystem to set requirements
@@ -122,11 +142,13 @@ public class DriveTrain extends SubsystemBase {
         //SmartDashboard.putNumber("Left Drive Static Friction", 0);  
         //SmartDashboard.putNumber("Right Drive Static Friction", 0);
         this.switchableDriverCam = switchableDriverCam;      
-     }
+        SmartDashboard.putNumber("Right Drive Downtiplier", leftDowntiplier);
+        SmartDashboard.putNumber("Left Drive Downtiplier", rightDowntiplier);
+    }
     
     private void setSideVoltages(double left, double right) {
-        final double leftOutput = (left * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(left, 12e-2))) * 12 * 0.0175) * MAX_SPEED;
-        final double rightOutput = (right * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(right, 12e-2))) * 12 * 0.0105) * MAX_SPEED;
+        final double leftOutput = (left * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(left, 12e-2))) * 12 * 0.0175) * MAX_SPEED * (1 - leftDowntiplier);
+        final double rightOutput = (right * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(right, 12e-2))) * 12 * 0.0105) * MAX_SPEED * (1 - rightDowntiplier);
         lastDriveVoltages = new DifferentialDriveWheelSpeeds(leftOutput, rightOutput);
         leftLeader.setVoltage(leftOutput);
         rightLeader.setVoltage(rightOutput);   
@@ -179,12 +201,14 @@ public class DriveTrain extends SubsystemBase {
         setSidePercentages(wheelSpeeds.leftMetersPerSecond, wheelSpeeds.rightMetersPerSecond);
     }
 
-    public void driveVoltage(DifferentialDriveWheelSpeeds wheelVoltages) {
-        setSideVoltages(wheelVoltages.leftMetersPerSecond, wheelVoltages.rightMetersPerSecond);
-    }
-
     public void driveMetersPerSecond(DifferentialDriveWheelSpeeds wheelSpeeds) {
-        driveVoltage(wheelSpeeds.times(2)); // VERY BAD, PLEASE IMPLEMENT BRADLEY (OR ETHAN IF HE DOESNT GET TO IT)
+        double rightVoltage = rightFeedforward.calculate(wheelSpeeds.rightMetersPerSecond);
+        rightVoltage += rightPID.calculate(rEncoder.getRate(), wheelSpeeds.rightMetersPerSecond);
+
+        double leftVoltage = leftFeedforward.calculate(wheelSpeeds.leftMetersPerSecond);
+        leftVoltage += leftPID.calculate(lEncoder.getRate(), wheelSpeeds.leftMetersPerSecond);
+
+        setSideVoltages(rightVoltage, leftVoltage);
     }
 
     public void drive(ChassisSpeeds speeds){
@@ -218,12 +242,14 @@ public class DriveTrain extends SubsystemBase {
         SmartDashboard.putNumber("right pos", rEncoder.getDistance());
 
 
-        // rightMulitplier = SmartDashboard.getNumber("Right Drive Multiplier", 0);
-        // leftMultiplier = SmartDashboard.getNumber("Left Drive Multiplier", 0);
+        rightDowntiplier = SmartDashboard.getNumber("Right Drive Downtiplier", leftDowntiplier);
+        leftDowntiplier = SmartDashboard.getNumber("Left Drive Downtiplier", rightDowntiplier);
 
         //rightFriction = SmartDashboard.getNumber("Left Drive Static Friction", 0);  
         //leftFriction = SmartDashboard.getNumber("Right Drive Static Friction", 0);
-        switchableDriverCam.setStreamToIndex(kinematics.toChassisSpeeds(lastDriveVoltages).vxMetersPerSecond >= 0 ? 0 : 1); // magnitude won't be right from this, but sign will be, so I don't care
+        if (switchableDriverCam != null) {
+            switchableDriverCam.setStreamToIndex(kinematics.toChassisSpeeds(lastDriveVoltages).vxMetersPerSecond >= 0 ? 0 : 1); // magnitude won't be right from this, but sign will be, so I don't care
+        }
     }
 
     public Command getSetSpeedMultiplierCommand(double multiplier) {
@@ -254,12 +280,12 @@ public class DriveTrain extends SubsystemBase {
         setSideVoltages(volts.magnitude(), volts.magnitude()),
         log -> {
             log.motor("left")
-            .voltage(m_appliedVoltage.mut_replace(leftLeader.get() * RobotController.getBatteryVoltage(), Volts))
+            .voltage(m_appliedVoltage.mut_replace(leftLeader.getAppliedOutput(), Volts))
             .linearPosition(m_distance.mut_replace(lEncoder.getDistance(), Meters))
             .linearVelocity(m_velocity.mut_replace(lEncoder.getRate(), MetersPerSecond));
 
             log.motor("right")
-            .voltage(m_appliedVoltage.mut_replace(rightLeader.get() * RobotController.getBatteryVoltage(), Volts))
+            .voltage(m_appliedVoltage.mut_replace(rightLeader.getAppliedOutput(), Volts))
             .linearPosition(m_distance.mut_replace(rEncoder.getDistance(), Meters))
             .linearVelocity(m_velocity.mut_replace(rEncoder.getRate(), MetersPerSecond));
         }, this));

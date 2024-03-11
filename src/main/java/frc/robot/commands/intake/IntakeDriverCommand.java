@@ -82,7 +82,6 @@ public class IntakeDriverCommand extends Command {
                 }
                 break;
         }
-
     }
 
     public void buttonPress() {
@@ -97,6 +96,10 @@ public class IntakeDriverCommand extends Command {
             case INDEXING -> intake.notePresent() ? State.UNPOWERED_WITH_ELEMENT : State.UNPOWERED_NO_ELEMENT;
             case REVERSING -> State.REVERSING; // loop
         };
+    }
+
+    public void clearNote() {
+        state = State.UNPOWERED_NO_ELEMENT;
     }
 
     @Override

@@ -12,7 +12,7 @@ import frc.robot.subsystems.vision.NoteDetector.Checkpoints;
 
 public class FarRingsFromShootTop extends SequentialCommandGroup {
 
-    public FarRingsFromShootTop(NoteDetector detector, Intake intake, Arm arm, Shooter shooter) {
+    public FarRingsFromShootTop(NoteDetector detector, Intake intake, Shooter shooter, Arm arm) {
 
         System.out.println("Running Auto");
 
