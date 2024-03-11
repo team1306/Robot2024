@@ -55,7 +55,7 @@ public class DriveTrain extends SubsystemBase {
     //Track width in meters
     public static final double TRACK_WIDTH = Units.inchesToMeters(25.875);
     //Above 1
-    public static double leftDowntiplier = 0.12;
+    public static double leftDowntiplier = 0.00;
     public static double rightDowntiplier = 0;
     // public static double leftFriction = 0;
     // public static double rightFriction = 0;
