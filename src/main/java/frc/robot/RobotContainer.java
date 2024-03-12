@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -99,7 +100,7 @@ public class RobotContainer {
     climber = new Climber();
     shooterDriveCommand = new ShooterDriveCommand(driveTrain, indexNoteCommand, toggleShooterCommand);
     shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shooterDriveCommand);
-    intakeDriverCommand = new IntakeDriverCommand(intake, () -> controller2.b().getAsBoolean());
+    intakeDriverCommand = new IntakeDriverCommand(intake, controller2.b());
     climberDriverCommand = new ClimberDriverCommand(climber);
     teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> controller1.getLeftTriggerAxis(), () -> controller1.getRightTriggerAxis(), () -> -controller1.getLeftX());
     toggleShooterCommand = new ToggleShooterCommand(() -> Shooter.PEAK_OUTPUT, () -> arm.getCurrentAngle().getDegrees(), shooter);
@@ -139,6 +140,7 @@ public class RobotContainer {
      * joysticks}.
      */
   private void configureBindings() {
+    Trigger controller1A = new Trigger(controller1.a());
     controller1.a().onTrue(shooterPitchControlCommand);
     controller1.b().whileTrue(driveTrain.getSetSpeedMultiplierCommand(0.5));
 
