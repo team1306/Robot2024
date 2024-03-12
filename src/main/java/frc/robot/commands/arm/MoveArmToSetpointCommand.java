@@ -26,17 +26,11 @@ public class MoveArmToSetpointCommand extends Command {
     @Override
     public void initialize() {
         arm.setControlMode(ControlMode.AUTOMATIC);
-        arm.setTargetAngle(Rotation2d.fromDegrees(setpoint.pos));
+        arm.setTargetAngle(Rotation2d.fromDegrees(setpoint.getPos()));
     }
 
     @Override
     public boolean isFinished() {
         return interruptionFlag != null && interruptionFlag.getAsBoolean();
     }
-
-    @Override
-    public void end(boolean interrupted) {
-        // STUB
-    }
-    
 }

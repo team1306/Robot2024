@@ -21,12 +21,8 @@ public final class AutoCommands {
     public static final double waitTime = 1;
     
     public static Command getShooterCommand(Shooter shooter) {
-        return new ToggleShooterCommand(() -> .79, () -> Arm.Setpoint.SHOOT_CLOSE.pos, shooter);
+        return new ToggleShooterCommand(() -> .79, Arm.SetpointOptions.SHOOT_CLOSE::getPos, shooter);
     }
-    
-
-
-
 
     public static SequentialCommandGroup shoot (Intake intake, Shooter shooter) {
         return new SequentialCommandGroup(

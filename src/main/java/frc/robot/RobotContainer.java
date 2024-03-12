@@ -99,14 +99,14 @@ public class RobotContainer {
     arm = new Arm();
     climber = new Climber();
     shooterDriveCommand = new ShooterDriveCommand(driveTrain, indexNoteCommand, toggleShooterCommand);
-    shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shooterDriveCommand);
+    shooterPitchControlCommand = new ShooterPitchControlCommand(arm);
     intakeDriverCommand = new IntakeDriverCommand(intake, controller2.b());
     climberDriverCommand = new ClimberDriverCommand(climber);
     teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> controller1.getLeftTriggerAxis(), () -> controller1.getRightTriggerAxis(), () -> -controller1.getLeftX());
     toggleShooterCommand = new ToggleShooterCommand(() -> Shooter.PEAK_OUTPUT, () -> arm.getCurrentAngle().getDegrees(), shooter);
 
     climber.setDefaultCommand(climberDriverCommand);
-    arm.setDefaultCommand(new MoveArmToSetpointCommand(arm, Arm.Setpoint.INTAKE));
+    arm.setDefaultCommand(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE));
     configureBindings();
     
     autoChooser.setDefaultOption("move out mid", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutMid(driveTrain, shooter, arm, intake));
@@ -140,17 +140,17 @@ public class RobotContainer {
      * joysticks}.
      */
   private void configureBindings() {
-    controller1.a().onTrue(shooterPitchControlCommand);
+    controller1.a().onTrue(shooterPitchControlCommand.andThen(shooterDriveCommand));
     controller1.b().whileTrue(driveTrain.getSetSpeedMultiplierCommand(0.5));
 
-    controller2.y().onTrue(new InstantCommand(intakeDriverCommand::buttonPress));
+    controller2.a().onTrue(new InstantCommand(intakeDriverCommand::buttonPress));
     controller2.x().toggleOnTrue(toggleShooterCommand);
     controller2.rightBumper().onTrue(new InstantCommand(intakeDriverCommand::clearNote));
 
-    controller2.povUp().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.AMP, cancelSetpoint));
-    controller2.povLeft().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.STAGE_SHOT, cancelSetpoint));
-    controller2.povRight().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.SHOOT_CLOSE, cancelSetpoint));
-    controller2.povDown().onTrue(new MoveArmToSetpointCommand(arm, Arm.Setpoint.INTAKE, cancelSetpoint));
+    controller2.povUp().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.AMP, cancelSetpoint));
+    controller2.povLeft().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.STAGE_SHOT, cancelSetpoint));
+    controller2.povRight().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.SHOOT_CLOSE, cancelSetpoint));
+    controller2.povDown().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE, cancelSetpoint));
 
     controller2.back().onTrue(new InstantCommand(climberDriverCommand::buttonPress));
   }
@@ -187,4 +187,6 @@ public class RobotContainer {
         .and(controller1.rightBumper())
         .whileTrue(driveTrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
+
+  
 }

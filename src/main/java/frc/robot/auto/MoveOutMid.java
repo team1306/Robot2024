@@ -20,11 +20,11 @@ public class MoveOutMid extends ParallelCommandGroup {
         addCommands( //all commands run at once
             shooterCommand, //turns on shooter
             new SequentialCommandGroup( //following commands run in sequence
-                new MoveArmToSetpointCommand(arm, Arm.Setpoint.SHOOT_CLOSE, () -> true), //aim
+                new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.SHOOT_CLOSE, () -> true), //aim
                 new WaitCommand(1.5),
                 new IntakeIndexCommand(intake), //fire
                 new InstantCommand(() -> {shooterCommand.stop();}), //turn off shooter
-                new MoveArmToSetpointCommand(arm, Arm.Setpoint.DOWN, () -> true), //arm down
+                new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.DOWN, () -> true), //arm down
                 new ParallelDeadlineGroup(new WaitCommand(2), //drive out
                     driveTrain.driveBySetpointPercentagesCommand(leftSpeed, rightSpeed)
                 )

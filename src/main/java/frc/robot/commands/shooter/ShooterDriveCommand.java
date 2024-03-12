@@ -1,18 +1,15 @@
 package frc.robot.commands.shooter;
 
-import static frc.robot.Constants.INCLUDE_LIMELIGHT;
-import static frc.robot.Constants.LIMELIGHT_NAME;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.DriveTrain;
-import frc.robot.util.LimelightHelpers;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Utilities;
 
@@ -48,13 +45,18 @@ public class ShooterDriveCommand extends Command{
         deadbandValue = SmartDashboard.getNumber("Shooter Auto Deadband", 1);
 
         rotationController.setPID(kP, kI, kD);
-        Pose2d botPose = INCLUDE_LIMELIGHT ? LimelightHelpers.getBotPose2d(LIMELIGHT_NAME) : new Pose2d();
+        Pose2d botPose = Utilities.getRobotPos();
+        double speakerDistance = Utilities.getSpeakerDistance(botPose);
+
         Translation2d targetPos = Utilities.getSpeaker().minus(botPose.getTranslation());
         Rotation2d angle = Rotation2d.fromRadians(Math.atan2(targetPos.getY(), targetPos.getX()));
         Rotation2d robotAngle = botPose.getRotation();
 
-        final double delta = MathUtil.applyDeadband(
-            (angle.minus(robotAngle).plus(Rotation2d.fromDegrees(Utilities.isRedAlliance() ? 180 : 0))).getDegrees(), deadbandValue);
+        final double delta = MathUtil.applyDeadband((
+            angle.minus(robotAngle)
+            .plus(Rotation2d.fromDegrees(Utilities.isRedAlliance() ? 180 : 0))
+            .plus(Rotation2d.fromDegrees(Units.metersToInches(speakerDistance) * (54.0/7.0))))
+            .getDegrees(), deadbandValue);
         
         if (delta == 0) finished = true;
         else driveTrain.arcadeDrive(0, MotorUtil.clampPercent(rotationController.calculate(delta) * 0.25));

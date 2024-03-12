@@ -29,17 +29,44 @@ public class Arm extends SubsystemBase  {
         VISION
     }
 
-    public enum Setpoint {
+
+    public interface Setpoint {
+        double getPos();
+
+        static class Custom implements Setpoint {
+            private final double pos;
+
+            public Custom(double pos) {
+                this.pos = pos;
+            }
+
+            public Custom(Rotation2d pos) {
+                this(pos.getDegrees());
+            }
+            
+            @Override
+            public double getPos() {
+                return pos;
+            }
+        }
+    }
+
+    public enum SetpointOptions implements Setpoint {
         AMP(95),
         INTAKE(0),
         DOWN(4),
         SHOOT_CLOSE(16),
         STAGE_SHOT(35);
 
-        public final int pos;
+        private final double pos;
 
-        private Setpoint(int pos) {
+        private SetpointOptions(double pos) {
             this.pos = pos;
+        }
+
+        @Override
+        public double getPos() {
+            return pos;
         }
     }
 

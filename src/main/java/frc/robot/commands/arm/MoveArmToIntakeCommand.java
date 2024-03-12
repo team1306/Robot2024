@@ -5,13 +5,13 @@ import java.util.function.BooleanSupplier;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Arm.ControlMode;
-import frc.robot.subsystems.Arm.Setpoint;
+import frc.robot.subsystems.Arm.SetpointOptions;
 
 public class MoveArmToIntakeCommand extends MoveArmToSetpointCommand {
     private BooleanSupplier notePresentFlag;
 
     public MoveArmToIntakeCommand(Arm arm, BooleanSupplier notePresentFlag, BooleanSupplier interruptionFlag) {
-        super(arm, Setpoint.INTAKE, interruptionFlag);
+        super(arm, SetpointOptions.INTAKE, interruptionFlag);
         this.notePresentFlag = notePresentFlag;
     }
 
@@ -23,8 +23,8 @@ public class MoveArmToIntakeCommand extends MoveArmToSetpointCommand {
     @Override
     public void execute() {
         arm.setTargetAngle(Rotation2d.fromDegrees(notePresentFlag.getAsBoolean() ?
-            Setpoint.DOWN.pos :
-            Setpoint.INTAKE.pos
+            SetpointOptions.DOWN.getPos() :
+            SetpointOptions.INTAKE.getPos()
         ));
     }
     
