@@ -200,7 +200,7 @@ public class Arm extends SubsystemBase  {
                 pidOutput += feedforwardOutput;
                 SmartDashboard.putNumber("total arm output", pidOutput);
                 SmartDashboard.putNumber("arm acceleration", calculateAcceleration());
-                yield (getCurrentAngle().getDegrees() < 0.5 && getTargetAngle().getDegrees() < 0.5 ? 0 : pidOutput);
+                yield (getCurrentAngle().getDegrees() < 2.5 && getTargetAngle().getDegrees() < 2.5 ? 0 : pidOutput);
             }
             case MANUAL -> {
                 if (lastControlMode != ControlMode.MANUAL) {

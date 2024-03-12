@@ -3,8 +3,12 @@ package frc.robot.util;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 
 import static frc.robot.Constants.*;
+
+import java.util.function.Consumer;
 
 public class Utilities {
     /**
@@ -40,5 +44,26 @@ public class Utilities {
      */
     public static Pose2d getRobotPos(){
         return INCLUDE_LIMELIGHT ? LimelightHelpers.getBotPose2d(LIMELIGHT_NAME) : new Pose2d();
+    }
+    
+    /**
+     * Run consumer if object is not null, else do nothing
+     * @param <T> type of object
+     * @param object input object
+     * @param objectConsumer consumer to apply to object
+     * @return returns input object
+     */
+    public static <T> T runIfNotNull(T object, Consumer<T> objectConsumer) {
+        if (object != null) {
+            objectConsumer.accept(object);
+        }
+        return object;
+    }
+
+    public static void removeAndCancelDefaultCommand(Subsystem subsystem) {
+        runIfNotNull(subsystem.getDefaultCommand(), (Command command) -> {
+            command.cancel();
+            subsystem.removeDefaultCommand();
+        });
     }
 }
