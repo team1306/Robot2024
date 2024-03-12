@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.1852004303152672,
-        "y": 5.539225686154654
+        "x": 0.6939235829354129,
+        "y": 4.470805597490999
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.185200430315267,
-        "y": 5.539225686154654
+        "x": 1.0372684040104625,
+        "y": 3.8761149228733682
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.729005010078493,
-        "y": 7.178742802564065
+        "x": 5.741326364169316,
+        "y": 1.7118911962942394
       },
       "prevControl": {
-        "x": 4.729005010078493,
-        "y": 7.178742802564065
+        "x": 5.363228270654509,
+        "y": 2.03906367631123
       },
       "nextControl": null,
-      "isLocked": true,
-      "linkedName": "rwar"
+      "isLocked": false,
+      "linkedName": "shoot-bottom"
     }
   ],
   "rotationTargets": [],
@@ -45,7 +45,7 @@
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": -58.39249775375101,
     "velocity": 0
   },
   "useDefaultConstraints": true

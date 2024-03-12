@@ -10,10 +10,15 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.vision.NoteDetector;
 import frc.robot.subsystems.vision.NoteDetector.Checkpoints;
 
-public class FarRingsFromShootTop extends SequentialCommandGroup {
-    public FarRingsFromShootTop(NoteDetector detector, Intake intake, Shooter shooter, Arm arm) {
+public class FarRingsFromStartTop extends SequentialCommandGroup {
+
+    public FarRingsFromStartTop(NoteDetector detector, Intake intake, Shooter shooter, Arm arm) {
+
         System.out.println("Running Auto");
+
         addCommands(
+            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Start-1 to Shoot-Top")), //go to shoot top
+
             //Collect 1 and 2
             detector.read(Checkpoints.TOP),
             detector.notePresenceCommandSwitcher(1,

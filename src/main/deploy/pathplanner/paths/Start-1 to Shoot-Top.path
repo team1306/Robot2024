@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.729005010078493,
-        "y": 7.178742802564065
+        "x": 0.7,
+        "y": 6.6
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.072759817051374,
-        "y": 7.178742802564065
+        "x": 1.1999999999999995,
+        "y": 7.466025403784439
       },
       "isLocked": false,
-      "linkedName": "rwar"
+      "linkedName": "start-speaker-top"
     },
     {
       "anchor": {
-        "x": 2.894982565999367,
-        "y": 5.562647359246215
+        "x": 5.71276343554397,
+        "y": 6.278357115288718
       },
       "prevControl": {
-        "x": 3.445391883651099,
-        "y": 6.335562571267794
+        "x": 4.7580545522894,
+        "y": 5.980815608545854
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "shoot-top"
     }
   ],
   "rotationTargets": [],
@@ -42,10 +42,10 @@
     "rotation": 0,
     "rotateFast": false
   },
-  "reversed": true,
+  "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": 58.88891469607413,
     "velocity": 0
   },
   "useDefaultConstraints": true

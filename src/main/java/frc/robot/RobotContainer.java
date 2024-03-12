@@ -17,8 +17,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.auto.AutonomousFactory;
 import frc.robot.auto.CloseRingsFromStartMid;
-import frc.robot.auto.FarRingsFromShootBottom;
-import frc.robot.auto.FarRingsFromShootTop;
+import frc.robot.auto.FarRingsFromStartBottom;
+import frc.robot.auto.FarRingsFromStartMid;
+import frc.robot.auto.FarRingsFromStartTop;
 import frc.robot.auto.MoveOutLeft;
 import frc.robot.auto.MoveOutMid;
 import frc.robot.auto.MoveOutRight;
@@ -111,9 +112,11 @@ public class RobotContainer {
     autoChooser.addOption("move out left", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutLeft(driveTrain, shooter, arm, intake));
     autoChooser.addOption("move out right", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutRight(driveTrain, shooter, arm, intake));
     autoChooser.addOption("Close Rings from Start Mid", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new CloseRingsFromStartMid(detector, intake, shooter, arm));
-    autoChooser.addOption("Far Rings from Shoot Bottom", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromShootBottom(detector, intake, shooter, arm));
-    autoChooser.addOption("Far Rings from Shoot Top", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromShootTop(detector, intake, shooter, arm));
+    autoChooser.addOption("Far Rings from Start Bottom (right around stage)", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromStartBottom(detector, intake, shooter, arm));
+    autoChooser.addOption("Far Rings from Start Top (left around stage)", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromStartMid(detector, intake, shooter, arm));
+    autoChooser.addOption("Far Rings from Start Mid (left around stage)", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromStartTop(detector, intake, shooter, arm));
     autoChooser.addOption("testPath", (NoteDetector a,  DriveTrain b, Shooter c, Arm d, Intake e) -> new PathPlannerAuto("testPath"));
+
     SmartDashboard.putData(autoChooser);
 
     notePresentOutput = new DigitalOutput(8);

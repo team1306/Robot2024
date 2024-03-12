@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.2611870911804413,
+      "x": 1.26,
       "y": 5.566874071049189
     },
-    "rotation": 1.2453642667683662
+    "rotation": 0
   },
   "command": {
     "type": "sequential",
@@ -14,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Middle-Speaker to Shoot-Top"
+            "pathName": "Start-2 to Shoot-Top"
           }
         },
         {
