@@ -7,7 +7,6 @@ package frc.robot;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.DigitalOutput;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -87,7 +86,8 @@ public class RobotContainer {
     front.setFPS(12);
     back.setFPS(12);
 
-    switchableDriverCam = new SwitchableDriverCam(CameraServer.getServer(), front, front);
+    //SWITCH DOUBLE FRONT TO BACK
+    switchableDriverCam = new SwitchableDriverCam(CameraServer.getServer(), front, back);
     
     // TODO: Ideally include these below, if we can't it's whatever
     // front.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
@@ -140,10 +140,8 @@ public class RobotContainer {
      * joysticks}.
      */
   private void configureBindings() {
-    Trigger controller1A = new Trigger(controller1.a());
     controller1.a().onTrue(shooterPitchControlCommand);
     controller1.b().whileTrue(driveTrain.getSetSpeedMultiplierCommand(0.5));
-
 
     controller2.y().onTrue(new InstantCommand(intakeDriverCommand::buttonPress));
     controller2.x().toggleOnTrue(toggleShooterCommand);
