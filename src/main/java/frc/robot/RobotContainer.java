@@ -102,8 +102,8 @@ public class RobotContainer {
     shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shooterDriveCommand);
     intakeDriverCommand = new IntakeDriverCommand(intake, controller2.b());
     climberDriverCommand = new ClimberDriverCommand(climber);
-    teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> controller1.getLeftTriggerAxis(), () -> controller1.getRightTriggerAxis(), () -> -controller1.getLeftX());
-    toggleShooterCommand = new ToggleShooterCommand(() -> Shooter.PEAK_OUTPUT, () -> arm.getCurrentAngle().getDegrees(), shooter);
+    teleopDriveCommand = new TeleopDriveCommand(driveTrain, controller1::getLeftTriggerAxis, controller1::getRightTriggerAxis, () -> -controller1.getLeftX());
+    toggleShooterCommand = new ToggleShooterCommand(() -> Shooter.PEAK_OUTPUT, arm.getCurrentAngle()::getDegrees, shooter);
 
     climber.setDefaultCommand(climberDriverCommand);
     arm.setDefaultCommand(new MoveArmToSetpointCommand(arm, Arm.Setpoint.INTAKE));
