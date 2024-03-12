@@ -11,11 +11,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.arm.DebugArmCommand;
+import static frc.robot.util.Utilities.*;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand, m_armDebugCommand;
   private RobotContainer m_robotContainer;
-
+  
   @Override
   public void robotInit() {
     m_robotContainer = new RobotContainer();
@@ -54,9 +55,12 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     System.out.println("Initializing Auto");
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    removeAndCancelDefaultCommand(m_robotContainer.driveTrain);
+    removeAndCancelDefaultCommand(m_robotContainer.intake);
+
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
-    }    
+    }
   }
 
   @Override
@@ -91,6 +95,8 @@ public class Robot extends TimedRobot {
     m_armDebugCommand = new DebugArmCommand(m_robotContainer.arm);
     m_armDebugCommand.schedule();
     m_robotContainer.configureSysIDBindings();
+    m_robotContainer.intake.setDefaultCommand(m_robotContainer.intakeDriverCommand);
+    m_robotContainer.driveTrain.setDefaultCommand(m_robotContainer.teleopDriveCommand);
   }
 
   @Override
