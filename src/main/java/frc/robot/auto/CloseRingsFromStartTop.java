@@ -10,15 +10,15 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.vision.NoteDetector;
 
-public class CloseRingsFromStartMid extends SequentialCommandGroup {
-    public CloseRingsFromStartMid(NoteDetector detector, Intake intake, Shooter shooter, Arm arm) {
+public class CloseRingsFromStartTop extends SequentialCommandGroup {
+    public CloseRingsFromStartTop(NoteDetector detector, Intake intake, Shooter shooter, Arm arm) {
 
         System.out.println("Running Auto");
         final Command shooterCommand = new ToggleShooterCommand(() -> .79, Arm.SetpointOptions.SHOOT_CLOSE::getPos, shooter);
            addCommands(
             shooterCommand, //spin up shooter
             new IntakeIndexCommand(intake), //fire
-            AutoCommands.getClose1StartMid(intake, shooter), //collect close 1 and shoot
+            AutoCommands.getClose1StartTop(intake, shooter), //collect close 1 and shoot
             AutoCommands.getClose2Close1(intake, shooter), //collect close 2 and shoot
             AutoCommands.getClose3Close2(intake, shooter), //collect close 3 and shoot
             new InstantCommand(shooterCommand::cancel) //shooter off
