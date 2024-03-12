@@ -57,7 +57,7 @@ public class ShooterDriveCommand extends Command{
             (angle.minus(robotAngle).plus(Rotation2d.fromDegrees(Utilities.isRedAlliance() ? 180 : 0))).getDegrees(), deadbandValue);
         
         if (delta == 0) finished = true;
-        else driveTrain.arcadeDrive(0, MotorUtil.clampPercent(rotationController.calculate(delta)));
+        else driveTrain.arcadeDrive(0, MotorUtil.clampPercent(rotationController.calculate(delta) * 0.25));
         
     }
 

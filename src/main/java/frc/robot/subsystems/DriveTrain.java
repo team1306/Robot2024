@@ -40,6 +40,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
 import frc.robot.subsystems.vision.SwitchableDriverCam;
@@ -54,9 +55,8 @@ import static edu.wpi.first.units.MutableMeasure.mutable;
 public class DriveTrain extends SubsystemBase {
     //Track width in meters
     public static final double TRACK_WIDTH = Units.inchesToMeters(25.875);
-    //Above 1
-    public static double leftDowntiplier = 0.00;
-    public static double rightDowntiplier = 0;
+    public static double leftDowntiplier = 0.12;
+    public static double rightDowntiplier = 0.0;
     // public static double leftFriction = 0;
     // public static double rightFriction = 0;
 
@@ -147,8 +147,13 @@ public class DriveTrain extends SubsystemBase {
     }
     
     private void setSideVoltages(double left, double right) {
-        final double leftOutput = (left * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(left, 12e-2))) * 12 * 0.0175) * MAX_SPEED * (1 - leftDowntiplier);
-        final double rightOutput = (right * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(right, 12e-2))) * 12 * 0.0105) * MAX_SPEED * (1 - rightDowntiplier);
+        double leftOutput = (left * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(left, 12e-2))) * 12 * 0.0175) * MAX_SPEED;
+        double rightOutput = (right * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(right, 12e-2))) * 12 * 0.0105) * MAX_SPEED;
+        
+        if(DriverStation.isTeleopEnabled()){
+            leftOutput *= 1 - leftDowntiplier;
+            rightOutput *= 1 - rightDowntiplier;
+        }
         lastDriveVoltages = new DifferentialDriveWheelSpeeds(leftOutput, rightOutput);
         leftLeader.setVoltage(leftOutput);
         rightLeader.setVoltage(rightOutput);   

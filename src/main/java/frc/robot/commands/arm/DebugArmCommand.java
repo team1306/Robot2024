@@ -32,7 +32,6 @@ public class DebugArmCommand extends Command {
     @Override
     public void execute(){
         targetAngle = SmartDashboard.getNumber("Arm Target Angle", targetAngle);
-        SmartDashboard.putNumber("Arm Target Angle", targetAngle); // to not overwrite value
         SmartDashboard.putNumber("Arm Current Angle", arm.getCurrentAngle().getDegrees());
         minAngle = SmartDashboard.getNumber("Arm Min Angle", minAngle);
         maxAngle = SmartDashboard.getNumber("Arm Max Angle", maxAngle);

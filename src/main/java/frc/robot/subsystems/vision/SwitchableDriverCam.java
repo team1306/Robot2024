@@ -25,6 +25,7 @@ public class SwitchableDriverCam {
     }
 
     public void setStreamToIndex(int index) {
+        if (index == this.index) return;
         if (index >= sources.length) {
             DriverStation.reportError("Index out of bounds", Thread.currentThread().getStackTrace());
         } else {

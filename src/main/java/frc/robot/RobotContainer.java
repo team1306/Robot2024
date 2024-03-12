@@ -86,7 +86,8 @@ public class RobotContainer {
     front.setFPS(12);
     back.setFPS(12);
 
-    switchableDriverCam = new SwitchableDriverCam(CameraServer.getServer(), front, front);
+    //SWITCH DOUBLE FRONT TO BACK
+    switchableDriverCam = new SwitchableDriverCam(CameraServer.getServer(), front, back);
     
     // TODO: Ideally include these below, if we can't it's whatever
     // front.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
@@ -99,7 +100,7 @@ public class RobotContainer {
     climber = new Climber();
     shooterDriveCommand = new ShooterDriveCommand(driveTrain, indexNoteCommand, toggleShooterCommand);
     shooterPitchControlCommand = new ShooterPitchControlCommand(arm, shooterDriveCommand);
-    intakeDriverCommand = new IntakeDriverCommand(intake, () -> controller2.b().getAsBoolean());
+    intakeDriverCommand = new IntakeDriverCommand(intake, controller2.b());
     climberDriverCommand = new ClimberDriverCommand(climber);
     teleopDriveCommand = new TeleopDriveCommand(driveTrain, () -> controller1.getLeftTriggerAxis(), () -> controller1.getRightTriggerAxis(), () -> -controller1.getLeftX());
     toggleShooterCommand = new ToggleShooterCommand(() -> Shooter.PEAK_OUTPUT, () -> arm.getCurrentAngle().getDegrees(), shooter);
@@ -141,7 +142,6 @@ public class RobotContainer {
   private void configureBindings() {
     controller1.a().onTrue(shooterPitchControlCommand);
     controller1.b().whileTrue(driveTrain.getSetSpeedMultiplierCommand(0.5));
-
 
     controller2.y().onTrue(new InstantCommand(intakeDriverCommand::buttonPress));
     controller2.x().toggleOnTrue(toggleShooterCommand);
