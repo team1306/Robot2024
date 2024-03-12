@@ -8,7 +8,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Utilities;
@@ -16,19 +15,15 @@ import frc.robot.util.Utilities;
 public class ShooterDriveCommand extends Command{
 
     private final DriveTrain driveTrain;
-    private final NoteIndexingCommand noteIndexCommand;
-    private final ToggleShooterCommand toggleShooterCommand;
     private final PIDController rotationController;
 
     private boolean finished = false;
     private double deadbandValue = 0.05;
     public static double kP = 1, kI = 0, kD = 0;
 
-    public ShooterDriveCommand(DriveTrain driveTrain, NoteIndexingCommand noteIndexCommand, ToggleShooterCommand toggleShooterCommand){
+    public ShooterDriveCommand(DriveTrain driveTrain){
         this.driveTrain = driveTrain;
-        this.noteIndexCommand = noteIndexCommand;
         this.rotationController = new PIDController(kP, kI, kD);
-        this.toggleShooterCommand = toggleShooterCommand;
         this.addRequirements(driveTrain);
          
         SmartDashboard.putNumber("Shooter Drive kP", kP);
@@ -66,12 +61,5 @@ public class ShooterDriveCommand extends Command{
     @Override
     public boolean isFinished(){            
         return finished;
-    }
-
-    @Override
-    public void end(boolean interrupted){
-        CommandScheduler.getInstance().schedule(
-            noteIndexCommand.alongWith(toggleShooterCommand)
-            .withTimeout(NoteIndexingCommand.TIME_AFTER_SHOT_MS + NoteIndexingCommand.TIME_BEFORE_SHOT_MS));
     }
 }

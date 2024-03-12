@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.auto.AutonomousFactory;
 import frc.robot.auto.CloseRingsFromStartMid;
@@ -27,7 +29,7 @@ import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.commands.climber.ClimberDriverCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.intake.IntakeDriverCommand;
-import frc.robot.commands.shooter.NoteIndexingCommand;
+import frc.robot.commands.intake.IntakeIndexCommand;
 import frc.robot.commands.shooter.ShooterDriveCommand;
 import frc.robot.commands.shooter.ShooterPitchControlCommand;
 import frc.robot.commands.shooter.ToggleShooterCommand;
@@ -62,7 +64,6 @@ public class RobotContainer {
   public IntakeDriverCommand intakeDriverCommand;
  
   private ShooterDriveCommand shooterDriveCommand;
-  private NoteIndexingCommand indexNoteCommand;
   private ShooterPitchControlCommand shooterPitchControlCommand;
   private ClimberDriverCommand climberDriverCommand;
   private ToggleShooterCommand toggleShooterCommand;
@@ -98,7 +99,7 @@ public class RobotContainer {
     shooter = new Shooter();
     arm = new Arm();
     climber = new Climber();
-    shooterDriveCommand = new ShooterDriveCommand(driveTrain, indexNoteCommand, toggleShooterCommand);
+    shooterDriveCommand = new ShooterDriveCommand(driveTrain);
     shooterPitchControlCommand = new ShooterPitchControlCommand(arm);
     intakeDriverCommand = new IntakeDriverCommand(intake, controller2.b());
     climberDriverCommand = new ClimberDriverCommand(climber);
@@ -140,11 +141,16 @@ public class RobotContainer {
      * joysticks}.
      */
   private void configureBindings() {
-    controller1.a().onTrue(shooterPitchControlCommand.andThen(shooterDriveCommand));
+    controller1.a()
+    .onTrue(new ParallelCommandGroup(shooterDriveCommand, toggleShooterCommand)
+    .andThen(new WaitCommand(0.5))
+    .andThen(new IntakeIndexCommand(intake))
+    .andThen(toggleShooterCommand::stop));
     controller1.b().whileTrue(driveTrain.getSetSpeedMultiplierCommand(0.5));
 
     controller2.a().onTrue(new InstantCommand(intakeDriverCommand::buttonPress));
     controller2.x().toggleOnTrue(toggleShooterCommand);
+    controller2.y().onTrue(shooterPitchControlCommand);
     controller2.rightBumper().onTrue(new InstantCommand(intakeDriverCommand::clearNote));
 
     controller2.povUp().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.AMP, cancelSetpoint));
@@ -152,7 +158,7 @@ public class RobotContainer {
     controller2.povRight().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.SHOOT_CLOSE, cancelSetpoint));
     controller2.povDown().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE, cancelSetpoint));
 
-    controller2.back().onTrue(new InstantCommand(climberDriverCommand::buttonPress));
+    controller1.back().onTrue(new InstantCommand(climberDriverCommand::buttonPress));
   }
 
   public Command getAutonomousCommand() {
