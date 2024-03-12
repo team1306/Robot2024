@@ -25,7 +25,8 @@ public final class AutoCommands {
     }
     
 
-    //add command to lower arm at the start
+
+
 
     public static SequentialCommandGroup shoot (Intake intake, Shooter shooter) {
         return new SequentialCommandGroup(
@@ -35,6 +36,24 @@ public final class AutoCommands {
         );
     }
 
+    public static SequentialCommandGroup getSpeakerShootTop (Intake intake) {
+        return new SequentialCommandGroup(
+            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Shoot-Top to Speaker")),
+            new IntakeIndexCommand(intake),
+            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Start-2 to Shoot-Top"))
+        );
+        
+    }
+
+    public static SequentialCommandGroup getSpeakerShootBottom (Intake intake) {
+        return new SequentialCommandGroup(
+            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Shoot-Bottom to Speaker")),
+            new IntakeIndexCommand(intake),
+            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Start-2 to Shoot-Bottom"))
+        );
+        
+    }
+
     public static SequentialCommandGroup getFar1ShootTop (Intake intake, Shooter shooter){ 
         final Command shooterCommand = getShooterCommand(shooter);
         return new SequentialCommandGroup(
@@ -42,7 +61,8 @@ public final class AutoCommands {
             getIntakeWaiterCommand(intake),
             shooterCommand,
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-1 to Shoot-Top")),
-            new IntakeIndexCommand(intake), //fire
+            //new IntakeIndexCommand(intake), //fire
+            getSpeakerShootTop(intake), //drive to speaker and fire
             new InstantCommand(() -> shooterCommand.cancel())
             
         );
@@ -55,7 +75,8 @@ public final class AutoCommands {
             getIntakeWaiterCommand(intake),
             shooterCommand,
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-2 to Shoot-Top")),
-            new IntakeIndexCommand(intake), //fire
+            //new IntakeIndexCommand(intake), //fire
+            getSpeakerShootTop(intake), //drive to speaker and fire
             new InstantCommand(() -> shooterCommand.cancel())
         );
     }
@@ -67,7 +88,8 @@ public final class AutoCommands {
             getIntakeWaiterCommand(intake),
             shooterCommand,
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-4 to Shoot-Bottom")),
-            new IntakeIndexCommand(intake), //fire
+            //new IntakeIndexCommand(intake), //fire
+            getSpeakerShootBottom(intake), //drive to speaker and fire
             new InstantCommand(() -> shooterCommand.cancel())
         );
     }
@@ -79,7 +101,8 @@ public final class AutoCommands {
             getIntakeWaiterCommand(intake),
             shooterCommand,
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-5 to Shoot-Bottom")),
-            new IntakeIndexCommand(intake), //fire
+            //new IntakeIndexCommand(intake), //fire
+            getSpeakerShootBottom(intake), //drive to speaker and fire
             new InstantCommand(() -> shooterCommand.cancel())
         );
     }
@@ -91,7 +114,8 @@ public final class AutoCommands {
             getIntakeWaiterCommand(intake),
             shooterCommand,
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-3 to Shoot-Bottom")),
-            new IntakeIndexCommand(intake), //fire
+            //new IntakeIndexCommand(intake), //fire
+            getSpeakerShootBottom(intake), //drive to speaker and fire
             new InstantCommand(() -> shooterCommand.cancel())
         );
     }
@@ -103,7 +127,8 @@ public final class AutoCommands {
             getIntakeWaiterCommand(intake),
             shooterCommand,
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-3 to Shoot-Top")),
-            new IntakeIndexCommand(intake), //fire
+            //new IntakeIndexCommand(intake), //fire
+            getSpeakerShootTop(intake), //drive to speaker and fire
             new InstantCommand(() -> shooterCommand.cancel())
         );
     }
@@ -127,7 +152,8 @@ public final class AutoCommands {
             getIntakeWaiterCommand(intake),
             shooterCommand,
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Far-2 to Shoot-Top")),
-            new IntakeIndexCommand(intake), //fire
+            //new IntakeIndexCommand(intake), //fire
+            getSpeakerShootTop(intake), //drive to speaker and fire
             new InstantCommand(() -> shooterCommand.cancel())
         );
     }
