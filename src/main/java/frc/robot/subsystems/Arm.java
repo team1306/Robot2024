@@ -83,7 +83,7 @@ public class Arm extends SubsystemBase  {
                                                  // need to read https://file.tavsys.net/control/controls-engineering-in-frc.pdf more so I know what I am doing
     public static double kG = 0.0725, kV = .17;
     private static double kMaxVelocity = 360, kMaxAcceleration = 140; // kMA MIGHT BE WRONG
-    private double armMaxPower = 0;
+    private double armMaxPower = 1;
 
     public static final double OFFSET = -219.15 + 180 + 10 + .5 + 57.15 + 174.425, DELTA_AT_SETPOINT = 1;
     
@@ -183,7 +183,7 @@ public class Arm extends SubsystemBase  {
         kV = SmartDashboard.getNumber("Arm kV", kV);
 
         kMaxAcceleration = SmartDashboard.getNumber("Arm kMaxAcceleration", 0);
-        armMaxPower = SmartDashboard.getNumber("Arm Peak Output", 0);
+        armMaxPower = SmartDashboard.getNumber("Arm Peak Output", 1);
         m_constraints = new TrapezoidProfile.Constraints(m_constraints.maxVelocity, kMaxAcceleration);
         profiledPIDController.setConstraints(m_constraints);
         profiledPIDController.setPID(kP, kI, kD);
