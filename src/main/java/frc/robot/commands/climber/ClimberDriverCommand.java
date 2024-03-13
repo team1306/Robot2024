@@ -2,14 +2,12 @@ package frc.robot.commands.climber;
 
 import java.util.function.BooleanSupplier;
 
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Climber;
 
 public class ClimberDriverCommand extends Command {
 
-    private static double ROTATING_TIME = 2;
     private static double CLIMBER_SPEED = 0.1; //speed of the climber as a decimal
     
     public enum State {
@@ -55,15 +53,13 @@ public class ClimberDriverCommand extends Command {
         if (buttonPressed) { //when any override button is pressed
             state = State.DOWN_OFF;
             if (leftUpVal) {
-                climber.setLeftSpeed(CLIMBER_SPEED);
-            }
-            if (leftDownVal) {
+               climber.setLeftSpeed(CLIMBER_SPEED);
+            } else if (leftDownVal) {
                 climber.setLeftSpeed(0);
             }
             if (rightUpVal) {
                 climber.setRightSpeed(CLIMBER_SPEED);
-            }
-            if (rightDownVal) {
+            } else if (rightDownVal) {
                 climber.setRightSpeed(0);
             }
         }
@@ -74,7 +70,7 @@ public class ClimberDriverCommand extends Command {
                 break;
             case ROTATING: //if rotating set RPM to half of max
                 climber.setTargetSpeed(CLIMBER_SPEED);
-                if (climber.getRightAngle() > 90 && climber.getRightAngle() > 90) {
+                if (climber.getRightAngle().getDegrees() > 40 && climber.getRightAngle().getDegrees() > 40) {
                     state = State.UP_OFF;
                 }
                 break;
