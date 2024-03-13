@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 
 import static frc.robot.Constants.*;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class Utilities {
@@ -51,13 +52,13 @@ public class Utilities {
      * @param <T> type of object
      * @param object input object
      * @param objectConsumer consumer to apply to object
-     * @return returns input object
+     * @return returns optional input object
      */
-    public static <T> T runIfNotNull(T object, Consumer<T> objectConsumer) {
+    public static <T> Optional<T> runIfNotNull(T object, Consumer<T> objectConsumer) {
         if (object != null) {
             objectConsumer.accept(object);
         }
-        return object;
+        return Optional.ofNullable(object);
     }
 
     public static void removeAndCancelDefaultCommand(Subsystem subsystem) {
