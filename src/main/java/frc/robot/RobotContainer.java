@@ -25,11 +25,13 @@ import frc.robot.auto.FarRingsFromStartTop;
 import frc.robot.auto.MoveOutLeft;
 import frc.robot.auto.MoveOutMid;
 import frc.robot.auto.MoveOutRight;
+import frc.robot.commands.arm.MoveArmCommand;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.commands.climber.ClimberDriverCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.intake.IntakeDriverCommand;
 import frc.robot.commands.intake.IntakeIndexCommand;
+import frc.robot.commands.intake.ToggleIntakeCommand;
 import frc.robot.commands.shooter.ShooterDriveCommand;
 import frc.robot.commands.shooter.ShooterPitchControlCommand;
 import frc.robot.commands.shooter.ToggleShooterCommand;
@@ -65,8 +67,10 @@ public class RobotContainer {
  
   private ShooterDriveCommand shooterDriveCommand;
   private ShooterPitchControlCommand shooterPitchControlCommand;
+  private MoveArmCommand moveArmCommand;
   private ClimberDriverCommand climberDriverCommand;
   private ToggleShooterCommand toggleShooterCommand;
+  private ToggleIntakeCommand toggleIntakeCommand;
 
   private SwitchableDriverCam switchableDriverCam;
   private UsbCamera front, back;
@@ -101,6 +105,8 @@ public class RobotContainer {
     climber = new Climber();
     shooterDriveCommand = new ShooterDriveCommand(driveTrain);
     shooterPitchControlCommand = new ShooterPitchControlCommand(arm);
+    moveArmCommand = new MoveArmCommand(arm, () -> controller2.getRightY());
+    toggleIntakeCommand = new ToggleIntakeCommand(intake, controller2.a(), controller2.b());
     intakeDriverCommand = new IntakeDriverCommand(intake, controller2.b());
     climberDriverCommand = new ClimberDriverCommand(climber);
     teleopDriveCommand = new TeleopDriveCommand(driveTrain, controller1::getLeftTriggerAxis, controller1::getRightTriggerAxis, () -> -controller1.getLeftX());
@@ -147,6 +153,7 @@ public class RobotContainer {
     .andThen(new IntakeIndexCommand(intake))
     .andThen(toggleShooterCommand::stop));
     controller1.b().whileTrue(driveTrain.getSetSpeedMultiplierCommand(0.5));
+    controller1.back().onTrue(new InstantCommand(climberDriverCommand::buttonPress));
 
     controller2.a().onTrue(new InstantCommand(intakeDriverCommand::buttonPress));
     controller2.x().toggleOnTrue(toggleShooterCommand);
@@ -158,7 +165,8 @@ public class RobotContainer {
     controller2.povRight().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.SHOOT_CLOSE, cancelSetpoint));
     controller2.povDown().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE, cancelSetpoint));
 
-    controller1.back().onTrue(new InstantCommand(climberDriverCommand::buttonPress));
+    controller2.rightStick().onTrue(moveArmCommand);
+    controller2.back().toggleOnTrue(toggleIntakeCommand.andThen(new InstantCommand(intakeDriverCommand::reset)));
   }
 
   public Command getAutonomousCommand() {
