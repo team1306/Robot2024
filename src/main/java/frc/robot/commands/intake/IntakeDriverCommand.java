@@ -93,13 +93,18 @@ public class IntakeDriverCommand extends Command {
                 yield State.INDEXING;
             }
             // THIS COULD BE QUITE BUGGY, MAKE SURE TO TEST
-            case INDEXING -> intake.notePresent() ? State.UNPOWERED_WITH_ELEMENT : State.UNPOWERED_NO_ELEMENT;
+            case INDEXING -> reset();
             case REVERSING -> State.REVERSING; // loop
         };
     }
 
     public void clearNote() {
         state = State.UNPOWERED_NO_ELEMENT;
+    }
+
+    public State reset() {
+        state = intake.notePresent() ? State.UNPOWERED_WITH_ELEMENT : State.UNPOWERED_NO_ELEMENT;
+        return state;
     }
 
     @Override
