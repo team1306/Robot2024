@@ -147,11 +147,12 @@ public class RobotContainer {
      * joysticks}.
      */
   private void configureBindings() {
-    controller1.a()
-    .onTrue(new ParallelCommandGroup(shooterDriveCommand, toggleShooterCommand)
-    .andThen(new WaitCommand(0.5))
-    .andThen(new IntakeIndexCommand(intake))
-    .andThen(toggleShooterCommand::stop));
+    //TODO FIX BUTTON BINDING (DO NOT DO A button)
+    // controller1.a()
+    // .onTrue(new ParallelCommandGroup(shooterDriveCommand, toggleShooterCommand)
+    // .andThen(new WaitCommand(0.5))
+    // .andThen(new IntakeIndexCommand(intake))
+    // .andThen(toggleShooterCommand::stop));
     controller1.b().whileTrue(driveTrain.getSetSpeedMultiplierCommand(0.5));
     controller1.back().onTrue(new InstantCommand(climberDriverCommand::buttonPress));
 
