@@ -75,6 +75,7 @@ public class ClimberDriverCommand extends Command {
                 }
                 break;
             case UP_OFF: //if up do nothing
+                climber.setTargetSpeed(0);
                 break;
             case CLIMBING: //if climbing set RPM to faster than normal
                 climber.setTargetSpeed(CLIMBER_SPEED*2);

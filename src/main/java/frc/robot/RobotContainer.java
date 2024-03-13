@@ -108,7 +108,7 @@ public class RobotContainer {
     moveArmCommand = new MoveArmCommand(arm, () -> controller2.getRightY());
     toggleIntakeCommand = new ToggleIntakeCommand(intake, controller2.a(), controller2.b());
     intakeDriverCommand = new IntakeDriverCommand(intake, controller2.b());
-    climberDriverCommand = new ClimberDriverCommand(climber, controller1.x(), controller1.y(), controller1.a(), controller1.b());
+    climberDriverCommand = new ClimberDriverCommand(climber, controller1.x(), controller1.y(), controller1.leftBumper(), controller1.rightBumper());
     teleopDriveCommand = new TeleopDriveCommand(driveTrain, controller1::getLeftTriggerAxis, controller1::getRightTriggerAxis, () -> -controller1.getLeftX());
     toggleShooterCommand = new ToggleShooterCommand(() -> Shooter.PEAK_OUTPUT, arm.getCurrentAngle()::getDegrees, shooter);
 
@@ -148,11 +148,11 @@ public class RobotContainer {
      */
   private void configureBindings() {
     //TODO FIX BUTTON BINDING (DO NOT DO A button)
-    // controller1.a()
-    // .onTrue(new ParallelCommandGroup(shooterDriveCommand, toggleShooterCommand)
-    // .andThen(new WaitCommand(0.5))
-    // .andThen(new IntakeIndexCommand(intake))
-    // .andThen(toggleShooterCommand::stop));
+    controller1.rightStick()
+    .onTrue(new ParallelCommandGroup(shooterDriveCommand, toggleShooterCommand)
+    .andThen(new WaitCommand(0.5))
+    .andThen(new IntakeIndexCommand(intake))
+    .andThen(toggleShooterCommand::stop));
     controller1.b().whileTrue(driveTrain.getSetSpeedMultiplierCommand(0.5));
     controller1.back().onTrue(new InstantCommand(climberDriverCommand::buttonPress));
 
