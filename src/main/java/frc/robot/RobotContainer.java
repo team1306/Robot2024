@@ -102,7 +102,7 @@ public class RobotContainer {
     shooterDriveCommand = new ShooterDriveCommand(driveTrain);
     shooterPitchControlCommand = new ShooterPitchControlCommand(arm);
     intakeDriverCommand = new IntakeDriverCommand(intake, controller2.b());
-    climberDriverCommand = new ClimberDriverCommand(climber);
+    climberDriverCommand = new ClimberDriverCommand(climber, controller1.x(), controller1.y(), controller1.a(), controller1.b());
     teleopDriveCommand = new TeleopDriveCommand(driveTrain, controller1::getLeftTriggerAxis, controller1::getRightTriggerAxis, () -> -controller1.getLeftX());
     toggleShooterCommand = new ToggleShooterCommand(() -> Shooter.PEAK_OUTPUT, arm.getCurrentAngle()::getDegrees, shooter);
 
