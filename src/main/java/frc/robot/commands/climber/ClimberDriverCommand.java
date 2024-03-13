@@ -3,12 +3,14 @@ package frc.robot.commands.climber;
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Climber;
 
 public class ClimberDriverCommand extends Command {
 
     private static double CLIMBER_SPEED = 0.1; //speed of the climber as a decimal
+    private static double MAX_CLIMBER_ANGLE = 40; //angle that the climber stops in degrees
     
     public enum State {
         DOWN_OFF,
@@ -39,17 +41,14 @@ public class ClimberDriverCommand extends Command {
         climber.setTargetSpeed(0);
     }
 
-    public double leftEncoderValue () {
-        return 0;
-    }
-    public double rightEncoderValue () {
-        return 0;
-    }
-
     @Override
     public void execute() {
+        MAX_CLIMBER_ANGLE = SmartDashboard.getNumber("Max climber angle", 40);
+        CLIMBER_SPEED = SmartDashboard.getNumber("Speed for the climber", 0.1);
+
         final boolean leftUpVal = leftUp.getAsBoolean(), leftDownVal = leftDown.getAsBoolean(), rightUpVal = rightUp.getAsBoolean(), rightDownVal = rightDown.getAsBoolean(),
                 buttonPressed = leftUpVal || leftDownVal || rightUpVal || rightDownVal;
+
         if (buttonPressed) { //when any override button is pressed
             state = State.DOWN_OFF;
             if (leftUpVal) {
@@ -70,7 +69,7 @@ public class ClimberDriverCommand extends Command {
                 break;
             case ROTATING: //if rotating set RPM to half of max
                 climber.setTargetSpeed(CLIMBER_SPEED);
-                if (climber.getRightAngle().getDegrees() > 40 && climber.getRightAngle().getDegrees() > 40) {
+                if (climber.getRightAngle().getDegrees() > MAX_CLIMBER_ANGLE && climber.getRightAngle().getDegrees() > MAX_CLIMBER_ANGLE) {
                     state = State.UP_OFF;
                 }
                 break;
