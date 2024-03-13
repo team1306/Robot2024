@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.PIDSubsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.commands.arm.MoveArmCommand;
 import frc.robot.util.MotorUtil;
 
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -29,17 +28,44 @@ public class Arm extends SubsystemBase  {
         VISION
     }
 
-    public enum Setpoint {
+
+    public interface Setpoint {
+        double getPos();
+
+        static class Custom implements Setpoint {
+            private final double pos;
+
+            public Custom(double pos) {
+                this.pos = pos;
+            }
+
+            public Custom(Rotation2d pos) {
+                this(pos.getDegrees());
+            }
+            
+            @Override
+            public double getPos() {
+                return pos;
+            }
+        }
+    }
+
+    public enum SetpointOptions implements Setpoint {
         AMP(95),
         INTAKE(0),
         DOWN(4),
         SHOOT_CLOSE(16),
         STAGE_SHOT(35);
 
-        public final int pos;
+        private final double pos;
 
-        private Setpoint(int pos) {
+        private SetpointOptions(double pos) {
             this.pos = pos;
+        }
+
+        @Override
+        public double getPos() {
+            return pos;
         }
     }
 
@@ -57,6 +83,7 @@ public class Arm extends SubsystemBase  {
                                                  // need to read https://file.tavsys.net/control/controls-engineering-in-frc.pdf more so I know what I am doing
     public static double kG = 0.0725, kV = .17;
     private static double kMaxVelocity = 360, kMaxAcceleration = 140; // kMA MIGHT BE WRONG
+    private double armMaxPower = 1;
 
     public static final double OFFSET = -219.15 + 180 + 10 + .5 + 57.15 + 174.425, DELTA_AT_SETPOINT = 1;
     
@@ -93,6 +120,7 @@ public class Arm extends SubsystemBase  {
         SmartDashboard.putNumber("Arm kG", kG);
         SmartDashboard.putNumber("Arm kV", kV);
         SmartDashboard.putNumber("Arm kMaxAcceleration", kMaxAcceleration);
+        SmartDashboard.putNumber("Arm Peak Output", armMaxPower);
 
         profiledPIDController.setTolerance(DELTA_AT_SETPOINT);
         setTargetAngle(getCurrentAngle());
@@ -155,6 +183,7 @@ public class Arm extends SubsystemBase  {
         kV = SmartDashboard.getNumber("Arm kV", kV);
 
         kMaxAcceleration = SmartDashboard.getNumber("Arm kMaxAcceleration", 0);
+        armMaxPower = SmartDashboard.getNumber("Arm Peak Output", 1);
         m_constraints = new TrapezoidProfile.Constraints(m_constraints.maxVelocity, kMaxAcceleration);
         profiledPIDController.setConstraints(m_constraints);
         profiledPIDController.setPID(kP, kI, kD);
@@ -182,7 +211,7 @@ public class Arm extends SubsystemBase  {
                 }
                 yield manualPower;
             }
-        }, -MoveArmCommand.peakOutput, MoveArmCommand.peakOutput), .005);
+        }, -armMaxPower, armMaxPower), .005);
 
         leftArmMotor.set(motorPower);
         rightArmMotor.set(motorPower);

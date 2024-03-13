@@ -1,51 +1,26 @@
 package frc.robot.commands.shooter;
 
-import static frc.robot.Constants.INCLUDE_LIMELIGHT;
-import static frc.robot.Constants.LIMELIGHT_NAME;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.subsystems.Arm;
-import frc.robot.util.LimelightHelpers;
+import frc.robot.subsystems.Arm.Setpoint;
 import frc.robot.util.Utilities;
 
-public class ShooterPitchControlCommand extends Command{
+public class ShooterPitchControlCommand extends InstantCommand{
+    private static double a = 1, b = 1, c = 1;
 
-    public static final double SHOOTER_X_OFFSET = 0; // from camera, O_x
-    public static final double SHOOTER_DEGREE_OFFSET = 0; // shooter angle offset, radians, c
-    private final ShooterDriveCommand shooterDriveCommand;
-
-    public final Arm arm;
-
-    public double theta; // arm angle, radians
-    public double speakerDistance; // m, d_s
-    
-    private double a = 1, b = 1, c = 1;
-
-    public ShooterPitchControlCommand(Arm arm, ShooterDriveCommand shooterDriveCommand){
-        this.shooterDriveCommand = shooterDriveCommand;
-        this.arm = arm;
-        this.addRequirements(this.arm);
+    public ShooterPitchControlCommand(Arm arm){
+        super(setArmTargetAngle(arm), arm);
     }
 
-    @Override
-    public void initialize(){
-        if(!INCLUDE_LIMELIGHT) return;
-        Pose2d botPose = INCLUDE_LIMELIGHT ? LimelightHelpers.getBotPose2d(LIMELIGHT_NAME) : new Pose2d();
-        speakerDistance = botPose.getTranslation().getDistance(Utilities.getSpeaker());
-        speakerDistance += SHOOTER_X_OFFSET;        
-        
-        //Theta must be in terms of degrees
-        theta = a * Math.pow(speakerDistance, 2) + b * speakerDistance + c;
-        // Set the target angle of the arm
-        arm.setTargetAngle(Rotation2d.fromDegrees(theta + SHOOTER_DEGREE_OFFSET));
-        CommandScheduler.getInstance().schedule(shooterDriveCommand);    
-    }
-
-    @Override
-    public boolean isFinished(){
-        return true;
+    private static Runnable setArmTargetAngle(Arm arm){
+        return () -> {
+            double speakerDistance = Utilities.getSpeakerDistance(Utilities.getRobotPos());
+            
+            //Theta must be in terms of degrees
+            double theta = a * Math.pow(speakerDistance, 2) + b * speakerDistance + c;
+            // Set the target angle of the arm
+            new MoveArmToSetpointCommand(arm, new Setpoint.Custom(theta)).schedule();
+        };   
     }
 }

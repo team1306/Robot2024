@@ -21,12 +21,8 @@ public final class AutoCommands {
     public static final double waitTime = 1;
     
     public static Command getShooterCommand(Shooter shooter) {
-        return new ToggleShooterCommand(() -> .79, () -> Arm.Setpoint.SHOOT_CLOSE.pos, shooter);
+        return new ToggleShooterCommand(() -> .79, Arm.SetpointOptions.SHOOT_CLOSE::getPos, shooter);
     }
-    
-
-
-
 
     public static SequentialCommandGroup shoot (Intake intake, Shooter shooter) {
         return new SequentialCommandGroup(
@@ -183,35 +179,60 @@ public final class AutoCommands {
     }
 
     public static SequentialCommandGroup getClose1StartMid (Intake intake, Shooter shooter) {
-        final Command shooterCommand = getShooterCommand(shooter);
         return new SequentialCommandGroup(
-            shooterCommand,
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Start-Mid to Close-1")),
             getIntakeWaiterCommand(intake),
-            new IntakeIndexCommand(intake), //fire
-            new InstantCommand(shooterCommand::cancel)
+            new IntakeIndexCommand(intake) //fire
+        );
+    }
+
+    public static SequentialCommandGroup getClose1StartTop (Intake intake, Shooter shooter) {
+        return new SequentialCommandGroup(
+            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Start-1 to Close-1")),
+            getIntakeWaiterCommand(intake),
+            new IntakeIndexCommand(intake) //fire
         );
     }
 
     public static SequentialCommandGroup getClose2Close1 (Intake intake, Shooter shooter) {
-        final Command shooterCommand = getShooterCommand(shooter);
         return new SequentialCommandGroup(
-            shooterCommand,
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Close-1 to Close-2")),
             getIntakeWaiterCommand(intake),
-            new IntakeIndexCommand(intake), //fire
-            new InstantCommand(shooterCommand::cancel)
+            new IntakeIndexCommand(intake) //fire
         );
     }
 
     public static SequentialCommandGroup getClose3Close2 (Intake intake, Shooter shooter) {
-        final Command shooterCommand = getShooterCommand(shooter);
         return new SequentialCommandGroup(
-            shooterCommand,
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Close-2 to Close-3")),
             getIntakeWaiterCommand(intake),
+            new IntakeIndexCommand(intake) //fire
+        );
+    }
+
+    public static SequentialCommandGroup getClose3StartBottom (Intake intake, Shooter shooter) {
+        return new SequentialCommandGroup(
+            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Start-Bottom to Close-3")),
+            getIntakeWaiterCommand(intake),
+            new IntakeIndexCommand(intake) //fire
+        );
+    }
+
+
+    public static SequentialCommandGroup getClose2Close3 (Intake intake, Shooter shooter) {
+        return new SequentialCommandGroup(
+            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Close-3 to Close-2 P1")),
+            getIntakeWaiterCommand(intake),
             new IntakeIndexCommand(intake), //fire
-            new InstantCommand(shooterCommand::cancel)
+            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Close-3 to Close-2 P2"))
+        );
+    }
+
+    public static SequentialCommandGroup getClose1Close2 (Intake intake, Shooter shooter) {
+        return new SequentialCommandGroup(
+            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Close-2 to Close-1")),
+            getIntakeWaiterCommand(intake),
+            new IntakeIndexCommand(intake) //fire
         );
     }
 

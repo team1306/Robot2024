@@ -14,7 +14,6 @@ public class IntakeIndexCommand extends Command {
     @Override
     public void initialize() {
         timer.restart();
-        System.out.println("Intake spinny spinny");
     }
 
     @Override
@@ -22,17 +21,13 @@ public class IntakeIndexCommand extends Command {
         intake.setTargetSpeed(1);
     }
 
-
-
     @Override
     public void end(boolean interrupted) {
         intake.setTargetSpeed(0);
-        System.out.println("Intake no spinny spinny");
     }
 
     @Override
     public boolean isFinished() {
-        System.out.println(timer.get());
-        return timer.hasElapsed(0.5);
+        return timer.hasElapsed(0.36);
     }
 }

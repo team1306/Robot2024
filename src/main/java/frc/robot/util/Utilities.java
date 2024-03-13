@@ -1,5 +1,6 @@
 package frc.robot.util;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,6 +29,24 @@ public class Utilities {
         return Utilities.isRedAlliance() ? RED_SPEAKER : BLUE_SPEAKER;
     }
 
+    /**
+     * Gets the speaker distance depending on the side the driverstation is on
+     * @param robotPos the pos of the robot
+     * @return the distance in meters
+     */
+
+    public static double getSpeakerDistance(Pose2d robotPos){
+        return robotPos.getTranslation().getDistance(Utilities.getSpeaker());
+    }
+
+    /**
+     * Gets the robot pos based on the limelight
+     * @return a pos2d where the robot is
+     */
+    public static Pose2d getRobotPos(){
+        return INCLUDE_LIMELIGHT ? LimelightHelpers.getBotPose2d(LIMELIGHT_NAME) : new Pose2d();
+    }
+    
     /**
      * Run consumer if object is not null, else do nothing
      * @param <T> type of object
