@@ -24,6 +24,7 @@ import frc.robot.auto.FarRingsFromStartMid;
 import frc.robot.auto.FarRingsFromStartTop;
 import frc.robot.auto.MoveOutLeft;
 import frc.robot.auto.MoveOutMid;
+import frc.robot.auto.MoveOutMidTwoRing;
 import frc.robot.auto.MoveOutRight;
 import frc.robot.commands.arm.MoveArmCommand;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
@@ -119,13 +120,14 @@ public class RobotContainer {
     autoChooser.setDefaultOption("move out mid", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutMid(driveTrain, shooter, arm, intake));
     autoChooser.addOption("move out left", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutLeft(driveTrain, shooter, arm, intake));
     autoChooser.addOption("move out right", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutRight(driveTrain, shooter, arm, intake));
+    autoChooser.addOption("move out mid 2", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutMidTwoRing(driveTrain, shooter, arm, intake));
     autoChooser.addOption("Close Rings from Start Mid", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new CloseRingsFromStartMid(detector, intake, shooter, arm));
     autoChooser.addOption("Far Rings from Start Bottom (right around stage)", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromStartBottom(detector, intake, shooter, arm));
     autoChooser.addOption("Far Rings from Start Top (left around stage)", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromStartMid(detector, intake, shooter, arm));
     autoChooser.addOption("Far Rings from Start Mid (left around stage)", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromStartTop(detector, intake, shooter, arm));
     autoChooser.addOption("testPath", (NoteDetector a,  DriveTrain b, Shooter c, Arm d, Intake e) -> new PathPlannerAuto("testPath"));
 
-    SmartDashboard.putData(autoChooser);
+    SmartDashboard.putData("auto chooser", autoChooser);
 
     notePresentOutput = new DigitalOutput(8);
     ledRedBlueOutput = new DigitalOutput(9);
@@ -149,7 +151,7 @@ public class RobotContainer {
   private void configureBindings() {
     //TODO FIX BUTTON BINDING (DO NOT DO A button)
     controller1.rightStick()
-    .onTrue(new ParallelCommandGroup(shooterDriveCommand, toggleShooterCommand)
+    .onTrue(new ParallelCommandGroup(shooterDriveCommand, new ToggleShooterCommand(() -> Shooter.PEAK_OUTPUT, arm.getCurrentAngle()::getDegrees, shooter))
     .andThen(new WaitCommand(0.5))
     .andThen(new IntakeIndexCommand(intake))
     .andThen(toggleShooterCommand::stop));

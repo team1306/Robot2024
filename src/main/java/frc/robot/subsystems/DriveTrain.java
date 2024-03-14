@@ -99,6 +99,10 @@ public class DriveTrain extends SubsystemBase {
 
     private DifferentialDriveWheelSpeeds lastDriveVoltages = new DifferentialDriveWheelSpeeds();
 
+    public void setPoseToVisionPosition() {
+        resetPose(LimelightHelpers.getBotPose2d(LIMELIGHT_NAME));
+    }
+
     public DriveTrain(SwitchableDriverCam switchableDriverCam){
         gyro.reset();
         leftLeader = MotorUtil.initSparkMax(FRONT_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);

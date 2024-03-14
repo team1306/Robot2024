@@ -51,7 +51,7 @@ public class Arm extends SubsystemBase  {
     }
 
     public enum SetpointOptions implements Setpoint {
-        AMP(95),
+        AMP(108),
         INTAKE(0),
         DOWN(4),
         SHOOT_CLOSE(16),

@@ -13,8 +13,11 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 
+import static frc.robot.commands.intake.IntakeDriverCommand.INTAKE_SPEED;
+
+
 public class MoveOutMidTwoRing extends ParallelCommandGroup {
-    MoveOutMidTwoRing(DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) {
+    public MoveOutMidTwoRing(DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) {
         System.out.println("Running Auto");
         final ToggleShooterCommand shooterCommand = new ToggleShooterCommand(() -> .76, arm.getCurrentAngle()::getDegrees, shooter);
         addCommands( //all commands run at once
@@ -23,14 +26,13 @@ public class MoveOutMidTwoRing extends ParallelCommandGroup {
                 new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.SHOOT_CLOSE, () -> true), //aim
                 new WaitCommand(1.5),
                 new IntakeIndexCommand(intake), //fire
+                new InstantCommand(() -> intake.setTargetSpeed(INTAKE_SPEED)),
                 new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.DOWN, () -> true), //arm down
                 //turn on intake
-                until(() -> intake.notePresent() || new WaitCommand(5).isFinished()), //if it's been 5 seconds or there is a note in the intake
-                    driveTrain.driveBySetpointPercentagesCommand(0.2, 0.2),
-                
                 new ParallelDeadlineGroup(new WaitCommand(5),
-                    driveTrain.driveBySetpointPercentagesCommand(-0.2, -0.2) //go back to speaker
-                ),
+                    driveTrain.driveBySetpointPercentagesCommand(0.25, 0.3)
+                ).until(intake::notePresent), //if it's been 5 seconds or there is a note in the intake
+                driveTrain.driveBySetpointPercentagesCommand(-0.43, -0.5),
                 new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.SHOOT_CLOSE, () -> true), //aim
                 new WaitCommand(1.5),
                 new IntakeIndexCommand(intake), //fire
