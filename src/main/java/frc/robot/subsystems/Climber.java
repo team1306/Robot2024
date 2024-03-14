@@ -21,7 +21,8 @@ public class Climber extends SubsystemBase {
     private final RelativeEncoder encoderLeft;
     private final RelativeEncoder encoderRight;
 
-    private double targetSpeed = 0;
+    private double leftTargetSpeed = 0;
+    private double rightTargetSpeed = 0;
 
     public Climber() {
         motorLeft = MotorUtil.initSparkMax(HANGER_LEFT_MOTOR_ID, MotorType.kBrushless, IdleMode.kCoast);
@@ -30,20 +31,15 @@ public class Climber extends SubsystemBase {
         encoderLeft.setPosition(0);
         encoderLeft.setPositionConversionFactor(1D/15D);
         encoderRight = motorRight.getEncoder(SparkRelativeEncoder.Type.kHallSensor, NEO_COUNTS_PER_REVOLUTION);
-        motorRight.follow(motorLeft, true);
         encoderRight.setPositionConversionFactor(1D/15D);
     }
 
-    public double getTargetSpeed() {
-        return targetSpeed;
-    }
-
     public void setLeftSpeed(double targetSpeed) {
-        this.targetSpeed = MotorUtil.clampPercent(targetSpeed);
+        this.leftTargetSpeed = MotorUtil.clampPercent(targetSpeed);
     }
 
     public void setRightSpeed(double targetSpeed) {
-        this.targetSpeed = MotorUtil.clampPercent(targetSpeed);
+        this.rightTargetSpeed = MotorUtil.clampPercent(targetSpeed);
     }
 
     public void setTargetSpeed(double targetSpeed) {
@@ -69,7 +65,8 @@ public class Climber extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("left climb", getLeftAngle().getDegrees());
         SmartDashboard.putNumber("right climb", getRightAngle().getDegrees());
-        motorLeft.set(targetSpeed);
+        motorLeft.set(leftTargetSpeed);
+        motorRight.set(rightTargetSpeed);
     }
 
     public double getLeftPosition() {
