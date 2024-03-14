@@ -31,6 +31,7 @@ public class Climber extends SubsystemBase {
         encoderLeft.setPosition(0);
         encoderLeft.setPositionConversionFactor(1D/15D);
         encoderRight = motorRight.getEncoder(SparkRelativeEncoder.Type.kHallSensor, NEO_COUNTS_PER_REVOLUTION);
+        encoderRight.setPosition(0);
         encoderRight.setPositionConversionFactor(1D/15D);
     }
 
