@@ -87,4 +87,9 @@ public class FarRingsFromStartTop extends SequentialCommandGroup {
 
         );
     }
+
+    @Override
+    public String getName() {
+        return "Far Rings from Start Top";
+    }
 }

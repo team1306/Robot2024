@@ -40,6 +40,8 @@ public class Robot extends TimedRobot {
       m_robotContainer.loadAuto(); 
       SmartDashboard.putBoolean("Load Auto", false);
     }
+    
+    SmartDashboard.putString("Auto Name", m_robotContainer.getAutonomousCommand().getName());
 
     final Rotation2d armAngle = m_robotContainer.arm.getCurrentAngle();
     SmartDashboard.putNumber("Arm Current Angle", armAngle.getDegrees());
@@ -53,7 +55,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    System.out.println("Initializing Auto");
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     removeAndCancelDefaultCommand(m_robotContainer.driveTrain);
     removeAndCancelDefaultCommand(m_robotContainer.intake);

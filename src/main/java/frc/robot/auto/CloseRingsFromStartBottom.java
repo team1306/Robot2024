@@ -24,4 +24,9 @@ public class CloseRingsFromStartBottom extends SequentialCommandGroup {
             new InstantCommand(shooterCommand::cancel) //shooter off
         );
     }
+
+    @Override
+    public String getName() {
+        return "Close Rings from Start Bottom";
+    }
 }

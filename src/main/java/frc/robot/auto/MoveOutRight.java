@@ -9,4 +9,9 @@ public class MoveOutRight extends MoveOutMid {
     public MoveOutRight(DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) {
         super(0.18, 0.5, 1.5, driveTrain, shooter, arm, intake);
     }
+    
+    @Override
+    public String getName() {
+        return "Move Out Right";
+    }
 }

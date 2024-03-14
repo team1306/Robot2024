@@ -39,4 +39,9 @@ public class MoveOutMid extends ParallelCommandGroup {
     public MoveOutMid(DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) {
         this(0.2, 0.2, 1.5, driveTrain, shooter, arm, intake);
     }
+
+    @Override
+    public String getName() {
+        return "Move Out Mid";
+    }
 }

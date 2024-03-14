@@ -25,4 +25,9 @@ public class CloseRingsFromStartTop extends SequentialCommandGroup {
 
         );
     }
+    
+    @Override
+    public String getName() {
+        return "Close Rings from Start Top";
+    }
 }

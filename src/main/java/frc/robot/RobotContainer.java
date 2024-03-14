@@ -75,7 +75,12 @@ public class RobotContainer {
 
   private SwitchableDriverCam switchableDriverCam;
   private UsbCamera front, back;
-  private Command autonomousCommand = new InstantCommand();
+  private Command autonomousCommand = new InstantCommand() {
+    @Override
+    public String getName() {
+      return "NO AUTO";
+    }
+  };
   private final BooleanSupplier cancelSetpoint = () -> controller2.getRightY() > 0 || controller2.getRightY() < 0 || controller2.b().getAsBoolean(); // b acts as cancel button
   
   private final DigitalOutput ledRedBlueOutput, notePresentOutput;

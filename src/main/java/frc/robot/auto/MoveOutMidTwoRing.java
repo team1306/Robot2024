@@ -40,4 +40,9 @@ public class MoveOutMidTwoRing extends ParallelCommandGroup {
             )
         );
     }
+
+    @Override
+    public String getName() {
+        return "Move Out Mid Two Ring";
+    }
 }
