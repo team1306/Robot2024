@@ -2,6 +2,7 @@ package frc.robot.commands.climber;
 
 import java.util.function.BooleanSupplier;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -9,8 +10,8 @@ import frc.robot.subsystems.Climber;
 
 public class ClimberDriverCommand extends Command {
 
-    private static double CLIMBER_SPEED = .3; //speed of the climber as a decimal
-    private static double MAX_CLIMBER_ANGLE = 40; //angle that the climber stops in degrees
+    private static double CLIMBER_SPEED = .7; //speed of the climber as a decimal
+    private static double MAX_CLIMBER_ANGLE = 6.5; //angle that the climber stops in degrees
     
     public enum State {
         DOWN_OFF,
@@ -22,7 +23,6 @@ public class ClimberDriverCommand extends Command {
     private Climber climber;
     
     private State state = State.DOWN_OFF;
-    private Timer timer = new Timer();
     private final BooleanSupplier leftUp, rightUp, leftDown, rightDown;
 
     public ClimberDriverCommand(Climber climber, BooleanSupplier leftUp, BooleanSupplier rightUp, BooleanSupplier leftDown, BooleanSupplier rightDown) {
@@ -43,9 +43,8 @@ public class ClimberDriverCommand extends Command {
 
     @Override
     public void execute() {
-        MAX_CLIMBER_ANGLE = SmartDashboard.getNumber("Max climber angle", 40);
-        CLIMBER_SPEED = SmartDashboard.getNumber("Speed for the climber", 0.1);
-
+        MAX_CLIMBER_ANGLE = SmartDashboard.getNumber("Max climber angle", MAX_CLIMBER_ANGLE);
+        CLIMBER_SPEED = SmartDashboard.getNumber("Speed for the climber", CLIMBER_SPEED);
         final boolean leftUpVal = leftUp.getAsBoolean(), leftDownVal = leftDown.getAsBoolean(), rightUpVal = rightUp.getAsBoolean(), rightDownVal = rightDown.getAsBoolean(),
                 buttonPressed = leftUpVal || leftDownVal || rightUpVal || rightDownVal;
 
@@ -70,7 +69,7 @@ public class ClimberDriverCommand extends Command {
                 break;
             case ROTATING: //if rotating set RPM to half of max
                 climber.setTargetSpeed(CLIMBER_SPEED);
-                if (climber.getRightAngle().getDegrees() > MAX_CLIMBER_ANGLE && climber.getRightAngle().getDegrees() > MAX_CLIMBER_ANGLE) {
+                if (climber.getRightAngle().getRotations() > MAX_CLIMBER_ANGLE || climber.getLeftAngle().getRotations() > MAX_CLIMBER_ANGLE) {
                     state = State.UP_OFF;
                 }
                 break;
@@ -86,7 +85,6 @@ public class ClimberDriverCommand extends Command {
     public void buttonPress() {
         switch (state) {
             case DOWN_OFF: //if down reset timer and switch to rotating
-                timer.restart();
                 state = State.ROTATING;
                 break;
             case UP_OFF: 
@@ -106,5 +104,9 @@ public class ClimberDriverCommand extends Command {
     @Override
     public void end(boolean interrupted) {
         initialize(); // set power back to zero
+    }
+
+    public void resetState() {
+        state = State.DOWN_OFF;
     }
 }

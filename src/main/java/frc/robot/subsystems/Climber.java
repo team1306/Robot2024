@@ -10,6 +10,7 @@ import com.revrobotics.SparkRelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.MotorUtil;
 
@@ -23,8 +24,8 @@ public class Climber extends SubsystemBase {
     private double targetSpeed = 0;
 
     public Climber() {
-        motorLeft = MotorUtil.initSparkMax(HANGER_LEFT_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
-        motorRight = MotorUtil.initSparkMax(HANGER_RIGHT_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
+        motorLeft = MotorUtil.initSparkMax(HANGER_LEFT_MOTOR_ID, MotorType.kBrushless, IdleMode.kCoast);
+        motorRight = MotorUtil.initSparkMax(HANGER_RIGHT_MOTOR_ID, MotorType.kBrushless, IdleMode.kCoast);
         encoderLeft = motorLeft.getEncoder(SparkRelativeEncoder.Type.kHallSensor, NEO_COUNTS_PER_REVOLUTION);
         encoderLeft.setPosition(0);
         encoderLeft.setPositionConversionFactor(1D/15D);
@@ -66,6 +67,8 @@ public class Climber extends SubsystemBase {
     
     @Override
     public void periodic() {
+        SmartDashboard.putNumber("left climb", getLeftAngle().getDegrees());
+        SmartDashboard.putNumber("right climb", getRightAngle().getDegrees());
         motorLeft.set(targetSpeed);
     }
 

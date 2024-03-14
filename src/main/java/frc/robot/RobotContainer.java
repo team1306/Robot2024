@@ -60,7 +60,7 @@ public class RobotContainer {
   public Arm arm;
 
   private Shooter shooter; 
-  private Climber climber;
+  Climber climber;
   
   public TeleopDriveCommand teleopDriveCommand;
   public IntakeDriverCommand intakeDriverCommand;
@@ -68,7 +68,7 @@ public class RobotContainer {
   private ShooterDriveCommand shooterDriveCommand;
   private ShooterPitchControlCommand shooterPitchControlCommand;
   private MoveArmCommand moveArmCommand;
-  private ClimberDriverCommand climberDriverCommand;
+  ClimberDriverCommand climberDriverCommand;
   private ToggleShooterCommand toggleShooterCommand;
   private ToggleIntakeCommand toggleIntakeCommand;
 
