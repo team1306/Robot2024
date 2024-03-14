@@ -7,7 +7,7 @@ import frc.robot.subsystems.Arm.Setpoint;
 import frc.robot.util.Utilities;
 
 public class ShooterPitchControlCommand extends InstantCommand{
-    private static double a = -1.82 * Math.pow(10, -3), b = 0.369, c = 16.6;
+    private static double a = -1.82e-3, b = 0.369, c = 16.6;
 
     public ShooterPitchControlCommand(Arm arm){
         super(setArmTargetAngle(arm), arm);
