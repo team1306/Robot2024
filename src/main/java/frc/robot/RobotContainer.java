@@ -169,7 +169,7 @@ public class RobotContainer {
     controller2.povDown().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE, cancelSetpoint));
 
     controller2.rightStick().onTrue(moveArmCommand);
-    controller2.back().toggleOnTrue(toggleIntakeCommand.andThen(new InstantCommand(intakeDriverCommand::reset)));
+    controller2.back().toggleOnTrue(new InstantCommand(intakeDriverCommand::reset).andThen(toggleIntakeCommand));
   }
 
   public Command getAutonomousCommand() {
