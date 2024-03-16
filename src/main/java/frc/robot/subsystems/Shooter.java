@@ -13,6 +13,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.MotorUtil;
+import frc.robot.util.Utilities;
 
 
 // NOT DONE, NEEDS VELOCITY REGULATION BETWEEN THE TWO MOTORS
@@ -29,7 +30,8 @@ public class Shooter extends SubsystemBase {
     public Shooter() {
         topMotor = MotorUtil.initSparkMax(SHOOTER_TOP_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
         bottomMotor = MotorUtil.initSparkMax(SHOOTER_BOTTOM_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
-        
+        topMotor.setInverted(true);
+        bottomMotor.setInverted(true);
         topEncoder = topMotor.getEncoder(SparkRelativeEncoder.Type.kHallSensor, NEO_COUNTS_PER_REVOLUTION);
         bottomEncoder = bottomMotor.getEncoder(SparkRelativeEncoder.Type.kHallSensor, NEO_COUNTS_PER_REVOLUTION);
         SmartDashboard.putNumber("peak shooter power", PEAK_OUTPUT);
@@ -60,6 +62,9 @@ public class Shooter extends SubsystemBase {
     @Override
     public void periodic() {
         PEAK_OUTPUT = SmartDashboard.getNumber("peak shooter power", PEAK_OUTPUT);
+        SmartDashboard.putBoolean("SHOOTER RUNNING", Math.abs(targetSpeed) > 0);
+        SmartDashboard.putNumber("Speaker Distance", Utilities.getSpeakerDistance(Utilities.getRobotPos()));
+
         topMotor.set(targetSpeed); // CHANGE TO FLYWHEEL STATE MODEL.
         bottomMotor.set(targetSpeed);
     }

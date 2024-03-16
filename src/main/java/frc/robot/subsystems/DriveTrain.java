@@ -95,15 +95,13 @@ public class DriveTrain extends SubsystemBase {
     private final DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(TRACK_WIDTH);
     private final AHRS gyro = new AHRS(SPI.Port.kMXP);
 
-    private final SwitchableDriverCam switchableDriverCam;
-
     private DifferentialDriveWheelSpeeds lastDriveVoltages = new DifferentialDriveWheelSpeeds();
 
     public void setPoseToVisionPosition() {
         resetPose(LimelightHelpers.getBotPose2d(LIMELIGHT_NAME));
     }
 
-    public DriveTrain(SwitchableDriverCam switchableDriverCam){
+    public DriveTrain(){
         gyro.reset();
         leftLeader = MotorUtil.initSparkMax(FRONT_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
         leftFollower = MotorUtil.initSparkMax(BACK_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
@@ -145,7 +143,7 @@ public class DriveTrain extends SubsystemBase {
         SmartDashboard.putNumber("Max Speed", MAX_SPEED);
         //SmartDashboard.putNumber("Left Drive Static Friction", 0);  
         //SmartDashboard.putNumber("Right Drive Static Friction", 0);
-        this.switchableDriverCam = switchableDriverCam;      
+        // this.switchableDriverCam = switchableDriverCam;      
         SmartDashboard.putNumber("Right Drive Downtiplier", leftDowntiplier);
         SmartDashboard.putNumber("Left Drive Downtiplier", rightDowntiplier);
     }
@@ -256,9 +254,6 @@ public class DriveTrain extends SubsystemBase {
 
         //rightFriction = SmartDashboard.getNumber("Left Drive Static Friction", 0);  
         //leftFriction = SmartDashboard.getNumber("Right Drive Static Friction", 0);
-        if (switchableDriverCam != null) {
-            switchableDriverCam.setStreamToIndex(kinematics.toChassisSpeeds(lastDriveVoltages).vxMetersPerSecond >= 0 ? 0 : 1); // magnitude won't be right from this, but sign will be, so I don't care
-        }
     }
 
     public Command getSetSpeedMultiplierCommand(double multiplier) {

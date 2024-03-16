@@ -27,7 +27,9 @@ public class Climber extends SubsystemBase {
     public Climber() {
         motorLeft = MotorUtil.initSparkMax(HANGER_LEFT_MOTOR_ID, MotorType.kBrushless, IdleMode.kCoast);
         motorRight = MotorUtil.initSparkMax(HANGER_RIGHT_MOTOR_ID, MotorType.kBrushless, IdleMode.kCoast);
+        motorRight.setInverted(true);
         encoderLeft = motorLeft.getEncoder(SparkRelativeEncoder.Type.kHallSensor, NEO_COUNTS_PER_REVOLUTION);
+        
         encoderLeft.setPosition(0);
         encoderLeft.setPositionConversionFactor(1D/15D);
         encoderRight = motorRight.getEncoder(SparkRelativeEncoder.Type.kHallSensor, NEO_COUNTS_PER_REVOLUTION);

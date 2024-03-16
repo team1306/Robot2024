@@ -49,6 +49,7 @@ public class Intake extends SubsystemBase {
         motor.set(targetSpeed);
         sensorReading = sensor.get();
         SmartDashboard.putBoolean("Current Intake Sensor Reading", sensorReading);
+        SmartDashboard.putBoolean("INTAKE RUNNING", Math.abs(targetSpeed) > 0);
     }
 
     public boolean notePresent() {

@@ -5,7 +5,12 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cscore.VideoMode;
+import edu.wpi.first.cscore.VideoSink;
+import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
+import edu.wpi.first.util.PixelFormat;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -70,11 +75,10 @@ public class RobotContainer {
   private ShooterPitchControlCommand shooterPitchControlCommand;
   private MoveArmCommand moveArmCommand;
   ClimberDriverCommand climberDriverCommand;
-  private ToggleShooterCommand toggleShooterCommand;
+  private ToggleShooterCommand toggleShooterCommand, ampShooterCommand;
   private ToggleIntakeCommand toggleIntakeCommand;
 
   private SwitchableDriverCam switchableDriverCam;
-  private UsbCamera front, back;
   private Command autonomousCommand = new InstantCommand() {
     @Override
     public String getName() {
@@ -88,23 +92,20 @@ public class RobotContainer {
 
   public RobotContainer() {
     SmartDashboard.putNumber("Beginning Auto Wait", beginningAutoWait);
+    /*
+    UsbCamera usbCamera = new UsbCamera("USB Camera 0", 0);
+    usbCamera.setFPS(16);
+    usbCamera.setResolution(320, 240);
+    usbCamera.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
-    front = CameraServer.startAutomaticCapture(0);
-    back = CameraServer.startAutomaticCapture(1);
+    UsbCamera usbCamera2 = new UsbCamera("USB Camera 1", 1);
+    usbCamera2.setFPS(16);
+    usbCamera2.setResolution(320, 240);
+    usbCamera2.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
-    front.setResolution(320, 240);
-    back.setResolution(320, 240);
-    front.setFPS(12);
-    back.setFPS(12);
-
-    //SWITCH DOUBLE FRONT TO BACK
-    switchableDriverCam = new SwitchableDriverCam(CameraServer.getServer(), front, back);
-    
-    // TODO: Ideally include these below, if we can't it's whatever
-    // front.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-    // back.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
-
-    driveTrain = new DriveTrain(switchableDriverCam);
+    VideoSink videoSink = CameraServer.addSwitchedCamera("driver");
+    */
+    driveTrain = new DriveTrain();
     intake = new Intake();
     shooter = new Shooter();
     arm = new Arm();
@@ -117,8 +118,8 @@ public class RobotContainer {
     climberDriverCommand = new ClimberDriverCommand(climber, controller1.x(), controller1.y(), controller1.leftBumper(), controller1.rightBumper());
     teleopDriveCommand = new TeleopDriveCommand(driveTrain, controller1::getLeftTriggerAxis, controller1::getRightTriggerAxis, () -> -controller1.getLeftX());
     toggleShooterCommand = new ToggleShooterCommand(() -> Shooter.PEAK_OUTPUT, arm.getCurrentAngle()::getDegrees, shooter);
-
-    climber.setDefaultCommand(climberDriverCommand);
+    ampShooterCommand = new ToggleShooterCommand(() -> Shooter.PEAK_OUTPUT/3D, arm.getCurrentAngle()::getDegrees, shooter);
+    // climber.setDefaultCommand(climberDriverCommand);
     arm.setDefaultCommand(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE));
     configureBindings();
     
@@ -154,18 +155,20 @@ public class RobotContainer {
      * joysticks}.
      */
   private void configureBindings() {
-    //TODO FIX BUTTON BINDING (DO NOT DO A button)
-    controller1.rightStick()
-    .onTrue(new ParallelCommandGroup(shooterDriveCommand, new ToggleShooterCommand(() -> Shooter.PEAK_OUTPUT, arm.getCurrentAngle()::getDegrees, shooter))
-    .andThen(new WaitCommand(0.5))
-    .andThen(new IntakeIndexCommand(intake))
-    .andThen(toggleShooterCommand::stop));
+    // controller1.rightStick()
+    // .onTrue(new ParallelCommandGroup(shooterDriveCommand
+    // , new ToggleShooterCommand(() -> Shooter.PEAK_OUTPUT, arm.getCurrentAngle()::getDegrees, shooter))
+    // .andThen(new WaitCommand(0.5))
+    // .andThen(new IntakeIndexCommand(intake))
+    // .andThen(toggleShooterCommand::stop)
+    // );
     controller1.b().whileTrue(driveTrain.getSetSpeedMultiplierCommand(0.5));
-    controller1.back().onTrue(new InstantCommand(climberDriverCommand::buttonPress));
+    // controller1.back().onTrue(new InstantCommand(climberDriverCommand::buttonPress));
 
     controller2.a().onTrue(new InstantCommand(intakeDriverCommand::buttonPress));
     controller2.x().toggleOnTrue(toggleShooterCommand);
-    controller2.y().onTrue(shooterPitchControlCommand);
+    controller2.y().toggleOnTrue(ampShooterCommand);
+    // controller2.y().onTrue(shooterPitchControlCommand);
     controller2.rightBumper().onTrue(new InstantCommand(intakeDriverCommand::clearNote));
 
     controller2.povUp().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.AMP, cancelSetpoint));

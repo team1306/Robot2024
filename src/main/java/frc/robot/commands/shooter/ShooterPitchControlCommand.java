@@ -1,5 +1,6 @@
 package frc.robot.commands.shooter;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.subsystems.Arm;
@@ -15,7 +16,7 @@ public class ShooterPitchControlCommand extends InstantCommand{
 
     private static Runnable setArmTargetAngle(Arm arm){
         return () -> {
-            double speakerDistance = Utilities.getSpeakerDistance(Utilities.getRobotPos());
+            double speakerDistance = Units.metersToInches(Utilities.getSpeakerDistance(Utilities.getRobotPos()));
             
             //Theta must be in terms of degrees
             double theta = a * Math.pow(speakerDistance, 2) + b * speakerDistance + c;

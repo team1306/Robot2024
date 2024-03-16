@@ -9,7 +9,7 @@ import frc.robot.subsystems.Climber;
 public class ClimberDriverCommand extends Command {
 
     private static double CLIMBER_SPEED = .7; //speed of the climber as a decimal
-    private static double MAX_CLIMBER_ANGLE = 6.5; //angle that the climber stops in degrees
+    private static double MAX_CLIMBER_ANGLE = 5; //angle that the climber stops in degrees
     
     public enum State {
         DOWN_OFF,
