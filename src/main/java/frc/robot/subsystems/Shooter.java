@@ -62,6 +62,7 @@ public class Shooter extends SubsystemBase {
     @Override
     public void periodic() {
         PEAK_OUTPUT = SmartDashboard.getNumber("peak shooter power", PEAK_OUTPUT);
+        SmartDashboard.putNumber("shooter top rpm", getTopRPM());
         SmartDashboard.putBoolean("SHOOTER RUNNING", Math.abs(targetSpeed) > 0);
         SmartDashboard.putNumber("Speaker Distance", Utilities.getSpeakerDistance(Utilities.getRobotPos()));
 

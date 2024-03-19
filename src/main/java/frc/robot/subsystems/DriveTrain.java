@@ -93,7 +93,7 @@ public class DriveTrain extends SubsystemBase {
     private DifferentialDrivePoseEstimator poseEstimator;
 
     private final DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(TRACK_WIDTH);
-    private final AHRS gyro = new AHRS(SPI.Port.kMXP);
+    public final AHRS gyro = new AHRS(SPI.Port.kMXP);
 
     private DifferentialDriveWheelSpeeds lastDriveVoltages = new DifferentialDriveWheelSpeeds();
 
@@ -238,6 +238,7 @@ public class DriveTrain extends SubsystemBase {
 
     @Override
     public void periodic() {
+        SmartDashboard.putNumber("gyro", gyro.getAngle());
         poseEstimator.update(gyro.getRotation2d(), new DifferentialDriveWheelPositions(lEncoder.getDistance(), rEncoder.getDistance()));
         m_field.setRobotPose(getPose());
         SmartDashboard.putData("Field", m_field);

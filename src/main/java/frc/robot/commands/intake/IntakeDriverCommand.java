@@ -1,10 +1,12 @@
 package frc.robot.commands.intake;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
 
 public class IntakeDriverCommand extends Command {
     public enum State {
@@ -16,15 +18,19 @@ public class IntakeDriverCommand extends Command {
     }
 
     private Intake intake;
+    private final Shooter shooter;
     private State state = State.UNPOWERED_NO_ELEMENT;
     private Timer timer = new Timer();
     private BooleanSupplier reverseOverride;
     private boolean wasReversed = false;
     public static final double INTAKE_SPEED = 0.6;
     private int noteNotPresentConfidence = 0;
-    public IntakeDriverCommand(Intake intake, BooleanSupplier reverseOverride) {
+    private final DoubleSupplier armAngle;
+    public IntakeDriverCommand(Intake intake, Shooter shooter, BooleanSupplier reverseOverride, DoubleSupplier armAngle) {
         this.intake = intake;
         this.reverseOverride = reverseOverride;
+        this.shooter = shooter;
+        this.armAngle = armAngle;
         addRequirements(intake);
     }
 
@@ -89,8 +95,12 @@ public class IntakeDriverCommand extends Command {
             case UNPOWERED_NO_ELEMENT -> State.POWERED_NO_ELEMENT;
             case POWERED_NO_ELEMENT -> State.UNPOWERED_NO_ELEMENT;
             case UNPOWERED_WITH_ELEMENT -> {
-                timer.restart();
-                yield State.INDEXING;
+                if ((armAngle.getAsDouble() > 70 && Math.abs(shooter.getTopRPM()) >= 60) || Math.abs(shooter.getTopRPM()) >= 1600) {
+                    timer.restart();
+                    yield State.INDEXING;
+                } else {
+                    yield State.UNPOWERED_WITH_ELEMENT;
+                }
             }
             // THIS COULD BE QUITE BUGGY, MAKE SURE TO TEST
             case INDEXING -> reset();
