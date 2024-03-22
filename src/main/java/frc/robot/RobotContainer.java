@@ -39,7 +39,6 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.vision.NoteDetector;
-import frc.robot.subsystems.vision.SwitchableDriverCam;
 import frc.robot.util.Utilities;
 
 import java.util.function.BooleanSupplier;
@@ -64,13 +63,12 @@ public class RobotContainer {
   public IntakeDriverCommand intakeDriverCommand;
  
   private ShooterDriveCommand shooterDriveCommand;
-  private ShooterPitchControlCommand shooterPitchControlCommand;
+  // private ShooterPitchControlCommand shooterPitchControlCommand;
   private MoveArmCommand moveArmCommand;
   ClimberDriverCommand climberDriverCommand;
   private ToggleShooterCommand toggleShooterCommand, ampShooterCommand;
   private ToggleIntakeCommand toggleIntakeCommand;
 
-  private SwitchableDriverCam switchableDriverCam;
   private Command autonomousCommand = new InstantCommand() {
     @Override
     public String getName() {
@@ -103,7 +101,7 @@ public class RobotContainer {
     arm = new Arm();
     climber = new Climber();
     shooterDriveCommand = new ShooterDriveCommand(driveTrain);
-    shooterPitchControlCommand = new ShooterPitchControlCommand(arm);
+    // shooterPitchControlCommand = new ShooterPitchControlCommand(arm);
     moveArmCommand = new MoveArmCommand(arm, () -> controller2.getRightY());
     toggleIntakeCommand = new ToggleIntakeCommand(intake, controller2.a(), controller2.b());
     intakeDriverCommand = new IntakeDriverCommand(intake, shooter, controller2.b(), arm.getCurrentAngle()::getDegrees);
@@ -131,8 +129,11 @@ public class RobotContainer {
 
     notePresentOutput = new DigitalOutput(8);
     ledRedBlueOutput = new DigitalOutput(9);
-    Commands.run(() -> notePresentOutput.set(intake.notePresent()));
-    Commands.run(() -> ledRedBlueOutput.set(Utilities.isRedAlliance())).ignoringDisable(true);
+    notePresentOutput.set(false);
+    ledRedBlueOutput.set(true);
+    
+    Commands.run(() -> notePresentOutput.set(intake.notePresent())).schedule();
+    Commands.run(() -> ledRedBlueOutput.set(Utilities.isRedAlliance())).ignoringDisable(true).schedule();
   }
 
   public void autoWaitGetterPeriodic() {
@@ -162,7 +163,7 @@ public class RobotContainer {
     controller2.a().onTrue(new InstantCommand(intakeDriverCommand::buttonPress));
     controller2.x().toggleOnTrue(toggleShooterCommand);
     controller2.y().toggleOnTrue(ampShooterCommand);
-    // controller2.y().onTrue(shooterPitchControlCommand);
+    controller2.leftBumper().onTrue(arm.getPitchControlCommand());
     controller2.rightBumper().onTrue(new InstantCommand(intakeDriverCommand::clearNote));
 
     controller2.povUp().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.AMP, cancelSetpoint));

@@ -1,7 +1,12 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkMax;
+import static frc.robot.Constants.ARM_LEFT_MOTOR_ID;
+import static frc.robot.Constants.ARM_RIGHT_MOTOR_ID;
+import static frc.robot.Constants.LOOP_TIME_SECONDS;
+
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
@@ -9,17 +14,17 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDSubsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.util.MotorUtil;
-
-import com.revrobotics.CANSparkBase.IdleMode;
-
-import static frc.robot.Constants.*;
+import frc.robot.util.Utilities;
 
 public class Arm extends SubsystemBase  {
     public enum ControlMode {
@@ -28,6 +33,7 @@ public class Arm extends SubsystemBase  {
         VISION
     }
 
+    private static double a = -1.82e-3, b = 0.369, c = 16.6;
 
     public interface Setpoint {
         double getPos();
@@ -228,5 +234,17 @@ public class Arm extends SubsystemBase  {
 
     public boolean atSetpoint() {
         return profiledPIDController.atGoal();
+    }
+
+    public InstantCommand getPitchControlCommand(){
+        return new InstantCommand(() -> {
+            double speakerDistance = Units.metersToInches(Utilities.getSpeakerDistance(Utilities.getRobotPos()));
+            
+            //Theta must be in terms of degrees
+            double theta = a * Math.pow(speakerDistance, 2) + b * speakerDistance + c;
+            theta = MathUtil.clamp(theta, 0, 90);
+            // Set the target angle of the arm
+            new MoveArmToSetpointCommand(this, new Setpoint.Custom(theta)).schedule();
+        }  , this);
     }
 }
