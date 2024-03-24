@@ -43,7 +43,6 @@ import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
-import frc.robot.subsystems.vision.SwitchableDriverCam;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Utilities;
@@ -200,7 +199,8 @@ public class DriveTrain extends SubsystemBase {
             leftMotorOutput = 0;
             rightMotorOutput = 0;
         }
-
+        SmartDashboard.putNumber("Left Drive Output", leftMotorOutput);
+        SmartDashboard.putNumber("Right Drive Output", rightMotorOutput);
         setSidePercentages(leftMotorOutput, rightMotorOutput);
     }
 

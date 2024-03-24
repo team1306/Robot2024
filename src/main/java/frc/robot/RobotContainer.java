@@ -31,7 +31,6 @@ import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.intake.IntakeDriverCommand;
 import frc.robot.commands.intake.ToggleIntakeCommand;
 import frc.robot.commands.shooter.ShooterDriveCommand;
-import frc.robot.commands.shooter.ShooterPitchControlCommand;
 import frc.robot.commands.shooter.ToggleShooterCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climber;
@@ -157,6 +156,7 @@ public class RobotContainer {
     // .andThen(new IntakeIndexCommand(intake))
     // .andThen(toggleShooterCommand::stop)
     // );
+    controller1.rightStick().onTrue(shooterDriveCommand);
     controller1.b().whileTrue(driveTrain.getSetSpeedMultiplierCommand(0.5));
     // controller1.back().onTrue(new InstantCommand(climberDriverCommand::buttonPress));
 

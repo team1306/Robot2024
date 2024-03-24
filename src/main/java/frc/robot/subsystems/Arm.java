@@ -243,6 +243,7 @@ public class Arm extends SubsystemBase  {
             //Theta must be in terms of degrees
             double theta = a * Math.pow(speakerDistance, 2) + b * speakerDistance + c;
             theta = MathUtil.clamp(theta, 0, 90);
+            SmartDashboard.putNumber("Arm auto pitch angle", theta);
             // Set the target angle of the arm
             new MoveArmToSetpointCommand(this, new Setpoint.Custom(theta)).schedule();
         }  , this);
