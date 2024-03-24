@@ -26,14 +26,12 @@ import frc.robot.auto.MoveOutRight;
 import frc.robot.auto.MoveOutRightTwoRing;
 import frc.robot.commands.arm.MoveArmCommand;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
-import frc.robot.commands.climber.ClimberDriverCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.intake.IntakeDriverCommand;
 import frc.robot.commands.intake.ToggleIntakeCommand;
 import frc.robot.commands.shooter.ShooterDriveCommand;
 import frc.robot.commands.shooter.ToggleShooterCommand;
 import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
@@ -56,7 +54,7 @@ public class RobotContainer {
   public Arm arm;
 
   private Shooter shooter; 
-  Climber climber;
+  // Climber climber;
   
   public TeleopDriveCommand teleopDriveCommand;
   public IntakeDriverCommand intakeDriverCommand;
@@ -64,7 +62,7 @@ public class RobotContainer {
   private ShooterDriveCommand shooterDriveCommand;
   // private ShooterPitchControlCommand shooterPitchControlCommand;
   private MoveArmCommand moveArmCommand;
-  ClimberDriverCommand climberDriverCommand;
+  // ClimberDriverCommand climberDriverCommand;
   private ToggleShooterCommand toggleShooterCommand, ampShooterCommand;
   private ToggleIntakeCommand toggleIntakeCommand;
 
@@ -98,13 +96,13 @@ public class RobotContainer {
     intake = new Intake();
     shooter = new Shooter();
     arm = new Arm();
-    climber = new Climber();
+    // climber = new Climber();
     shooterDriveCommand = new ShooterDriveCommand(driveTrain);
     // shooterPitchControlCommand = new ShooterPitchControlCommand(arm);
     moveArmCommand = new MoveArmCommand(arm, () -> controller2.getRightY());
     toggleIntakeCommand = new ToggleIntakeCommand(intake, controller2.a(), controller2.b());
     intakeDriverCommand = new IntakeDriverCommand(intake, shooter, controller2.b(), arm.getCurrentAngle()::getDegrees);
-    climberDriverCommand = new ClimberDriverCommand(climber, controller1.x(), controller1.y(), controller1.leftBumper(), controller1.rightBumper());
+    // climberDriverCommand = new ClimberDriverCommand(climber, controller1.x(), controller1.y(), controller1.leftBumper(), controller1.rightBumper());
     teleopDriveCommand = new TeleopDriveCommand(driveTrain, controller1::getLeftTriggerAxis, controller1::getRightTriggerAxis, () -> -controller1.getLeftX());
     toggleShooterCommand = new ToggleShooterCommand(() -> Shooter.PEAK_OUTPUT, arm.getCurrentAngle()::getDegrees, shooter);
     ampShooterCommand = new ToggleShooterCommand(() -> Shooter.PEAK_OUTPUT/3D, arm.getCurrentAngle()::getDegrees, shooter);

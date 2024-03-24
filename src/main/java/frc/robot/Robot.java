@@ -83,7 +83,7 @@ public class Robot extends TimedRobot {
     }
     m_robotContainer.intake.setDefaultCommand(m_robotContainer.intakeDriverCommand);
     m_robotContainer.driveTrain.setDefaultCommand(m_robotContainer.teleopDriveCommand);
-    m_robotContainer.climberDriverCommand.resetState();
+    // m_robotContainer.climberDriverCommand.resetState();
   }
 
   @Override
