@@ -154,10 +154,10 @@ public class RobotContainer {
     // .andThen(new IntakeIndexCommand(intake))
     // .andThen(toggleShooterCommand::stop)
     // );
-    controller1.rightStick().onTrue(shooterDriveCommand);
+    controller1.a().whileTrue(shooterDriveCommand);
     controller1.b().whileTrue(driveTrain.getSetSpeedMultiplierCommand(0.5));
     // controller1.back().onTrue(new InstantCommand(climberDriverCommand::buttonPress));
-
+    
     controller2.a().onTrue(new InstantCommand(intakeDriverCommand::buttonPress));
     controller2.x().toggleOnTrue(toggleShooterCommand);
     controller2.y().toggleOnTrue(ampShooterCommand);

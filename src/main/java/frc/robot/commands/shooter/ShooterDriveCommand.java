@@ -18,7 +18,7 @@ public class ShooterDriveCommand extends Command{
 
     private boolean finished = false;
     private double deadbandValue = 2;
-    public static double kP = 0.3, kI = 0, kD = 0;
+    public static double kP = 0.025, kI = 0, kD = 0.001;
 
     public ShooterDriveCommand(DriveTrain driveTrain){
         this.driveTrain = driveTrain;
@@ -61,10 +61,10 @@ public class ShooterDriveCommand extends Command{
             .getDegrees(), deadbandValue);
         
         SmartDashboard.putNumber("Delta Drive Angle", delta);
-        SmartDashboard.putNumber("Drive PID output", MotorUtil.clampPercent(rotationController.calculate(delta) * 0.25));
+        SmartDashboard.putNumber("Drive PID output", MotorUtil.clampPercent(rotationController.calculate(delta)) * 0.5);
 
         if (delta == 0) finished = true;
-        else driveTrain.arcadeDrive(0, MotorUtil.clampPercent(rotationController.calculate(delta) * 0.25));
+        else driveTrain.arcadeDrive(0, MotorUtil.clampPercent(rotationController.calculate(delta)) * 0.5);
         
     }
 

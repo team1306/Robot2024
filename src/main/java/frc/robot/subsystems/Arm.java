@@ -33,7 +33,7 @@ public class Arm extends SubsystemBase  {
         VISION
     }
 
-    private static double a = -1.82e-3, b = 0.369, c = 16.6;
+    private static double a = -0.000873, b = 0.285, c = 18;
 
     public interface Setpoint {
         double getPos();
@@ -238,7 +238,8 @@ public class Arm extends SubsystemBase  {
 
     public InstantCommand getPitchControlCommand(){
         return new InstantCommand(() -> {
-            double speakerDistance = Units.metersToInches(Utilities.getSpeakerDistance(Utilities.getRobotPos()));
+            //36.5 is the distance from the subwoofer to the speaker in inches
+            double speakerDistance = Units.metersToInches(Utilities.getSpeakerDistance(Utilities.getRobotPos())) - 36.5;
             
             //Theta must be in terms of degrees
             double theta = a * Math.pow(speakerDistance, 2) + b * speakerDistance + c;
