@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 public interface NoteDetector {
-    public static class NoteDetectorPlaceHolder implements NoteDetector {
+    class NoteDetectorPlaceHolder implements NoteDetector {
         @Override
         public State[] getNoteState() {
             return new State[] {State.UNKNOWN, State.UNKNOWN, State.UNKNOWN, State.UNKNOWN, State.UNKNOWN};
@@ -19,20 +19,20 @@ public interface NoteDetector {
         }
     }
 
-    public enum State {
+    enum State {
         PRESENT,
         NOT_PRESENT,
         UNKNOWN
     }
 
-    public enum Checkpoints {
+    enum Checkpoints {
         TOP(PathPlannerPath.fromPathFile("Shoot-Top to Far-2").getStartingDifferentialPose()),
         TOP_MIDDLE(PathPlannerPath.fromPathFile("Scan-Top to Far-3").getStartingDifferentialPose()),
         BOTTOM_MIDDLE(PathPlannerPath.fromPathFile("Scan-Bottom to Far-2").getStartingDifferentialPose());
 
         final Pose2d pose;
 
-        private Checkpoints(Pose2d pose) {
+        Checkpoints(Pose2d pose) {
             this.pose = pose;
         }
     }

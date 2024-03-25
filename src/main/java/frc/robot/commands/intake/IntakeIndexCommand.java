@@ -6,7 +6,7 @@ import frc.robot.subsystems.Intake;
 
 public class IntakeIndexCommand extends Command {
     private final Intake intake;
-    private Timer timer = new Timer();
+    private final Timer timer = new Timer();
     public IntakeIndexCommand(Intake intake) {
         this.intake = intake;
     }

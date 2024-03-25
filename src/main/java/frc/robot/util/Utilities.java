@@ -18,7 +18,7 @@ public class Utilities {
      */
     public static boolean isRedAlliance(){
         var alliance = DriverStation.getAlliance();
-        return alliance.isPresent() ? (alliance.get() == DriverStation.Alliance.Red) : true;
+        return alliance.isEmpty() || (alliance.get() == DriverStation.Alliance.Red);
     }
     /**
      * Returns where the speaker is on the field

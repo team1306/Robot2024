@@ -4,6 +4,7 @@ import edu.wpi.first.cscore.VideoSink;
 import edu.wpi.first.cscore.VideoSource;
 import edu.wpi.first.wpilibj.DriverStation;
 
+@Deprecated
 public class SwitchableDriverCam {
     private final VideoSink server;
     private final VideoSource[] sources;

@@ -17,11 +17,11 @@ public class IntakeDriverCommand extends Command {
         INDEXING
     }
 
-    private Intake intake;
+    private final Intake intake;
     private final Shooter shooter;
     private State state = State.UNPOWERED_NO_ELEMENT;
-    private Timer timer = new Timer();
-    private BooleanSupplier reverseOverride;
+    private final Timer timer = new Timer();
+    private final BooleanSupplier reverseOverride;
     private boolean wasReversed = false;
     public static final double INTAKE_SPEED = 0.6;
     private int noteNotPresentConfidence = 0;
