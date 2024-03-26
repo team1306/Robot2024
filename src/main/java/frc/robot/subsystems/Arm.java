@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDSubsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
+import frc.robot.subsystems.Arm.Setpoint;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Utilities;
 
@@ -33,7 +34,7 @@ public class Arm extends SubsystemBase  {
         VISION
     }
 
-    private static double a = -0.000873, b = 0.285, c = 18;
+    private static double a = -0.000876, b = 0.293, c = 17;
 
     public interface Setpoint {
         double getPos();
@@ -238,8 +239,9 @@ public class Arm extends SubsystemBase  {
 
     public InstantCommand getPitchControlCommand(){
         return new InstantCommand(() -> {
-            //36.5 is the distance from the subwoofer to the speaker in inches
-            double speakerDistance = Units.metersToInches(Utilities.getSpeakerDistance(Utilities.getRobotPos())) - 36.5;
+            //38.0625 is the distance from the subwoofer to the speaker and tape in inches
+            //2.3125 is the distance from the center of the limelight to the edge
+            double speakerDistance = Units.metersToInches(Utilities.getSpeakerDistance(Utilities.getRobotPos())) - 38.0625 - 2.3125;
             
             //Theta must be in terms of degrees
             double theta = a * Math.pow(speakerDistance, 2) + b * speakerDistance + c;
