@@ -22,7 +22,7 @@ public class TeleopDriveCommand extends Command{
         this.rotationSupplier = rotationSupplier;
         this.addRequirements(driveTrain);
         
-        SmartDashboard.putNumber("Teleop Drive Deadband", 0.00);
+        SmartDashboard.putNumber("Teleop Drive Deadband", deadbandValue);
     }  
 
     @Override

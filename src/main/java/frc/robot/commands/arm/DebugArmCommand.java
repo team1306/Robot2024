@@ -25,11 +25,6 @@ public class DebugArmCommand extends Command {
     }
 
     @Override
-    public void initialize(){
-        arm.setControlMode(Arm.ControlMode.AUTOMATIC);
-    }
-
-    @Override
     public void execute(){
         targetAngle = SmartDashboard.getNumber("Arm Target Angle", targetAngle);
         SmartDashboard.putNumber("Arm Current Angle", arm.getCurrentAngle().getDegrees());

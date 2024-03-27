@@ -79,7 +79,7 @@ public class DriveTrain extends SubsystemBase {
     //Percentage
     public static double MAX_SPEED = 1;
 
-    private double currentSpeedMultipler = 1;
+    private double currentSpeedMultiplier = 1;
 
     private CANSparkMax leftLeader;
     private CANSparkMax leftFollower;
@@ -148,8 +148,8 @@ public class DriveTrain extends SubsystemBase {
     }
     
     private void setSideVoltages(double left, double right) {
-        double leftOutput = (left * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(left, 12e-2))) * 12 * 0.0175) * MAX_SPEED;
-        double rightOutput = (right * currentSpeedMultipler + (Math.signum(MathUtil.applyDeadband(right, 12e-2))) * 12 * 0.0105) * MAX_SPEED;
+        double leftOutput = (left * currentSpeedMultiplier + (Math.signum(MathUtil.applyDeadband(left, 12e-2))) * 12 * 0.0175) * MAX_SPEED;
+        double rightOutput = (right * currentSpeedMultiplier + (Math.signum(MathUtil.applyDeadband(right, 12e-2))) * 12 * 0.0105) * MAX_SPEED;
         
         if(DriverStation.isTeleopEnabled()){
             leftOutput *= 1 - leftDowntiplier;
@@ -202,10 +202,6 @@ public class DriveTrain extends SubsystemBase {
         SmartDashboard.putNumber("Left Drive Output", leftMotorOutput);
         SmartDashboard.putNumber("Right Drive Output", rightMotorOutput);
         setSidePercentages(leftMotorOutput, rightMotorOutput);
-    }
-
-    public void drivePercentage(DifferentialDriveWheelSpeeds wheelSpeeds){
-        setSidePercentages(wheelSpeeds.leftMetersPerSecond, wheelSpeeds.rightMetersPerSecond);
     }
 
     public void driveMetersPerSecond(DifferentialDriveWheelSpeeds wheelSpeeds) {
@@ -261,12 +257,12 @@ public class DriveTrain extends SubsystemBase {
         return new Command() {
             @Override
             public void initialize() {
-                currentSpeedMultipler = multiplier;
+                currentSpeedMultiplier = multiplier;
             }
 
             @Override
             public void end(boolean interrupted) {
-                currentSpeedMultipler = 1;
+                currentSpeedMultiplier = 1;
             }
         };
     }
@@ -314,7 +310,6 @@ public class DriveTrain extends SubsystemBase {
   }
     /**
      * returns a command to drive by setpoint percentages
-     * @param drivetrain drivetrain object
      * @param leftSpeed speed of left wheel
      * @param rightSpeed speed of right wheel
      * @return generated command

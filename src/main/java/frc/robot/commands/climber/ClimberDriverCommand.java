@@ -5,7 +5,7 @@ import java.util.function.BooleanSupplier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Climber;
-
+@Deprecated
 public class ClimberDriverCommand extends Command {
 
     private static double CLIMBER_SPEED = .7; //speed of the climber as a decimal

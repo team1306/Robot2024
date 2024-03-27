@@ -16,12 +16,12 @@ import frc.robot.util.Utilities;
 import static frc.robot.util.Utilities.*;
 
 public class Robot extends TimedRobot {
-  private Command m_autonomousCommand, m_armDebugCommand;
-  private RobotContainer m_robotContainer;
+  private Command autonomousCommand, armDebugCommand;
+  private RobotContainer robotContainer;
   
   @Override
   public void robotInit() {
-    m_robotContainer = new RobotContainer();
+    robotContainer = new RobotContainer();
     
     PortForwarder.add(5800, "photonvision.local", 5800);
   }
@@ -41,16 +41,16 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     if (SmartDashboard.getBoolean("Load Auto", false)) {
-      m_robotContainer.loadAuto(); 
+      robotContainer.loadAuto();
       SmartDashboard.putBoolean("Load Auto", false);
     }
-    SmartDashboard.putString("Auto Name", m_robotContainer.getAutonomousCommand().getName());
+    SmartDashboard.putString("Auto Name", robotContainer.getAutonomousCommand().getName());
 
-    final Rotation2d armAngle = m_robotContainer.arm.getCurrentAngle();
+    final Rotation2d armAngle = robotContainer.arm.getCurrentAngle();
     SmartDashboard.putNumber("Arm Current Angle", armAngle.getDegrees());
-    m_robotContainer.arm.setTargetAngle(armAngle);
+    robotContainer.arm.setTargetAngle(armAngle);
 
-    m_robotContainer.autoWaitGetterPeriodic();
+    robotContainer.autoWaitGetterPeriodic();
   }
 
   @Override
@@ -58,12 +58,12 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-    removeAndCancelDefaultCommand(m_robotContainer.driveTrain);
-    removeAndCancelDefaultCommand(m_robotContainer.intake);
+    autonomousCommand = robotContainer.getAutonomousCommand();
+    removeAndCancelDefaultCommand(robotContainer.driveTrain);
+    removeAndCancelDefaultCommand(robotContainer.intake);
 
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
+    if (autonomousCommand != null) {
+      autonomousCommand.schedule();
     }
   }
 
@@ -75,15 +75,15 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    if (autonomousCommand != null) {
+      autonomousCommand.cancel();
     }
-    if (m_armDebugCommand != null) {
-      m_armDebugCommand.cancel();
+    if (armDebugCommand != null) {
+      armDebugCommand.cancel();
     }
-    m_robotContainer.intake.setDefaultCommand(m_robotContainer.intakeDriverCommand);
-    m_robotContainer.driveTrain.setDefaultCommand(m_robotContainer.teleopDriveCommand);
-    // m_robotContainer.climberDriverCommand.resetState();
+    robotContainer.intake.setDefaultCommand(robotContainer.intakeDriverCommand);
+    robotContainer.driveTrain.setDefaultCommand(robotContainer.teleopDriveCommand);
+    // robotContainer.climberDriverCommand.resetState();
   }
 
   @Override
@@ -97,11 +97,11 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     CommandScheduler.getInstance().cancelAll();
-    m_armDebugCommand = new DebugArmCommand(m_robotContainer.arm);
-    m_armDebugCommand.schedule();
-    m_robotContainer.configureSysIDBindings();
-    m_robotContainer.intake.setDefaultCommand(m_robotContainer.intakeDriverCommand);
-    m_robotContainer.driveTrain.setDefaultCommand(m_robotContainer.teleopDriveCommand);
+    armDebugCommand = new DebugArmCommand(robotContainer.arm);
+    armDebugCommand.schedule();
+    robotContainer.configureSysIDBindings();
+    robotContainer.intake.setDefaultCommand(robotContainer.intakeDriverCommand);
+    robotContainer.driveTrain.setDefaultCommand(robotContainer.teleopDriveCommand);
   }
 
   @Override

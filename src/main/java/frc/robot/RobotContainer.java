@@ -29,7 +29,7 @@ import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.intake.IntakeDriverCommand;
 import frc.robot.commands.intake.ToggleIntakeCommand;
-import frc.robot.commands.shooter.ShooterDriveCommand;
+import frc.robot.commands.drive.ShooterDriveCommand;
 import frc.robot.commands.shooter.ToggleShooterCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveTrain;
@@ -44,10 +44,10 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 
 
 public class RobotContainer {
-  private CommandXboxController controller1 = new CommandXboxController(0); // Creates an XboxController on port 1.
-  private CommandXboxController controller2 = new CommandXboxController(1); // Creates an XboxController on port 1.
+  private final CommandXboxController controller1 = new CommandXboxController(0); // Creates an XboxController on port 1.
+  private final CommandXboxController controller2 = new CommandXboxController(1); // Creates an XboxController on port 1.
 
-  private SendableChooser<AutonomousFactory> autoChooser = new SendableChooser<>();
+  private final SendableChooser<AutonomousFactory> autoChooser = new SendableChooser<>();
 
   public DriveTrain driveTrain;
   public Intake intake;
@@ -99,7 +99,7 @@ public class RobotContainer {
     // climber = new Climber();
     shooterDriveCommand = new ShooterDriveCommand(driveTrain);
     // shooterPitchControlCommand = new ShooterPitchControlCommand(arm);
-    moveArmCommand = new MoveArmCommand(arm, () -> controller2.getRightY());
+    moveArmCommand = new MoveArmCommand(arm, controller2::getRightY);
     toggleIntakeCommand = new ToggleIntakeCommand(intake, controller2.a(), controller2.b());
     intakeDriverCommand = new IntakeDriverCommand(intake, shooter, controller2.b(), arm.getCurrentAngle()::getDegrees);
     // climberDriverCommand = new ClimberDriverCommand(climber, controller1.x(), controller1.y(), controller1.leftBumper(), controller1.rightBumper());
