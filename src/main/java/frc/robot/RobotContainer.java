@@ -8,9 +8,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -20,6 +18,7 @@ import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.commands.drive.ShooterDriveCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.intake.IntakeDriverCommand;
+import frc.robot.commands.intake.IntakeIndexCommand;
 import frc.robot.commands.intake.ToggleIntakeCommand;
 import frc.robot.commands.shooter.ToggleShooterCommand;
 import frc.robot.subsystems.Arm;
@@ -128,14 +127,7 @@ public class RobotContainer {
      * joysticks}.
      */
   private void configureBindings() {
-    // controller1.rightStick()
-    // .onTrue(new ParallelCommandGroup(shooterDriveCommand
-    // , new ToggleShooterCommand(() -> Shooter.PEAK_OUTPUT, arm.getCurrentAngle()::getDegrees, shooter))
-    // .andThen(new WaitCommand(0.5))
-    // .andThen(new IntakeIndexCommand(intake))
-    // .andThen(toggleShooterCommand::stop)
-    // );
-    controller1.a().whileTrue(shooterDriveCommand);
+    controller1.a().whileTrue(shooterDriveCommand.repeatedly());
     controller1.b().whileTrue(driveTrain.getSetSpeedMultiplierCommand(Constants.SLOW_MODE_SPEED));
 
     controller2.a().onTrue(new InstantCommand(intakeDriverCommand::buttonPress));
@@ -143,6 +135,15 @@ public class RobotContainer {
     controller2.y().toggleOnTrue(ampShooterCommand);
     controller2.leftBumper().onTrue(arm.getPitchControlCommand());
     controller2.rightBumper().onTrue(new InstantCommand(intakeDriverCommand::clearNote));
+
+    controller2.rightTrigger(0.5)
+            .onTrue(
+                    new ParallelCommandGroup(arm.getPitchControlCommand(),
+                    new ToggleShooterCommand(() -> Shooter.peakOutput, shooter))
+            .andThen(new WaitCommand(1))
+            .andThen(new IntakeIndexCommand(intake))
+            .andThen(toggleShooterCommand::stop)
+            .andThen(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE)));
 
     controller2.povUp().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.AMP, cancelSetpoint));
     controller2.povLeft().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.STAGE_SHOT, cancelSetpoint));
