@@ -1,19 +1,17 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-
-import static frc.robot.Constants.*;
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkRelativeEncoder;
-import com.revrobotics.CANSparkBase.IdleMode;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.DashboardGetter;
 import frc.robot.util.MotorUtil;
-import frc.robot.util.Utilities;
+
+import static frc.robot.Constants.*;
 
 
 // NOT DONE, NEEDS VELOCITY REGULATION BETWEEN THE TWO MOTORS
@@ -22,7 +20,7 @@ public class Shooter extends SubsystemBase {
     private final CANSparkMax topMotor, bottomMotor;
     private final RelativeEncoder topEncoder, bottomEncoder;
     
-    public static double PEAK_OUTPUT = 1.0;
+    public static double peakOutput = 1.0;
 
     private double targetSpeed = 0;
 
@@ -34,7 +32,7 @@ public class Shooter extends SubsystemBase {
         bottomMotor.setInverted(true);
         topEncoder = topMotor.getEncoder(SparkRelativeEncoder.Type.kHallSensor, NEO_COUNTS_PER_REVOLUTION);
         bottomEncoder = bottomMotor.getEncoder(SparkRelativeEncoder.Type.kHallSensor, NEO_COUNTS_PER_REVOLUTION);
-        SmartDashboard.putNumber("peak shooter power", PEAK_OUTPUT);
+        DashboardGetter.addGetDoubleData("peak shooter power", peakOutput, value -> peakOutput = value);
     }
 
     public double getTargetSpeed() {
@@ -42,7 +40,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public void setTargetSpeed(double targetSpeed) {
-        this.targetSpeed = MathUtil.clamp(targetSpeed, 0, PEAK_OUTPUT);
+        this.targetSpeed = MathUtil.clamp(targetSpeed, 0, peakOutput);
     }
 
     /**
@@ -61,7 +59,6 @@ public class Shooter extends SubsystemBase {
     
     @Override
     public void periodic() {
-        PEAK_OUTPUT = SmartDashboard.getNumber("peak shooter power", PEAK_OUTPUT);
         SmartDashboard.putNumber("shooter top rpm", getTopRPM());
         SmartDashboard.putBoolean("SHOOTER RUNNING", Math.abs(targetSpeed) > 0);
 

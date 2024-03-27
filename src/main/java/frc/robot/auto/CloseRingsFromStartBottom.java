@@ -14,7 +14,7 @@ public class CloseRingsFromStartBottom extends SequentialCommandGroup {
     public CloseRingsFromStartBottom(NoteDetector detector, Intake intake, Shooter shooter, Arm arm) {
 
         System.out.println("Running Auto");
-        final Command shooterCommand = new ToggleShooterCommand(() -> .79, Arm.SetpointOptions.SHOOT_CLOSE::getPos, shooter);
+        final Command shooterCommand = new ToggleShooterCommand(() -> .79, shooter);
         addCommands(
             shooterCommand, //spin up shooter
             new IntakeIndexCommand(intake), //fire

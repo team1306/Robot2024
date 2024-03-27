@@ -1,11 +1,11 @@
 package frc.robot.commands.arm;
 
-import java.util.function.BooleanSupplier;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Arm.SetpointOptions;
 
+import java.util.function.BooleanSupplier;
+@Deprecated
 public class MoveArmToIntakeCommand extends MoveArmToSetpointCommand {
     private BooleanSupplier notePresentFlag;
 

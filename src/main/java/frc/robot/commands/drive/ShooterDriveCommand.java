@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.util.DashboardGetter;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Utilities;
 
@@ -17,20 +18,19 @@ public class ShooterDriveCommand extends Command{
     private final PIDController rotationController;
 
     private boolean finished = false;
-    private double deadbandValue = 2;
+    private double deadbandValue = 0.5;
     public static double kP = 0.025, kI = 0, kD = 0.001;
 
     public ShooterDriveCommand(DriveTrain driveTrain){
         this.driveTrain = driveTrain;
         this.rotationController = new PIDController(kP, kI, kD);
         this.addRequirements(driveTrain);
-         
-        SmartDashboard.putNumber("Shooter Drive kP", kP);
-        SmartDashboard.putNumber("Shooter Drive kI", kI);
-        SmartDashboard.putNumber("Shooter Drive kD", kD);
-        SmartDashboard.putNumber("Shooter Auto Deadband", deadbandValue);
-        SmartDashboard.putNumber("Delta Drive Angle", 0);
-        SmartDashboard.putNumber("Drive PID output", 0);
+
+        DashboardGetter.addGetDoubleData("Shooter Drive kP", kP, value -> kP = value);
+        DashboardGetter.addGetDoubleData("Shooter Drive kI", kI, value -> kI = value);
+        DashboardGetter.addGetDoubleData("Shooter Drive kD", kD, value -> kD = value);
+        DashboardGetter.addGetDoubleData("Shooter Auto Deadband", deadbandValue, value -> deadbandValue = value);
+
     }
 
     @Override
@@ -39,11 +39,6 @@ public class ShooterDriveCommand extends Command{
     }
     @Override
     public void execute(){
-        kP = SmartDashboard.getNumber("Shooter Drive kP", 0.005);
-        kI = SmartDashboard.getNumber("Shooter Drive kI", 0);
-        kD = SmartDashboard.getNumber("Shooter Drive kD", 0);
-        deadbandValue = SmartDashboard.getNumber("Shooter Auto Deadband", 1);
-        
         rotationController.setPID(kP, kI, kD);
         Pose2d botPose = Utilities.getRobotPos();
         // double speakerDistance = Utilities.getSpeakerDistance(botPose);

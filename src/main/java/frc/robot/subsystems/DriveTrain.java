@@ -1,21 +1,12 @@
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.BACK_LEFT_DRIVE_MOTOR_ID;
-import static frc.robot.Constants.BACK_RIGHT_DRIVE_MOTOR_ID;
-import static frc.robot.Constants.FRONT_LEFT_DRIVE_MOTOR_ID;
-import static frc.robot.Constants.FRONT_RIGHT_DRIVE_MOTOR_ID;
-import static frc.robot.Constants.INCLUDE_AUTO;
-import static frc.robot.Constants.INCLUDE_LIMELIGHT;
-import static frc.robot.Constants.LIMELIGHT_NAME;
-
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkBase.IdleMode;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.ReplanningConfig;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-
+import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -26,11 +17,11 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.MutableMeasure;
-import edu.wpi.first.units.Velocity;
-import edu.wpi.first.units.Voltage;
+import edu.wpi.first.units.*;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -39,15 +30,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
-import edu.wpi.first.wpilibj.CounterBase.EncodingType;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.SPI;
+import frc.robot.util.DashboardGetter;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Utilities;
-import static edu.wpi.first.units.Units.*;
+
 import static edu.wpi.first.units.MutableMeasure.mutable;
+import static edu.wpi.first.units.Units.*;
+import static frc.robot.Constants.*;
 
 
 //Implemented as Ramsete (Differential)
@@ -77,7 +67,7 @@ public class DriveTrain extends SubsystemBase {
     private final PIDController rightPID;
     
     //Percentage
-    public static double MAX_SPEED = 1;
+    public static double maxSpeed = 1;
 
     private double currentSpeedMultiplier = 1;
 
@@ -116,7 +106,7 @@ public class DriveTrain extends SubsystemBase {
         rEncoder.reset();
         rEncoder.setDistancePerPulse(Units.inchesToMeters(6) * Math.PI / 2048D); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
 
-        lEncoder = new Encoder(6, 7, true, EncodingType.k1X);;
+        lEncoder = new Encoder(6, 7, true, EncodingType.k1X);
         lEncoder.reset();
         lEncoder.setDistancePerPulse(Units.inchesToMeters(6) * Math.PI / 2048D); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
         
@@ -139,17 +129,17 @@ public class DriveTrain extends SubsystemBase {
         poseEstimator = new DifferentialDrivePoseEstimator(kinematics, gyro.getRotation2d(), lEncoder.getDistance(), rEncoder.getDistance(),
             INCLUDE_AUTO ? PathPlannerAuto.getStaringPoseFromAutoFile(AUTO_NAME) : new Pose2d());
 
-        SmartDashboard.putNumber("Max Speed", MAX_SPEED);
         //SmartDashboard.putNumber("Left Drive Static Friction", 0);  
         //SmartDashboard.putNumber("Right Drive Static Friction", 0);
-        // this.switchableDriverCam = switchableDriverCam;      
-        SmartDashboard.putNumber("Right Drive Downtiplier", leftDowntiplier);
-        SmartDashboard.putNumber("Left Drive Downtiplier", rightDowntiplier);
+
+        DashboardGetter.addGetDoubleData("Max Speed", maxSpeed, value -> maxSpeed = value);
+        DashboardGetter.addGetDoubleData("Right Drive Downtiplier", rightDowntiplier, value -> rightDowntiplier = value);
+        DashboardGetter.addGetDoubleData("Left Drive Downtiplier", leftDowntiplier, value -> leftDowntiplier = value);
     }
     
     private void setSideVoltages(double left, double right) {
-        double leftOutput = (left * currentSpeedMultiplier + (Math.signum(MathUtil.applyDeadband(left, 12e-2))) * 12 * 0.0175) * MAX_SPEED;
-        double rightOutput = (right * currentSpeedMultiplier + (Math.signum(MathUtil.applyDeadband(right, 12e-2))) * 12 * 0.0105) * MAX_SPEED;
+        double leftOutput = (left * currentSpeedMultiplier + (Math.signum(MathUtil.applyDeadband(left, 12e-2))) * 12 * 0.0175) * maxSpeed;
+        double rightOutput = (right * currentSpeedMultiplier + (Math.signum(MathUtil.applyDeadband(right, 12e-2))) * 12 * 0.0105) * maxSpeed;
         
         if(DriverStation.isTeleopEnabled()){
             leftOutput *= 1 - leftDowntiplier;
@@ -239,15 +229,10 @@ public class DriveTrain extends SubsystemBase {
         m_field.setRobotPose(getPose());
         SmartDashboard.putData("Field", m_field);
         if (INCLUDE_LIMELIGHT) poseEstimator.addVisionMeasurement(LimelightHelpers.getBotPose2d(LIMELIGHT_NAME), Timer.getFPGATimestamp());
-        MAX_SPEED = SmartDashboard.getNumber("Max Speed", 1);
         SmartDashboard.putNumber("left vel", lEncoder.getRate());
         SmartDashboard.putNumber("right vel", rEncoder.getRate());
         SmartDashboard.putNumber("left pos", lEncoder.getDistance());
         SmartDashboard.putNumber("right pos", rEncoder.getDistance());
-
-
-        rightDowntiplier = SmartDashboard.getNumber("Right Drive Downtiplier", leftDowntiplier);
-        leftDowntiplier = SmartDashboard.getNumber("Left Drive Downtiplier", rightDowntiplier);
 
         //rightFriction = SmartDashboard.getNumber("Left Drive Static Friction", 0);  
         //leftFriction = SmartDashboard.getNumber("Right Drive Static Friction", 0);

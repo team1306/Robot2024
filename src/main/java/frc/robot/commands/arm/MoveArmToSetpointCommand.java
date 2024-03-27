@@ -1,10 +1,10 @@
 package frc.robot.commands.arm;
 
-import java.util.function.BooleanSupplier;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Arm;
+
+import java.util.function.BooleanSupplier;
 
 public class MoveArmToSetpointCommand extends Command {
     final Arm.Setpoint setpoint;

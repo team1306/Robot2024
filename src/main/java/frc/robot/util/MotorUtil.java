@@ -1,12 +1,11 @@
 package frc.robot.util;
 
-import static frc.robot.Constants.NEO_CURRENT_LIMIT_AMPS;
-
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-
+import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.MathUtil;
+
+import static frc.robot.Constants.NEO_CURRENT_LIMIT_AMPS;
 
 public class MotorUtil {
     /**

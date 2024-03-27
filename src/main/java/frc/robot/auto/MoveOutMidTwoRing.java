@@ -1,10 +1,6 @@
 package frc.robot.auto;
 
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.commands.intake.IntakeIndexCommand;
 import frc.robot.commands.shooter.ToggleShooterCommand;
@@ -19,7 +15,7 @@ import static frc.robot.commands.intake.IntakeDriverCommand.INTAKE_SPEED;
 public class MoveOutMidTwoRing extends ParallelCommandGroup {
     public MoveOutMidTwoRing(DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) {
         System.out.println("Running Auto");
-        final ToggleShooterCommand shooterCommand = new ToggleShooterCommand(() -> .76, arm.getCurrentAngle()::getDegrees, shooter);
+        final ToggleShooterCommand shooterCommand = new ToggleShooterCommand(() -> .76, shooter);
         addCommands( //all commands run at once
             shooterCommand, //turns on shooter
             new SequentialCommandGroup( //following commands run in sequence

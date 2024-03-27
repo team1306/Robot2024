@@ -2,16 +2,9 @@ package frc.robot.auto;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
-
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.commands.intake.IntakeIndexCommand;
 import frc.robot.commands.shooter.ToggleShooterCommand;
-import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 
@@ -21,7 +14,7 @@ public final class AutoCommands {
     public static final double waitTime = 1;
     
     public static Command getShooterCommand(Shooter shooter) {
-        return new ToggleShooterCommand(() -> .79, Arm.SetpointOptions.SHOOT_CLOSE::getPos, shooter);
+        return new ToggleShooterCommand(() -> .79, shooter);
     }
 
     public static SequentialCommandGroup shoot (Intake intake, Shooter shooter) {

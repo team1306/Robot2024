@@ -14,7 +14,7 @@ import frc.robot.subsystems.Shooter;
 public class JustShoot extends ParallelCommandGroup {
     public JustShoot(Shooter shooter, Arm arm, Intake intake) {
         System.out.println("Running Auto");
-        final ToggleShooterCommand shooterCommand = new ToggleShooterCommand(() -> 1, arm.getCurrentAngle()::getDegrees, shooter);
+        final ToggleShooterCommand shooterCommand = new ToggleShooterCommand(() -> 1, shooter);
         addCommands( //all commands run at once
             shooterCommand, //turns on shooter
             new SequentialCommandGroup( //following commands run in sequence

@@ -14,7 +14,7 @@ import frc.robot.commands.arm.DebugArmCommand;
 import frc.robot.util.DashboardGetter;
 import frc.robot.util.Utilities;
 
-import static frc.robot.util.Utilities.*;
+import static frc.robot.util.Utilities.removeAndCancelDefaultCommand;
 
 public class Robot extends TimedRobot {
   private Command autonomousCommand, armDebugCommand;

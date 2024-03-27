@@ -1,11 +1,12 @@
 package frc.robot.commands.arm;
 
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Arm;
+import frc.robot.util.DashboardGetter;
+
+import java.util.function.DoubleSupplier;
 
 public class MoveArmCommand extends Command {
     private final Arm arm;
@@ -18,7 +19,7 @@ public class MoveArmCommand extends Command {
         this.rotationSupplier = rotationSupplier;
         addRequirements(arm);
 
-        SmartDashboard.putNumber("Arm Manual Speed", speed);
+        DashboardGetter.addGetDoubleData("Arm Manual Speed", speed, value -> speed = value);
     }
 
     @Override
@@ -28,7 +29,6 @@ public class MoveArmCommand extends Command {
 
     @Override
     public void execute(){
-        speed = SmartDashboard.getNumber("Arm Manual Speed", speed);
         targetAngle = Rotation2d.fromDegrees(Math.max(0.0, targetAngle.plus(Rotation2d.fromDegrees(rotationSupplier.getAsDouble() * -1 * speed)).getDegrees()));
         SmartDashboard.putNumber("Arm Target Angle", targetAngle.getDegrees());
         arm.setTargetAngle(targetAngle);

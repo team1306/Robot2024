@@ -7,10 +7,10 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
-import static frc.robot.Constants.*;
-
 import java.util.Optional;
 import java.util.function.Consumer;
+
+import static frc.robot.Constants.*;
 
 public class Utilities {
     /**

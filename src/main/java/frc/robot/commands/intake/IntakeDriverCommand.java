@@ -1,12 +1,12 @@
 package frc.robot.commands.intake;
 
-import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 public class IntakeDriverCommand extends Command {
     public enum State {

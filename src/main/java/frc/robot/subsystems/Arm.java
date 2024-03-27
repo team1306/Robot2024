@@ -1,13 +1,8 @@
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.ARM_LEFT_MOTOR_ID;
-import static frc.robot.Constants.ARM_RIGHT_MOTOR_ID;
-import static frc.robot.Constants.LOOP_TIME_SECONDS;
-
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -24,6 +19,8 @@ import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.util.DashboardGetter;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Utilities;
+
+import static frc.robot.Constants.*;
 
 public class Arm extends SubsystemBase  {
 
@@ -73,7 +70,7 @@ public class Arm extends SubsystemBase  {
     private final Encoder relativeThroughBore;
     private final DutyCycleEncoder absoluteThroughBoreEncoder;
 
-    private TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION);
+    private TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(MAX_VELOCITY, maxAcceleration);
 
     private final ProfiledPIDController profiledPIDController;
     private ArmFeedforward feedforward;
@@ -81,7 +78,8 @@ public class Arm extends SubsystemBase  {
     public static double kP = 0.02, kI = 0.0005, kD = 0.0018; // Do we want PID Controller? Or do we want to do state space model?
                                                  // need to read https://file.tavsys.net/control/controls-engineering-in-frc.pdf more so I know what I am doing
     public static double kG = 0.0725, kV = .17;
-    private static double MAX_VELOCITY = 360, MAX_ACCELERATION = 140; // kMA MIGHT BE WRONG
+    private static final double MAX_VELOCITY = 360;
+    private static double maxAcceleration = 140; // kMA MIGHT BE WRONG
     private double armMaxPower = 1;
 
     public static final double OFFSET = -219.15 + 180 + 10 + .5 + 57.15 + 174.425, DELTA_AT_SETPOINT = 1;
@@ -107,14 +105,15 @@ public class Arm extends SubsystemBase  {
         feedforward = new ArmFeedforward(0, Math.min(0.3, kG), kV, 0);
         profiledPIDController = new ProfiledPIDController(kP, kI, kD, constraints, LOOP_TIME_SECONDS);
 
-        SmartDashboard.putNumber("Arm kP", kP);
-        SmartDashboard.putNumber("Arm kI", kI);
-        SmartDashboard.putNumber("Arm kD", kD);
+        DashboardGetter.addGetDoubleData("Arm kP", kP, value -> kP = value);
+        DashboardGetter.addGetDoubleData("Arm kI", kI, value -> kI = value);
+        DashboardGetter.addGetDoubleData("Arm kD", kD, value -> kD = value);
 
-        SmartDashboard.putNumber("Arm kG", kG);
-        SmartDashboard.putNumber("Arm kV", kV);
-        SmartDashboard.putNumber("Arm MAX_ACCELERATION", MAX_ACCELERATION);
-        SmartDashboard.putNumber("Arm Peak Output", armMaxPower);
+        DashboardGetter.addGetDoubleData("Arm kG", kG, value -> kG = value);
+        DashboardGetter.addGetDoubleData("Arm kV", kV, value -> kV = value);
+
+        DashboardGetter.addGetDoubleData("Arm MAX_ACCELERATION", maxAcceleration, value -> maxAcceleration = value);
+        DashboardGetter.addGetDoubleData("Arm Peak Output", armMaxPower, value -> armMaxPower = value);
 
         DashboardGetter.addGetDoubleData("Arm Pitch A", a, value -> a = value);
         DashboardGetter.addGetDoubleData("Arm Pitch B", b, value -> b = value);
@@ -146,16 +145,7 @@ public class Arm extends SubsystemBase  {
 
     @Override
     public void periodic() {
-        kP = SmartDashboard.getNumber("Arm kP", kP);
-        kI = SmartDashboard.getNumber("Arm kI", kI);
-        kD = SmartDashboard.getNumber("Arm kD",kD);
-
-        kG = SmartDashboard.getNumber("Arm kG", kG);
-        kV = SmartDashboard.getNumber("Arm kV", kV);
-
-        MAX_ACCELERATION = SmartDashboard.getNumber("Arm MAX_ACCELERATION", 0);
-        armMaxPower = SmartDashboard.getNumber("Arm Peak Output", 1);
-        constraints = new TrapezoidProfile.Constraints(constraints.maxVelocity, MAX_ACCELERATION);
+        constraints = new TrapezoidProfile.Constraints(constraints.maxVelocity, maxAcceleration);
         profiledPIDController.setConstraints(constraints);
         profiledPIDController.setPID(kP, kI, kD);
         feedforward = new ArmFeedforward(0, Math.min(0.25,kG), kV, 0);

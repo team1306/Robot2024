@@ -4,32 +4,23 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.auto.AutonomousFactory;
-import frc.robot.auto.CloseRingsFromStartMid;
-import frc.robot.auto.FarRingsFromStartBottom;
-import frc.robot.auto.FarRingsFromStartMid;
-import frc.robot.auto.FarRingsFromStartTop;
-import frc.robot.auto.JustShoot;
-import frc.robot.auto.MoveOutLeft;
-import frc.robot.auto.MoveOutMid;
-import frc.robot.auto.MoveOutMidTwoRing;
-import frc.robot.auto.MoveOutRight;
-import frc.robot.auto.MoveOutRightTwoRing;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.auto.*;
 import frc.robot.commands.arm.MoveArmCommand;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
+import frc.robot.commands.drive.ShooterDriveCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.intake.IntakeDriverCommand;
 import frc.robot.commands.intake.ToggleIntakeCommand;
-import frc.robot.commands.drive.ShooterDriveCommand;
 import frc.robot.commands.shooter.ToggleShooterCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveTrain;
@@ -40,8 +31,6 @@ import frc.robot.util.Utilities;
 
 import java.util.function.BooleanSupplier;
 
-import com.pathplanner.lib.commands.PathPlannerAuto;
-
 
 public class RobotContainer {
   private final CommandXboxController controller1 = new CommandXboxController(0); // Creates an XboxController on port 1.
@@ -49,22 +38,18 @@ public class RobotContainer {
 
   private final SendableChooser<AutonomousFactory> autoChooser = new SendableChooser<>();
 
-  public DriveTrain driveTrain;
-  public Intake intake;
-  public Arm arm;
+  public final DriveTrain driveTrain;
+  public final Intake intake;
+  public final Arm arm;
 
-  private Shooter shooter; 
-  // Climber climber;
-  
-  public TeleopDriveCommand teleopDriveCommand;
-  public IntakeDriverCommand intakeDriverCommand;
+  private final Shooter shooter;
+  public final TeleopDriveCommand teleopDriveCommand;
+  public final IntakeDriverCommand intakeDriverCommand;
  
-  private ShooterDriveCommand shooterDriveCommand;
-  // private ShooterPitchControlCommand shooterPitchControlCommand;
-  private MoveArmCommand moveArmCommand;
-  // ClimberDriverCommand climberDriverCommand;
-  private ToggleShooterCommand toggleShooterCommand, ampShooterCommand;
-  private ToggleIntakeCommand toggleIntakeCommand;
+  private final ShooterDriveCommand shooterDriveCommand;
+  private final MoveArmCommand moveArmCommand;
+  private final ToggleShooterCommand toggleShooterCommand, ampShooterCommand;
+  private final ToggleIntakeCommand toggleIntakeCommand;
 
   private Command autonomousCommand = new InstantCommand() {
     @Override
@@ -96,17 +81,13 @@ public class RobotContainer {
     intake = new Intake();
     shooter = new Shooter();
     arm = new Arm();
-    // climber = new Climber();
     shooterDriveCommand = new ShooterDriveCommand(driveTrain);
-    // shooterPitchControlCommand = new ShooterPitchControlCommand(arm);
     moveArmCommand = new MoveArmCommand(arm, controller2::getRightY);
     toggleIntakeCommand = new ToggleIntakeCommand(intake, controller2.a(), controller2.b());
     intakeDriverCommand = new IntakeDriverCommand(intake, shooter, controller2.b(), arm.getCurrentAngle()::getDegrees);
-    // climberDriverCommand = new ClimberDriverCommand(climber, controller1.x(), controller1.y(), controller1.leftBumper(), controller1.rightBumper());
     teleopDriveCommand = new TeleopDriveCommand(driveTrain, controller1::getLeftTriggerAxis, controller1::getRightTriggerAxis, () -> -controller1.getLeftX());
-    toggleShooterCommand = new ToggleShooterCommand(() -> Shooter.PEAK_OUTPUT, arm.getCurrentAngle()::getDegrees, shooter);
-    ampShooterCommand = new ToggleShooterCommand(() -> Shooter.PEAK_OUTPUT/3D, arm.getCurrentAngle()::getDegrees, shooter);
-    // climber.setDefaultCommand(climberDriverCommand);
+    toggleShooterCommand = new ToggleShooterCommand(() -> Shooter.peakOutput, shooter);
+    ampShooterCommand = new ToggleShooterCommand(() -> Shooter.peakOutput /3D, shooter);
     arm.setDefaultCommand(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE));
     configureBindings();
     
@@ -155,9 +136,8 @@ public class RobotContainer {
     // .andThen(toggleShooterCommand::stop)
     // );
     controller1.a().whileTrue(shooterDriveCommand);
-    controller1.b().whileTrue(driveTrain.getSetSpeedMultiplierCommand(0.5));
-    // controller1.back().onTrue(new InstantCommand(climberDriverCommand::buttonPress));
-    
+    controller1.b().whileTrue(driveTrain.getSetSpeedMultiplierCommand(Constants.SLOW_MODE_SPEED));
+
     controller2.a().onTrue(new InstantCommand(intakeDriverCommand::buttonPress));
     controller2.x().toggleOnTrue(toggleShooterCommand);
     controller2.y().toggleOnTrue(ampShooterCommand);

@@ -1,10 +1,12 @@
 package frc.robot.commands.drive;
 
-import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.util.DashboardGetter;
+
+import java.util.function.DoubleSupplier;
 
 public class TeleopDriveCommand extends Command{    
     
@@ -13,7 +15,7 @@ public class TeleopDriveCommand extends Command{
     private final DoubleSupplier backwardSupplier;
     private final DoubleSupplier rotationSupplier;
  
-    private double deadbandValue = 0.01;
+    private double deadbandValue = 0.0;
     private boolean lastIsForward = true;
     public TeleopDriveCommand(DriveTrain driveTrain, DoubleSupplier forwardSupplier, DoubleSupplier backwardSupplier, DoubleSupplier rotationSupplier){
         this.driveTrain = driveTrain;
@@ -21,14 +23,12 @@ public class TeleopDriveCommand extends Command{
         this.backwardSupplier = backwardSupplier;
         this.rotationSupplier = rotationSupplier;
         this.addRequirements(driveTrain);
-        
-        SmartDashboard.putNumber("Teleop Drive Deadband", deadbandValue);
-    }  
+
+        DashboardGetter.addGetDoubleData("Teleop Drive Deadband", deadbandValue, value -> deadbandValue = value);
+    }
 
     @Override
     public void execute() {
-        deadbandValue = SmartDashboard.getNumber("Teleop Drive Deadband", 0.00);
-        
         final double forward = forwardSupplier.getAsDouble(), backward = backwardSupplier.getAsDouble(), rotation = rotationSupplier.getAsDouble();
         final boolean isForward = forward > backward;
 
