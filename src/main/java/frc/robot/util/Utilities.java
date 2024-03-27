@@ -2,6 +2,7 @@ package frc.robot.util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -32,11 +33,11 @@ public class Utilities {
     /**
      * Gets the speaker distance depending on the side the driverstation is on
      * @param robotPos the pos of the robot
-     * @return the distance in meters
+     * @return the distance in inches
      */
 
     public static double getSpeakerDistance(Pose2d robotPos){
-        return robotPos.getTranslation().getDistance(Utilities.getSpeaker());
+        return Units.metersToInches(robotPos.getTranslation().getDistance(Utilities.getSpeaker()));
     }
 
     /**

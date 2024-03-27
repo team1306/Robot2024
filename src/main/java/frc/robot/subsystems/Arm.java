@@ -14,7 +14,6 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
@@ -22,13 +21,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
-import frc.robot.subsystems.Arm.Setpoint;
+import frc.robot.util.DashboardGetter;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Utilities;
 
 public class Arm extends SubsystemBase  {
 
-    private static double a = -0.000876, b = 0.293, c = 17;
+    private static double a = -0.000905, b = 0.368, c = 3.41;
 
     public interface Setpoint {
         double getPos();
@@ -117,6 +116,10 @@ public class Arm extends SubsystemBase  {
         SmartDashboard.putNumber("Arm MAX_ACCELERATION", MAX_ACCELERATION);
         SmartDashboard.putNumber("Arm Peak Output", armMaxPower);
 
+        DashboardGetter.addGetDoubleData("Arm Pitch A", a, value -> a = value);
+        DashboardGetter.addGetDoubleData("Arm Pitch B", b, value -> b = value);
+        DashboardGetter.addGetDoubleData("Arm Pitch C", c, value -> c = value); 
+
         profiledPIDController.setTolerance(DELTA_AT_SETPOINT);
         setTargetAngle(getCurrentAngle());
     }
@@ -195,7 +198,7 @@ public class Arm extends SubsystemBase  {
         return new InstantCommand(() -> {
             //38.0625 is the distance from the subwoofer to the speaker and tape in inches
             //2.3125 is the distance from the center of the limelight to the edge
-            double speakerDistance = Units.metersToInches(Utilities.getSpeakerDistance(Utilities.getRobotPos())) - 38.0625 - 2.3125;
+            double speakerDistance = Utilities.getSpeakerDistance(Utilities.getRobotPos());
             
             //Theta must be in terms of degrees
             double theta = a * Math.pow(speakerDistance, 2) + b * speakerDistance + c;

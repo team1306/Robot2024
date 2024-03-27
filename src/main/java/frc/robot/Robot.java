@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.arm.DebugArmCommand;
+import frc.robot.util.DashboardGetter;
 import frc.robot.util.Utilities;
 
 import static frc.robot.util.Utilities.*;
@@ -29,6 +30,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+    DashboardGetter.update();
     SmartDashboard.putNumber("Speaker Distance", Utilities.getSpeakerDistance(Utilities.getRobotPos()));
   }
   
