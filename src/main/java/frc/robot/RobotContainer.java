@@ -8,17 +8,28 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.*;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.auto.*;
+import frc.robot.auto.AutonomousFactory;
+import frc.robot.auto.CloseRingsFromStartMid;
+import frc.robot.auto.FarRingsFromStartBottom;
+import frc.robot.auto.FarRingsFromStartMid;
+import frc.robot.auto.FarRingsFromStartTop;
+import frc.robot.auto.JustShoot;
+import frc.robot.auto.MoveOutLeft;
+import frc.robot.auto.MoveOutMid;
+import frc.robot.auto.MoveOutMidTwoRing;
+import frc.robot.auto.MoveOutRight;
+import frc.robot.auto.MoveOutRightTwoRing;
 import frc.robot.commands.arm.MoveArmCommand;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.commands.drive.ShooterDriveCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.commands.intake.IntakeDriverCommand;
-import frc.robot.commands.intake.IntakeIndexCommand;
 import frc.robot.commands.intake.ToggleIntakeCommand;
 import frc.robot.commands.shooter.ToggleShooterCommand;
 import frc.robot.subsystems.Arm;
@@ -161,9 +172,9 @@ public class RobotContainer {
   }
 
   public void loadAuto() {
-    autonomousCommand = Commands.waitSeconds(beginningAutoWait).andThen(
-      autoChooser.getSelected().createAutonomousCommand(new NoteDetector.NoteDetectorPlaceHolder(), driveTrain, shooter, arm, intake)
-    );
+    final Command internalAutoCommand = autoChooser.getSelected().createAutonomousCommand(new NoteDetector.NoteDetectorPlaceHolder(), driveTrain, shooter, arm, intake);
+    autonomousCommand = Commands.waitSeconds(beginningAutoWait).andThen(internalAutoCommand);
+    autonomousCommand.setName(internalAutoCommand.getName());
   }
 
   public void configureSysIDBindings() {
