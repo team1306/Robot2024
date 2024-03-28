@@ -26,10 +26,10 @@ public class Arm extends SubsystemBase  {
 
     private static double a = -0.0009, b = 0.366, c = 3.48;
     //-0.000905, 0.368, 3.41
-    public interface Setpoint {
+    public static interface Setpoint {
         double getPos();
 
-        class Custom implements Setpoint {
+        public static class Custom implements Setpoint {
             private final double pos;
 
             public Custom(double pos) {
@@ -82,7 +82,7 @@ public class Arm extends SubsystemBase  {
     private static double maxAcceleration = 140; // kMA MIGHT BE WRONG
     private double armMaxPower = 1;
 
-    public static final double OFFSET = -219.15 + 180 + 10 + .5 + 57.15 + 174.425, DELTA_AT_SETPOINT = .3;
+    public static final double OFFSET = 202.925, DELTA_AT_SETPOINT = .3;
     
     private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
 
@@ -143,6 +143,10 @@ public class Arm extends SubsystemBase  {
         return (velocities[calcVelocityIndex(velocityIndex)] - velocities[calcVelocityIndex(velocityIndex + 1)]) / LOOP_TIME_SECONDS; 
     }
 
+    public boolean atSetpoint() {
+        return profiledPIDController.atGoal();
+    }
+
     @Override
     public void periodic() {
         constraints = new TrapezoidProfile.Constraints(constraints.maxVelocity, maxAcceleration);
@@ -196,6 +200,6 @@ public class Arm extends SubsystemBase  {
             SmartDashboard.putNumber("Arm auto pitch angle", theta);
             // Set the target angle of the arm
             new MoveArmToSetpointCommand(this, new Setpoint.Custom(theta)).schedule();
-        }  , this);
+        }, this);
     }
 }

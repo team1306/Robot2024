@@ -29,7 +29,7 @@ public final class Constants {
     public static final int           HANGER_RIGHT_MOTOR_ID       = 11;
  
     public static final double        LOOP_TIME_MS                = 20;
-    public static final double        LOOP_TIME_SECONDS           = LOOP_TIME_MS / 1000;
+    public static final double        LOOP_TIME_SECONDS           = LOOP_TIME_MS / 1000D;
 
 
     public static final String        LIMELIGHT_NAME              = "limelight";

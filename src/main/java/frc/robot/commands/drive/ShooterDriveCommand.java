@@ -11,18 +11,16 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.util.DashboardGetter;
 import frc.robot.util.Utilities;
 
-public class ShooterDriveCommand extends Command{
+public class ShooterDriveCommand extends Command {
 
     private final DriveTrain driveTrain;
-    private final PIDController rotationController;
+    private PIDController rotationController;
 
-    private boolean finished = false;
     public static double kP = 0.0185, kI = 0, kD = 2.2e-3;
+    public static final double TOLERANCE_DEGREES = 1;
 
     public ShooterDriveCommand(DriveTrain driveTrain){
         this.driveTrain = driveTrain;
-        this.rotationController = new PIDController(kP, kI, kD);
-        rotationController.setTolerance(1);
         this.addRequirements(driveTrain);
 
         DashboardGetter.addGetDoubleData("Shooter Drive kP", kP, value -> kP = value);
@@ -30,15 +28,19 @@ public class ShooterDriveCommand extends Command{
         DashboardGetter.addGetDoubleData("Shooter Drive kD", kD, value -> kD = value);
     }
 
+    /**
+     * called every time command is scheduled to ensure that old values do not mess anything up
+     */
     @Override
     public void initialize(){
-        finished = false;
+        this.rotationController = new PIDController(kP, kI, kD);
+        rotationController.setTolerance(TOLERANCE_DEGREES);
     }
+
     @Override
     public void execute(){
         rotationController.setPID(kP, kI, kD);
         Pose2d botPose = driveTrain.getPose();
-        // double speakerDistance = Utilities.getSpeakerDistance(botPose);
 
         Translation2d targetPos = Utilities.getSpeaker().minus(botPose.getTranslation());
         Rotation2d angle = Rotation2d.fromRadians(Math.atan2(targetPos.getY(), targetPos.getX()));
@@ -54,13 +56,12 @@ public class ShooterDriveCommand extends Command{
         SmartDashboard.putNumber("Delta Drive Angle", delta);
         SmartDashboard.putNumber("Drive PID output", outputPower);
 
-        if (delta == 0) finished = true;
-        else driveTrain.arcadeDrive(0, outputPower);
+        driveTrain.arcadeDrive(0, outputPower);
         
     }
 
     @Override
-    public boolean isFinished(){            
-        return finished;
+    public boolean isFinished() {            
+        return rotationController.atSetpoint();
     }
 }

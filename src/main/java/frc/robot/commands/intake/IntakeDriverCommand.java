@@ -17,15 +17,19 @@ public class IntakeDriverCommand extends Command {
         INDEXING
     }
 
+    public static final double INTAKE_SPEED = 0.6;
+
     private final Intake intake;
     private final Shooter shooter;
-    private State state = State.UNPOWERED_NO_ELEMENT;
     private final Timer timer = new Timer();
+
     private final BooleanSupplier reverseOverride;
-    private boolean wasReversed = false;
-    public static final double INTAKE_SPEED = 0.6;
-    private int noteNotPresentConfidence = 0;
     private final DoubleSupplier armAngle;
+
+    private State state = State.UNPOWERED_NO_ELEMENT;
+    private short noteNotPresentConfidence = 0; // this does not need to be a short but i am doing it for funsies
+    private boolean wasReversed = false;
+
     public IntakeDriverCommand(Intake intake, Shooter shooter, BooleanSupplier reverseOverride, DoubleSupplier armAngle) {
         this.intake = intake;
         this.reverseOverride = reverseOverride;
@@ -41,6 +45,14 @@ public class IntakeDriverCommand extends Command {
 
     public void setState(State state) {
         this.state = state;
+    }
+
+    public State getState() {
+        return this.state;
+    }
+
+    public boolean readyToShoot() {
+        return this.state == State.UNPOWERED_WITH_ELEMENT;
     }
 
     @Override
@@ -69,19 +81,18 @@ public class IntakeDriverCommand extends Command {
                 }
                 noteNotPresentConfidence = 0;
                 break;
-            case UNPOWERED_NO_ELEMENT:
-                intake.setTargetSpeed(0);
             case UNPOWERED_WITH_ELEMENT:
-                intake.setTargetSpeed(0);
                 if (!intake.notePresent()) {
                     ++noteNotPresentConfidence;
                 }
-                if (noteNotPresentConfidence >= 5) {
+                if (noteNotPresentConfidence >= 10) {
                     state = State.UNPOWERED_NO_ELEMENT;
                 }
+            case UNPOWERED_NO_ELEMENT:
+                intake.setTargetSpeed(0);
                 break;
             case INDEXING:
-                if (timer.hasElapsed(.5)) {
+                if (timer.hasElapsed(.4)) {
                     buttonPress();
                 } else {
                     intake.setTargetSpeed(INTAKE_SPEED);
@@ -90,7 +101,12 @@ public class IntakeDriverCommand extends Command {
         }
     }
 
-    public void buttonPress() {
+    /**
+     * button press to move along state machine
+     * @return true if state succesfully changed, false otherwise
+     */
+    public boolean buttonPress() {
+        final State oldState = state;
         state = switch (state) {
             case UNPOWERED_NO_ELEMENT -> State.POWERED_NO_ELEMENT;
             case POWERED_NO_ELEMENT -> State.UNPOWERED_NO_ELEMENT;
@@ -102,10 +118,10 @@ public class IntakeDriverCommand extends Command {
                     yield State.UNPOWERED_WITH_ELEMENT;
                 }
             }
-            // THIS COULD BE QUITE BUGGY, MAKE SURE TO TEST
-            case INDEXING -> reset();
+            case INDEXING -> reset(); // THIS COULD BE QUITE BUGGY, MAKE SURE TO TEST
             case REVERSING -> State.REVERSING; // loop
         };
+        return oldState == state;
     }
 
     public void clearNote() {

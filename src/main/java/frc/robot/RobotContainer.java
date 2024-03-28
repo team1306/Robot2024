@@ -135,14 +135,17 @@ public class RobotContainer {
     controller2.y().toggleOnTrue(ampShooterCommand);
     controller2.leftBumper().onTrue(arm.getPitchControlCommand(driveTrain));
     controller2.rightBumper().onTrue(new InstantCommand(intakeDriverCommand::clearNote));
-
-    controller2.rightTrigger(0.5)
-            .onTrue(new ParallelCommandGroup(arm.getPitchControlCommand(driveTrain),
-                    new ToggleShooterCommand(() -> Shooter.peakOutput, shooter))
-            .andThen(new WaitCommand(1))
-            .andThen(new IntakeIndexCommand(intake))
-            .andThen(toggleShooterCommand::stop)
-            .andThen(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE)));
+    
+    controller2.rightTrigger(0.5).onTrue(Commands.either(
+        arm.getPitchControlCommand(driveTrain)
+            .andThen(Commands.waitUntil(arm::atSetpoint))
+            .andThen(Commands.either(
+                Commands.waitUntil(() -> intakeDriverCommand.getState() != IntakeDriverCommand.State.INDEXING)
+                .andThen(toggleShooterCommand::stop)
+                .andThen(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE)),
+            Commands.none(), intakeDriverCommand::buttonPress)),
+        Commands.none(), intakeDriverCommand::readyToShoot
+    ));
 
     controller2.povUp().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.AMP, cancelSetpoint));
     controller2.povLeft().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.STAGE_SHOT, cancelSetpoint));

@@ -18,14 +18,13 @@ public class ToggleShooterCommand extends Command{
     }
     @Override
     public void initialize(){
-        System.out.println("shooter on");
         finished = false;
         shooter.setTargetSpeed(MotorUtil.clampPercent(speedSupplier.getAsDouble()));
     }
+
     @Override
     public void end(boolean interrupted){
         shooter.setTargetSpeed(0);
-        System.out.println("Shooter no spinny spinny");
     }
 
     public void stop() {
