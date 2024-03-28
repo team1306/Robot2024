@@ -8,6 +8,15 @@ import edu.wpi.first.math.MathUtil;
 import static frc.robot.Constants.NEO_CURRENT_LIMIT_AMPS;
 
 public class MotorUtil {
+    public static CANSparkMax initSparkMax(int motorId, MotorType motorType, IdleMode idleMode, int currentLimitAmps) {
+        CANSparkMax motor = new CANSparkMax(motorId, motorType);
+        motor.restoreFactoryDefaults();
+        motor.setIdleMode(idleMode);
+        motor.setSmartCurrentLimit(currentLimitAmps);
+        motor.burnFlash();
+        return motor;
+    }
+
     /**
      * Create a new CANSparkMax Neo motor
      * @param motorId the CAN id of the motor
@@ -15,13 +24,8 @@ public class MotorUtil {
      * @param idleMode the idle mode of the motor (Brake or Coast)
      * @return the motor with the paramenters specified
      */
-
-    public static CANSparkMax initSparkMax(int motorId, MotorType motorType, IdleMode idleMode ){
-        CANSparkMax motor = new CANSparkMax(motorId, motorType);
-        motor.restoreFactoryDefaults();
-        motor.setIdleMode(idleMode);
-        motor.setSmartCurrentLimit(NEO_CURRENT_LIMIT_AMPS);
-        return motor;
+    public static CANSparkMax initSparkMax(int motorId, MotorType motorType, IdleMode idleMode) {
+        return initSparkMax(motorId, motorType, idleMode, NEO_CURRENT_LIMIT_AMPS);
     }
 
     /**
