@@ -12,6 +12,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
@@ -101,7 +102,7 @@ public class DriveTrain extends SubsystemBase {
 
         rightLeader.setInverted(false);
         rightFollower.follow(rightLeader, false);
-
+        
         rEncoder = new Encoder(4, 5, false, EncodingType.k1X);
         rEncoder.reset();
         rEncoder.setDistancePerPulse(Units.inchesToMeters(6) * Math.PI / 2048D); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
@@ -210,11 +211,15 @@ public class DriveTrain extends SubsystemBase {
         driveMetersPerSecond(wheelSpeeds);
     }
 
-    private Pose2d getPose(){
+    public Pose2d getPose(){
         return poseEstimator.getEstimatedPosition();
     }
 
-    private void resetPose(Pose2d pose){
+    public Rotation2d getRotation() {
+        return Rotation2d.fromDegrees(gyro.getRotation2d().getDegrees() % 360);
+    }
+
+    public void resetPose(Pose2d pose){
         poseEstimator.resetPosition(gyro.getRotation2d(), new DifferentialDriveWheelPositions(0,0), pose);
     }
 
@@ -224,11 +229,11 @@ public class DriveTrain extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("gyro", gyro.getAngle());
+        SmartDashboard.putNumber("gyro", getRotation().getDegrees());
         poseEstimator.update(gyro.getRotation2d(), new DifferentialDriveWheelPositions(lEncoder.getDistance(), rEncoder.getDistance()));
         m_field.setRobotPose(getPose());
         SmartDashboard.putData("Field", m_field);
-        if (INCLUDE_LIMELIGHT) poseEstimator.addVisionMeasurement(LimelightHelpers.getBotPose2d(LIMELIGHT_NAME), Timer.getFPGATimestamp());
+        if (INCLUDE_LIMELIGHT && LimelightHelpers.getTV(LIMELIGHT_NAME)) poseEstimator.addVisionMeasurement(Utilities.getRobotPos(), Timer.getFPGATimestamp());
         SmartDashboard.putNumber("left vel", lEncoder.getRate());
         SmartDashboard.putNumber("right vel", rEncoder.getRate());
         SmartDashboard.putNumber("left pos", lEncoder.getDistance());

@@ -90,7 +90,6 @@ public class DashboardGetter {
     public static void addGetDoubleData(String key, double defaultValue, Consumer<Double> consumer){
         getEntries.add(new GetDoubleData(key, defaultValue, consumer));
         SmartDashboard.putNumber(key, defaultValue);
-        SmartDashboard.setPersistent(key);
     }
 
     /**
@@ -100,7 +99,6 @@ public class DashboardGetter {
     public static void addGetBooleanData(String key, boolean defaultValue, Consumer<Boolean> consumer){
         getEntries.add(new GetBooleanData(key, defaultValue, consumer));
         SmartDashboard.putBoolean(key, defaultValue);
-        SmartDashboard.setPersistent(key);
     }
 
     /**

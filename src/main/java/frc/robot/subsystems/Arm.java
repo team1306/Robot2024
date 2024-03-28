@@ -24,8 +24,8 @@ import static frc.robot.Constants.*;
 
 public class Arm extends SubsystemBase  {
 
-    private static double a = -0.000905, b = 0.368, c = 3.41;
-
+    private static double a = -0.0009, b = 0.366, c = 3.48;
+    //-0.000905, 0.368, 3.41
     public interface Setpoint {
         double getPos();
 
@@ -82,7 +82,7 @@ public class Arm extends SubsystemBase  {
     private static double maxAcceleration = 140; // kMA MIGHT BE WRONG
     private double armMaxPower = 1;
 
-    public static final double OFFSET = -219.15 + 180 + 10 + .5 + 57.15 + 174.425, DELTA_AT_SETPOINT = 1;
+    public static final double OFFSET = -219.15 + 180 + 10 + .5 + 57.15 + 174.425, DELTA_AT_SETPOINT = .3;
     
     private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
 
@@ -184,11 +184,11 @@ public class Arm extends SubsystemBase  {
         ++velocityIndex;
     }
 
-    public InstantCommand getPitchControlCommand(){
+    public InstantCommand getPitchControlCommand(DriveTrain driveTrain){
         return new InstantCommand(() -> {
             //38.0625 is the distance from the subwoofer to the speaker and tape in inches
             //2.3125 is the distance from the center of the limelight to the edge
-            double speakerDistance = Utilities.getSpeakerDistance(Utilities.getRobotPos());
+            double speakerDistance = Utilities.getSpeakerDistance(driveTrain.getPose());
             
             //Theta must be in terms of degrees
             double theta = a * Math.pow(speakerDistance, 2) + b * speakerDistance + c;

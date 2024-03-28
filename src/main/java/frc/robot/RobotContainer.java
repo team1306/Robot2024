@@ -127,18 +127,17 @@ public class RobotContainer {
      * joysticks}.
      */
   private void configureBindings() {
-    controller1.a().whileTrue(shooterDriveCommand.repeatedly());
+    controller1.a().whileTrue(shooterDriveCommand);
     controller1.b().whileTrue(driveTrain.getSetSpeedMultiplierCommand(Constants.SLOW_MODE_SPEED));
 
     controller2.a().onTrue(new InstantCommand(intakeDriverCommand::buttonPress));
     controller2.x().toggleOnTrue(toggleShooterCommand);
     controller2.y().toggleOnTrue(ampShooterCommand);
-    controller2.leftBumper().onTrue(arm.getPitchControlCommand());
+    controller2.leftBumper().onTrue(arm.getPitchControlCommand(driveTrain));
     controller2.rightBumper().onTrue(new InstantCommand(intakeDriverCommand::clearNote));
 
     controller2.rightTrigger(0.5)
-            .onTrue(
-                    new ParallelCommandGroup(arm.getPitchControlCommand(),
+            .onTrue(new ParallelCommandGroup(arm.getPitchControlCommand(driveTrain),
                     new ToggleShooterCommand(() -> Shooter.peakOutput, shooter))
             .andThen(new WaitCommand(1))
             .andThen(new IntakeIndexCommand(intake))

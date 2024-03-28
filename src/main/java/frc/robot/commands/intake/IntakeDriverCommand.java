@@ -63,7 +63,7 @@ public class IntakeDriverCommand extends Command {
                 intake.setTargetSpeed(-1.0 / 8.0);
                 timer.restart();
             case REVERSING:
-                if (timer.get() > 0.36) {
+                if (timer.get() > 0.26) {
                     intake.setTargetSpeed(0);
                     state = State.UNPOWERED_WITH_ELEMENT;
                 }

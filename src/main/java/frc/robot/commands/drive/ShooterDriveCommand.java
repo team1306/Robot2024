@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.util.DashboardGetter;
-import frc.robot.util.MotorUtil;
 import frc.robot.util.Utilities;
 
 public class ShooterDriveCommand extends Command{
@@ -18,19 +17,17 @@ public class ShooterDriveCommand extends Command{
     private final PIDController rotationController;
 
     private boolean finished = false;
-    private double deadbandValue = 0.5;
-    public static double kP = 0.025, kI = 0, kD = 0.001;
+    public static double kP = 0.0185, kI = 0, kD = 2.2e-3;
 
     public ShooterDriveCommand(DriveTrain driveTrain){
         this.driveTrain = driveTrain;
         this.rotationController = new PIDController(kP, kI, kD);
+        rotationController.setTolerance(1);
         this.addRequirements(driveTrain);
 
         DashboardGetter.addGetDoubleData("Shooter Drive kP", kP, value -> kP = value);
         DashboardGetter.addGetDoubleData("Shooter Drive kI", kI, value -> kI = value);
         DashboardGetter.addGetDoubleData("Shooter Drive kD", kD, value -> kD = value);
-        DashboardGetter.addGetDoubleData("Shooter Auto Deadband", deadbandValue, value -> deadbandValue = value);
-
     }
 
     @Override
@@ -40,26 +37,25 @@ public class ShooterDriveCommand extends Command{
     @Override
     public void execute(){
         rotationController.setPID(kP, kI, kD);
-        Pose2d botPose = Utilities.getRobotPos();
+        Pose2d botPose = driveTrain.getPose();
         // double speakerDistance = Utilities.getSpeakerDistance(botPose);
 
         Translation2d targetPos = Utilities.getSpeaker().minus(botPose.getTranslation());
         Rotation2d angle = Rotation2d.fromRadians(Math.atan2(targetPos.getY(), targetPos.getX()));
-        Rotation2d robotAngle = botPose.getRotation();
+        Rotation2d robotAngle = driveTrain.getRotation();
 
-
-        final double delta = MathUtil.applyDeadband((
-            angle.minus(robotAngle)
+        final double delta = angle.minus(robotAngle)
             .plus(Rotation2d.fromDegrees(Utilities.isRedAlliance() ? 0 : 180))
-            // .plus(Rotation2d.fromDegrees(Units.metersToInches(speakerDistance) * (54.0/7.0)))
-            )
-            .getDegrees(), deadbandValue);
-        
+            .minus(Rotation2d.fromDegrees(4))
+            .getDegrees();
+
+        final double outputPower = MathUtil.clamp(rotationController.calculate(delta), -0.5, 0.5) * -1;
+
         SmartDashboard.putNumber("Delta Drive Angle", delta);
-        SmartDashboard.putNumber("Drive PID output", MotorUtil.clampPercent(rotationController.calculate(delta)) * 0.5);
+        SmartDashboard.putNumber("Drive PID output", outputPower);
 
         if (delta == 0) finished = true;
-        else driveTrain.arcadeDrive(0, MotorUtil.clampPercent(rotationController.calculate(delta)) * 0.5);
+        else driveTrain.arcadeDrive(0, outputPower);
         
     }
 
