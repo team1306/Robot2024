@@ -8,6 +8,7 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.util.Utilities;
 
 import static frc.robot.commands.intake.IntakeDriverCommand.INTAKE_SPEED;
 
@@ -17,7 +18,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 public class MoveOutMidTwoRing extends ParallelCommandGroup {
     public MoveOutMidTwoRing(DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) {
         driveTrain.resetPose(PathPlannerPath.fromPathFile("Start-2 to Shoot-Top").getStartingDifferentialPose());
-        driveTrain.resetGyro();
+        driveTrain.resetGyro(Utilities.isRedAlliance() ? 180 : 0);
         System.out.println("Running Auto");
         final ToggleShooterCommand shooterCommand = new ToggleShooterCommand(() -> .76, shooter);
         addCommands( //all commands run at once

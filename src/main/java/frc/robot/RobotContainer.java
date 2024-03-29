@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -37,7 +38,11 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.vision.NoteDetector;
+import frc.robot.util.DashboardGetter;
 import frc.robot.util.Utilities;
+
+import static frc.robot.util.Utilities.removeAndCancelDefaultCommand;
+import static frc.robot.util.Utilities.WrappedDouble;
 
 import java.util.function.BooleanSupplier;
 
@@ -47,7 +52,8 @@ public class RobotContainer {
   private final CommandXboxController controller2 = new CommandXboxController(1); // Creates an XboxController on port 1.
 
   private final SendableChooser<AutonomousFactory> autoChooser = new SendableChooser<>();
-
+  private final SendableChooser<Runnable> drivetrainTestModeChooser = new SendableChooser<>();
+  
   public final DriveTrain driveTrain;
   public final Intake intake;
   public final Arm arm;
@@ -115,6 +121,19 @@ public class RobotContainer {
     autoChooser.addOption("Just Shoot", (NoteDetector unused,  DriveTrain alsoUnused, Shooter shooter, Arm arm, Intake intake) -> new JustShoot(shooter, arm, intake));
     SmartDashboard.putData("auto chooser", autoChooser);
 
+    drivetrainTestModeChooser.setDefaultOption("sysid", this::configureSysIDBindings);
+    drivetrainTestModeChooser.addOption("controller", this::bindDrivetrainTeleop);
+    drivetrainTestModeChooser.addOption("manual voltage input", () -> {
+      final WrappedDouble leftVolts = new WrappedDouble(), rightVolts = new WrappedDouble();
+      new FunctionalCommand(() -> {
+        DashboardGetter.addGetDoubleData("Left Side Drivetrain Test Voltage", leftVolts.val, a -> leftVolts.val = a);
+        DashboardGetter.addGetDoubleData("Right Side Drivetrain Test Voltage", rightVolts.val, a -> rightVolts.val = a);
+      }, () -> driveTrain.setSideVoltages(leftVolts.val, rightVolts.val), interrupted -> {}, () -> false, driveTrain).schedule();
+    });
+    drivetrainTestModeChooser.addOption("none", () -> {});
+
+    SmartDashboard.putData("Drivetrain Test Mode Chooser", drivetrainTestModeChooser);
+
     notePresentOutput = new DigitalOutput(8);
     ledRedBlueOutput = new DigitalOutput(9);
     notePresentOutput.set(false);
@@ -178,26 +197,30 @@ public class RobotContainer {
   }
 
   public void configureSysIDBindings() {
-    final Command temp = driveTrain.getDefaultCommand();
-    driveTrain.removeDefaultCommand();
-    
-    if (temp != null) temp.cancel();
+    removeAndCancelDefaultCommand(driveTrain);
     controller1
-        .a()
+        .povUp()
         .and(controller1.rightBumper())
         .whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     controller1
-        .b()
+        .povRight()
         .and(controller1.rightBumper())
         .whileTrue(driveTrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     controller1
-        .x()
+        .povDown()
         .and(controller1.rightBumper())
         .whileTrue(driveTrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
     controller1
-        .y()
+        .povLeft()
         .and(controller1.rightBumper())
         .whileTrue(driveTrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
 
+  public void bindDrivetrainTestMode() {
+    drivetrainTestModeChooser.getSelected().run();
+  }
+
+  public void bindDrivetrainTeleop() {
+    driveTrain.setDefaultCommand(teleopDriveCommand);
+  }
 }

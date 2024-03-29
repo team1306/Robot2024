@@ -108,11 +108,11 @@ public class DriveTrain extends SubsystemBase {
         
         rEncoder = new Encoder(4, 5, false, EncodingType.k1X);
         rEncoder.reset();
-        rEncoder.setDistancePerPulse(Units.inchesToMeters(6) * Math.PI / 2048D); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
+        rEncoder.setDistancePerPulse(Units.inchesToMeters(6) * Math.PI / 2048D); // meters
 
         lEncoder = new Encoder(6, 7, true, EncodingType.k1X);
         lEncoder.reset();
-        lEncoder.setDistancePerPulse(Units.inchesToMeters(6) * Math.PI / 2048D); // DEGREES_PER_REVOLUTION / CYCLES PER REVOLUTION
+        lEncoder.setDistancePerPulse(Units.inchesToMeters(6) * Math.PI / 2048D); // meters
         
         leftFeedforward = new SimpleMotorFeedforward(leftKS, leftKV, leftKA);
         rightFeedforward = new SimpleMotorFeedforward(rightKS, rightKV, rightKA);
@@ -143,7 +143,7 @@ public class DriveTrain extends SubsystemBase {
         DashboardGetter.addGetDoubleData("Left Drive Downtiplier", leftDowntiplier, value -> leftDowntiplier = value);
     }
     
-    private void setSideVoltages(double left, double right) {
+    public void setSideVoltages(double left, double right) {
         double leftOutput = (left * currentSpeedMultiplier + (Math.signum(MathUtil.applyDeadband(left, 12e-2))) * 12 * 0.0175) * maxSpeed;
         double rightOutput = (right * currentSpeedMultiplier + (Math.signum(MathUtil.applyDeadband(right, 12e-2))) * 12 * 0.0105) * maxSpeed;
         
@@ -224,12 +224,17 @@ public class DriveTrain extends SubsystemBase {
         return Rotation2d.fromDegrees(gyro.getRotation2d().getDegrees() % 360);
     }
 
-    public void resetPose(Pose2d pose){
-        poseEstimator.resetPosition(gyro.getRotation2d(), new DifferentialDriveWheelPositions(0,0), pose);
+    public DifferentialDriveWheelPositions getWheelPositions() {
+        return new DifferentialDriveWheelPositions(lEncoder.getDistance(), rEncoder.getDistance());
     }
 
-    public void resetGyro() {
+    public void resetPose(Pose2d pose) {
+        poseEstimator.resetPosition(gyro.getRotation2d(), getWheelPositions(), pose);
+    }
+
+    public void resetGyro(double angle) {
         gyro.reset();
+        gyro.setAngleAdjustment(angle);
     }
 
     private ChassisSpeeds getCurrentSpeeds(){

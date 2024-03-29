@@ -84,7 +84,7 @@ public class Robot extends TimedRobot {
       armDebugCommand.cancel();
     }
     robotContainer.intake.setDefaultCommand(robotContainer.intakeDriverCommand);
-    robotContainer.driveTrain.setDefaultCommand(robotContainer.teleopDriveCommand);
+    robotContainer.bindDrivetrainTeleop();
     // robotContainer.climberDriverCommand.resetState();
   }
 
@@ -101,9 +101,8 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().cancelAll();
     armDebugCommand = new DebugArmCommand(robotContainer.arm);
     armDebugCommand.schedule();
-    robotContainer.configureSysIDBindings();
     robotContainer.intake.setDefaultCommand(robotContainer.intakeDriverCommand);
-    robotContainer.driveTrain.setDefaultCommand(robotContainer.teleopDriveCommand);
+    robotContainer.bindDrivetrainTestMode();
   }
 
   @Override

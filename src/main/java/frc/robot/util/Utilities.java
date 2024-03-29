@@ -78,4 +78,16 @@ public class Utilities {
         }
         return arrayList;
     }
+
+    public static class WrappedDouble {
+        public double val;
+
+        public WrappedDouble(double val) {
+            this.val = val;
+        }
+        
+        public WrappedDouble() {
+            this(0D);
+        }
+    }
 }
