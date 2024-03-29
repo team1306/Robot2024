@@ -24,7 +24,7 @@ import static frc.robot.Constants.*;
 
 public class Arm extends SubsystemBase  {
 
-    private static double a = -0.0009, b = 0.366, c = 3.48;
+    private static double a = -9.99e-4, b = 0.408, c = -1.1;
     //-0.000905, 0.368, 3.41
     public static interface Setpoint {
         double getPos();
@@ -75,7 +75,7 @@ public class Arm extends SubsystemBase  {
     private final ProfiledPIDController profiledPIDController;
     private ArmFeedforward feedforward;
 
-    public static double kP = 0.02, kI = 0.0005, kD = 0.0018; // Do we want PID Controller? Or do we want to do state space model?
+    public static double kP = 0.0225, kI = 0.0005, kD = 0.0018; // Do we want PID Controller? Or do we want to do state space model?
                                                  // need to read https://file.tavsys.net/control/controls-engineering-in-frc.pdf more so I know what I am doing
     public static double kG = 0.0725, kV = .17;
     private static final double MAX_VELOCITY = 360;
@@ -188,7 +188,7 @@ public class Arm extends SubsystemBase  {
         ++velocityIndex;
     }
 
-    public InstantCommand getPitchControlCommand(DriveTrain driveTrain){
+    public InstantCommand getPitchControlCommand(DriveTrain driveTrain) {
         return new InstantCommand(() -> {
             //38.0625 is the distance from the subwoofer to the speaker and tape in inches
             //2.3125 is the distance from the center of the limelight to the edge

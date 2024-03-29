@@ -40,6 +40,8 @@ import static edu.wpi.first.units.MutableMeasure.mutable;
 import static edu.wpi.first.units.Units.*;
 import static frc.robot.Constants.*;
 
+import java.util.ArrayList;
+
 
 //Implemented as Ramsete (Differential)
 public class DriveTrain extends SubsystemBase {
@@ -77,7 +79,8 @@ public class DriveTrain extends SubsystemBase {
     private final Field2d m_field = new Field2d();
     private CANSparkMax rightLeader;
     private CANSparkMax rightFollower;
-
+    
+    private final ArrayList<CANSparkMax> motorControllers;
     private Encoder rEncoder, lEncoder;
 
     private DifferentialDrivePoseEstimator poseEstimator;
@@ -115,6 +118,8 @@ public class DriveTrain extends SubsystemBase {
         rightFeedforward = new SimpleMotorFeedforward(rightKS, rightKV, rightKA);
         leftPID = new PIDController(leftP, 0, 0);
         rightPID = new PIDController(rightP, 0, 0);
+
+        motorControllers = Utilities.listFromParams(leftLeader, rightLeader, leftFollower, rightFollower);
         
         //Pathplanner configuration
         AutoBuilder.configureRamsete(
@@ -223,6 +228,10 @@ public class DriveTrain extends SubsystemBase {
         poseEstimator.resetPosition(gyro.getRotation2d(), new DifferentialDriveWheelPositions(0,0), pose);
     }
 
+    public void resetGyro() {
+        gyro.reset();
+    }
+
     private ChassisSpeeds getCurrentSpeeds(){
         return kinematics.toChassisSpeeds(new DifferentialDriveWheelSpeeds(lEncoder.getRate(), rEncoder.getRate()));
     }
@@ -322,4 +331,8 @@ public class DriveTrain extends SubsystemBase {
         };
     }
     
+    
+  public void pushCurrentLimitToAllDrivetrainMotors(int amps) {
+    motorControllers.forEach(motor -> motor.setSmartCurrentLimit(amps));
+  }
 }

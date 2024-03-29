@@ -17,6 +17,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 public class MoveOutMidTwoRing extends ParallelCommandGroup {
     public MoveOutMidTwoRing(DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) {
         driveTrain.resetPose(PathPlannerPath.fromPathFile("Start-2 to Shoot-Top").getStartingDifferentialPose());
+        driveTrain.resetGyro();
         System.out.println("Running Auto");
         final ToggleShooterCommand shooterCommand = new ToggleShooterCommand(() -> .76, shooter);
         addCommands( //all commands run at once

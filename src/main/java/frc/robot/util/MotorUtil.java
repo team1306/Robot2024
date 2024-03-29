@@ -13,7 +13,6 @@ public class MotorUtil {
         motor.restoreFactoryDefaults();
         motor.setIdleMode(idleMode);
         motor.setSmartCurrentLimit(currentLimitAmps);
-        motor.burnFlash();
         return motor;
     }
 

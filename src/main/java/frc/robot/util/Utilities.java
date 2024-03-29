@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -67,5 +68,14 @@ public class Utilities {
             command.cancel();
             subsystem.removeDefaultCommand();
         });
+    }
+
+    @SafeVarargs
+    public static <T> ArrayList<T> listFromParams(T... items) {
+        final ArrayList<T> arrayList = new ArrayList<>();
+        for (T item : items) {
+            arrayList.add(item);
+        }
+        return arrayList;
     }
 }
