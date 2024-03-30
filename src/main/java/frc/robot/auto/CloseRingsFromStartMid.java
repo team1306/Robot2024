@@ -15,14 +15,13 @@ public class CloseRingsFromStartMid extends SequentialCommandGroup {
 
         System.out.println("Running Auto");
         final Command shooterCommand = new ToggleShooterCommand(() -> .79, shooter);
-           addCommands(
+        addCommands(
             shooterCommand, //spin up shooter
             new IntakeIndexCommand(intake), //fire
             AutoCommands.getClose1StartMid(intake, shooter), //collect close 1 and shoot
             AutoCommands.getClose2Close1(intake, shooter), //collect close 2 and shoot
             AutoCommands.getClose3Close2(intake, shooter), //collect close 3 and shoot
             new InstantCommand(shooterCommand::cancel) //shooter off
-
         );
     }
     

@@ -53,22 +53,21 @@ public class DriveTrain extends SubsystemBase {
     // public static double rightFriction = 0;
 
     // TODO: WHAT SHOULD THIS BE? IS THIS NEEDED?
-    private static final String AUTO_NAME = "testPath";
+    private static final String AUTO_NAME = "abcdef";
 
-    private static final double leftKS = 0.0088193;//0.0087513; volts
-    private static final double leftKV = 0.27474; //0.24656; volts seconds per meter
-    private static final double leftKA = 0.077361; // volts seconds squared per meter
-    private static final double leftP = 0.11574; // 0.14339;
+    private static final double leftKS = 0;//0.0087513; volts
+    private static final double leftKV = 0.23815; //0.24656; volts seconds per meter
+    private static final double leftKA = 0.083936; // volts seconds squared per meter
+    private static double leftP = 7, leftD = 0.2; // 0.14339;
     private final SimpleMotorFeedforward leftFeedforward;
     private final PIDController leftPID;
 
-    private static final double rightKS = 0.0056672; //-0.010876;
-    private static final double rightKV = 0.19594; //0.24307;
-    private static final double rightKA = 0.056995; //0.080477;
-    private static final double rightP = 0.011096; //0.0032142;
+    private static final double rightKS = 0; //-0.010876;
+    private static final double rightKV = 0.21758; //0.24307;
+    private static final double rightKA = 0.108; //0.080477;
+    private static double rightP = 6.8, rightD = 0.2; //0.0032142;
     private final SimpleMotorFeedforward rightFeedforward;
     private final PIDController rightPID;
-    
     //Percentage
     public static double maxSpeed = 1;
 
@@ -88,10 +87,10 @@ public class DriveTrain extends SubsystemBase {
     private final DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(TRACK_WIDTH);
     public final AHRS gyro = new AHRS(SPI.Port.kMXP);
 
-    private DifferentialDriveWheelSpeeds lastDriveVoltages = new DifferentialDriveWheelSpeeds();
+    private DifferentialDriveWheelSpeeds lastWheelSpeeds = new DifferentialDriveWheelSpeeds();
 
     public void setPoseToVisionPosition() {
-        resetPose(LimelightHelpers.getBotPose2d(LIMELIGHT_NAME));
+        resetPose(LimelightHelpers.getBotPose2d_wpiBlue(LIMELIGHT_NAME));
     }
 
     public DriveTrain(){
@@ -100,10 +99,10 @@ public class DriveTrain extends SubsystemBase {
         leftFollower = MotorUtil.initSparkMax(BACK_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
         rightLeader = MotorUtil.initSparkMax(FRONT_RIGHT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
         rightFollower = MotorUtil.initSparkMax(BACK_RIGHT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
-        leftLeader.setInverted(true);
+        leftLeader.setInverted(false);
         leftFollower.follow(leftLeader, false);
 
-        rightLeader.setInverted(false);
+        rightLeader.setInverted(true);
         rightFollower.follow(rightLeader, false);
         
         rEncoder = new Encoder(4, 5, false, EncodingType.k1X);
@@ -116,8 +115,8 @@ public class DriveTrain extends SubsystemBase {
         
         leftFeedforward = new SimpleMotorFeedforward(leftKS, leftKV, leftKA);
         rightFeedforward = new SimpleMotorFeedforward(rightKS, rightKV, rightKA);
-        leftPID = new PIDController(leftP, 0, 0);
-        rightPID = new PIDController(rightP, 0, 0);
+        leftPID = new PIDController(leftP, 0, leftD);
+        rightPID = new PIDController(rightP, 0, rightD);
 
         motorControllers = Utilities.listFromParams(leftLeader, rightLeader, leftFollower, rightFollower);
         
@@ -141,17 +140,23 @@ public class DriveTrain extends SubsystemBase {
         DashboardGetter.addGetDoubleData("Max Speed", maxSpeed, value -> maxSpeed = value);
         DashboardGetter.addGetDoubleData("Right Drive Downtiplier", rightDowntiplier, value -> rightDowntiplier = value);
         DashboardGetter.addGetDoubleData("Left Drive Downtiplier", leftDowntiplier, value -> leftDowntiplier = value);
+        DashboardGetter.addGetDoubleData("Left Drive P", leftP, value -> leftP = value);
+        DashboardGetter.addGetDoubleData("Right Drive P", rightP, value -> rightP = value);
+        DashboardGetter.addGetDoubleData("Left Drive D", leftD, value -> leftD = value);
+        DashboardGetter.addGetDoubleData("Right Drive D", rightD, value -> rightD = value);
+
+
     }
     
     public void setSideVoltages(double left, double right) {
         double leftOutput = (left * currentSpeedMultiplier + (Math.signum(MathUtil.applyDeadband(left, 12e-2))) * 12 * 0.0175) * maxSpeed;
         double rightOutput = (right * currentSpeedMultiplier + (Math.signum(MathUtil.applyDeadband(right, 12e-2))) * 12 * 0.0105) * maxSpeed;
         
-        if(DriverStation.isTeleopEnabled()){
+        if (DriverStation.isTeleopEnabled()) {
             leftOutput *= 1 - leftDowntiplier;
             rightOutput *= 1 - rightDowntiplier;
         }
-        lastDriveVoltages = new DifferentialDriveWheelSpeeds(leftOutput, rightOutput);
+
         leftLeader.setVoltage(leftOutput);
         rightLeader.setVoltage(rightOutput);   
     }
@@ -201,13 +206,14 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public void driveMetersPerSecond(DifferentialDriveWheelSpeeds wheelSpeeds) {
-        double rightVoltage = rightFeedforward.calculate(wheelSpeeds.rightMetersPerSecond);
+        double rightVoltage = rightFeedforward.calculate(lastWheelSpeeds.rightMetersPerSecond, wheelSpeeds.rightMetersPerSecond, LOOP_TIME_SECONDS);
         rightVoltage += rightPID.calculate(rEncoder.getRate(), wheelSpeeds.rightMetersPerSecond);
 
-        double leftVoltage = leftFeedforward.calculate(wheelSpeeds.leftMetersPerSecond);
+        double leftVoltage = leftFeedforward.calculate(lastWheelSpeeds.leftMetersPerSecond, wheelSpeeds.leftMetersPerSecond, LOOP_TIME_SECONDS);
         leftVoltage += leftPID.calculate(lEncoder.getRate(), wheelSpeeds.leftMetersPerSecond);
 
-        setSideVoltages(rightVoltage, leftVoltage);
+        setSideVoltages(leftVoltage, rightVoltage);
+        lastWheelSpeeds = wheelSpeeds;
     }
 
     public void drive(ChassisSpeeds speeds){
@@ -243,6 +249,10 @@ public class DriveTrain extends SubsystemBase {
 
     @Override
     public void periodic() {
+        leftPID.setP(leftP);
+        rightPID.setP(rightP);
+        leftPID.setD(leftD);
+        rightPID.setD(rightD);
         SmartDashboard.putNumber("gyro", getRotation().getDegrees());
         poseEstimator.update(gyro.getRotation2d(), new DifferentialDriveWheelPositions(lEncoder.getDistance(), rEncoder.getDistance()));
         m_field.setRobotPose(getPose());
@@ -252,6 +262,8 @@ public class DriveTrain extends SubsystemBase {
         SmartDashboard.putNumber("right vel", rEncoder.getRate());
         SmartDashboard.putNumber("left pos", lEncoder.getDistance());
         SmartDashboard.putNumber("right pos", rEncoder.getDistance());
+        SmartDashboard.putNumber("left applied out", leftLeader.getAppliedOutput());
+        SmartDashboard.putNumber("right applied out", rightLeader.getAppliedOutput());
 
         //rightFriction = SmartDashboard.getNumber("Left Drive Static Friction", 0);  
         //leftFriction = SmartDashboard.getNumber("Right Drive Static Friction", 0);

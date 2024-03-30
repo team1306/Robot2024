@@ -3,37 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.866441839728484,
-        "y": 4.134293346837168
+        "x": 1.2611870911804413,
+        "y": 5.566874071049189
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.866441839728484,
-        "y": 4.134293346837168
+        "x": 2.3792210799303373,
+        "y": 5.566874071049189
       },
       "isLocked": false,
-      "linkedName": "far-3"
+      "linkedName": "start-speaker-mid"
     },
     {
       "anchor": {
-        "x": 5.71276343554397,
-        "y": 6.278357115288718
+        "x": 5.0,
+        "y": 5.57
       },
       "prevControl": {
-        "x": 6.665689872914704,
-        "y": 6.581558706577286
+        "x": 3.585786437626905,
+        "y": 5.57
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "shoot-top"
+      "linkedName": "ewadjdf"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.2,
-    "maxAcceleration": 1.8,
+    "maxVelocity": 4.38,
+    "maxAcceleration": 4.38,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
@@ -42,11 +42,8 @@
     "rotation": 0,
     "rotateFast": false
   },
-  "reversed": true,
+  "reversed": false,
   "folder": null,
-  "previewStartingState": {
-    "rotation": 0,
-    "velocity": 0
-  },
-  "useDefaultConstraints": true
+  "previewStartingState": null,
+  "useDefaultConstraints": false
 }

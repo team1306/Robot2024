@@ -5,6 +5,8 @@
 package frc.robot;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
+
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -111,13 +113,14 @@ public class RobotContainer {
     autoChooser.addOption("move out left", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutLeft(driveTrain, shooter, arm, intake));
     autoChooser.addOption("move out right", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutRight(driveTrain, shooter, arm, intake));
     autoChooser.addOption("move out mid 2", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutMidTwoRing(driveTrain, shooter, arm, intake));
-        autoChooser.addOption("move out right 2", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutRightTwoRing(driveTrain, shooter, arm, intake));
+    autoChooser.addOption("move out right 2", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutRightTwoRing(driveTrain, shooter, arm, intake));
 
     autoChooser.addOption("Close Rings from Start Mid", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new CloseRingsFromStartMid(detector, intake, shooter, arm));
     autoChooser.addOption("Far Rings from Start Bottom (right around stage)", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromStartBottom(detector, intake, shooter, arm));
     autoChooser.addOption("Far Rings from Start Top (left around stage)", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromStartMid(detector, intake, shooter, arm));
     autoChooser.addOption("Far Rings from Start Mid (left around stage)", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromStartTop(detector, intake, shooter, arm));
-    autoChooser.addOption("testPath", (NoteDetector a,  DriveTrain b, Shooter c, Arm d, Intake e) -> new PathPlannerAuto("testPath"));
+    autoChooser.addOption("testPath", (NoteDetector a,  DriveTrain b, Shooter c, Arm d, Intake e) -> new PathPlannerAuto("abcdef"));
+    autoChooser.addOption("linetest", (NoteDetector a,  DriveTrain b, Shooter c, Arm d, Intake e) -> new PathPlannerAuto("linetest"));
     autoChooser.addOption("Just Shoot", (NoteDetector unused,  DriveTrain alsoUnused, Shooter shooter, Arm arm, Intake intake) -> new JustShoot(shooter, arm, intake));
     SmartDashboard.putData("auto chooser", autoChooser);
 
@@ -129,6 +132,13 @@ public class RobotContainer {
         DashboardGetter.addGetDoubleData("Left Side Drivetrain Test Voltage", leftVolts.val, a -> leftVolts.val = a);
         DashboardGetter.addGetDoubleData("Right Side Drivetrain Test Voltage", rightVolts.val, a -> rightVolts.val = a);
       }, () -> driveTrain.setSideVoltages(leftVolts.val, rightVolts.val), interrupted -> {}, () -> false, driveTrain).schedule();
+    });
+    drivetrainTestModeChooser.addOption("manual meters per second input", () -> {
+      final WrappedDouble leftMetersS = new WrappedDouble(), rightMetersS = new WrappedDouble();
+      new FunctionalCommand(() -> {
+        DashboardGetter.addGetDoubleData("Left Side Drivetrain Test Meters per Second", leftMetersS.val, a -> leftMetersS.val = a);
+        DashboardGetter.addGetDoubleData("Right Side Drivetrain Test Meters per Second", rightMetersS.val, a -> rightMetersS.val = a);
+      }, () -> driveTrain.driveMetersPerSecond(new DifferentialDriveWheelSpeeds(leftMetersS.val, rightMetersS.val)), interrupted -> {}, () -> false, driveTrain).schedule();
     });
     drivetrainTestModeChooser.addOption("none", () -> {});
 
@@ -168,13 +178,18 @@ public class RobotContainer {
     
     controller2.rightTrigger(0.5).onTrue(Commands.either(
         arm.getPitchControlCommand(driveTrain)
-            .andThen(Commands.waitUntil(arm::atSetpoint))
-            .andThen(Commands.either(
-                Commands.waitUntil(() -> intakeDriverCommand.getState() != IntakeDriverCommand.State.INDEXING)
-                .andThen(toggleShooterCommand::stop)
-                .andThen(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE)),
-            Commands.none(), intakeDriverCommand::buttonPress)),
-        Commands.none(), intakeDriverCommand::readyToShoot
+            .andThen(
+              Commands.waitUntil(arm::atSetpoint),
+              Commands.either(
+                  Commands.waitUntil(() -> intakeDriverCommand.getState() != IntakeDriverCommand.State.INDEXING)
+                    .andThen(toggleShooterCommand::stop)
+                    .andThen(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE)),
+                  Commands.none(),
+                  intakeDriverCommand::buttonPress
+              )
+            ),
+        Commands.none(),
+        intakeDriverCommand::readyToShoot
     ));
 
     controller2.povUp().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.AMP, cancelSetpoint));

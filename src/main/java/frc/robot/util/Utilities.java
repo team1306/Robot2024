@@ -46,7 +46,7 @@ public class Utilities {
      * @return a pos2d where the robot is
      */
     public static Pose2d getRobotPos(){
-        return INCLUDE_LIMELIGHT ? LimelightHelpers.getBotPose2d(LIMELIGHT_NAME) : new Pose2d();
+        return LimelightHelpers.getBotPose2d_wpiBlue(LIMELIGHT_NAME);
     }
     
     /**

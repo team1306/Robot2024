@@ -23,7 +23,7 @@ public class Intake extends SubsystemBase {
     private boolean sensorReading = false;
 
     public Intake() {
-        motor = MotorUtil.initSparkMax(INTAKE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake, 25);
+        motor = MotorUtil.initSparkMax(INTAKE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake, 30);
         encoder = motor.getEncoder(SparkRelativeEncoder.Type.kHallSensor, NEO_COUNTS_PER_REVOLUTION);
         sensor = new DigitalInput(1);
     }

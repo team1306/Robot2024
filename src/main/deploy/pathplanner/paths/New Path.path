@@ -3,37 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.866441839728484,
-        "y": 4.134293346837168
+        "x": 5.0,
+        "y": 5.57
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.866441839728484,
-        "y": 4.134293346837168
+        "x": 3.881966011250105,
+        "y": 5.57
       },
       "isLocked": false,
-      "linkedName": "far-3"
+      "linkedName": "ewadjdf"
     },
     {
       "anchor": {
-        "x": 5.71276343554397,
-        "y": 6.278357115288718
+        "x": 2.0772785405219936,
+        "y": 3.6520052989980676
       },
       "prevControl": {
-        "x": 6.665689872914704,
-        "y": 6.581558706577286
+        "x": 1.8272785405219936,
+        "y": 5.152005298998072
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "shoot-top"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.2,
-    "maxAcceleration": 1.8,
+    "maxVelocity": 3.6,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
@@ -44,9 +44,6 @@
   },
   "reversed": true,
   "folder": null,
-  "previewStartingState": {
-    "rotation": 0,
-    "velocity": 0
-  },
-  "useDefaultConstraints": true
+  "previewStartingState": null,
+  "useDefaultConstraints": false
 }
