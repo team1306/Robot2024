@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 
 /**
  * Storage for robot-wide constants
@@ -33,8 +34,8 @@ public final class Constants {
 
 
     public static final String        LIMELIGHT_NAME              = "limelight";
-    public static final Translation2d BLUE_SPEAKER                = new Translation2d(-8.308975, 1.442593);
-    public static final Translation2d RED_SPEAKER                 = new Translation2d(8.308975, 1.442593);
+    public static final Translation2d BLUE_SPEAKER                = new Translation2d(Units.inchesToMeters(-1.5), Units.inchesToMeters(218.42));
+    public static final Translation2d RED_SPEAKER                 = new Translation2d(Units.inchesToMeters(652.73), Units.inchesToMeters(218.42));
            
     public static final double        SLOW_MODE_SPEED             = 0.5;
 

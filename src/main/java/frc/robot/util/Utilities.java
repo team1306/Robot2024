@@ -38,12 +38,7 @@ public class Utilities {
      */
 
     public static double getSpeakerDistance(Pose2d robotPos){
-        double distance = (Units.metersToInches(robotPos.getTranslation().getDistance(Utilities.getSpeaker())) - 357.475D);
-        if (Utilities.isRedAlliance()) {
-            distance *= -1;
-            distance += 8;
-        }
-        return distance;
+        return Math.abs(Units.metersToInches(robotPos.getTranslation().getDistance(Utilities.getSpeaker())));
     }
 
     /**
