@@ -173,8 +173,10 @@ public final class AutoCommands {
 
     public static SequentialCommandGroup getClose1StartMid (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
         return new SequentialCommandGroup(
+            new InstantCommand(() -> { intake.setTargetSpeed(0.74); }), //intake on
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Start-Mid to Close-1")),
-            getIntakeWaiterCommand(intake),
+            new InstantCommand(() -> { intake.setTargetSpeed(0); }), //intake off
+            //getIntakeWaiterCommand(intake), //intake
             arm.getPitchControlCommand(driveTrain).andThen(Commands.waitUntil(arm::atSetpoint)), //aim
             new IntakeIndexCommand(intake) //fire
         );
@@ -182,8 +184,9 @@ public final class AutoCommands {
 
     public static SequentialCommandGroup getClose1StartTop (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
         return new SequentialCommandGroup(
+            new InstantCommand(() -> { intake.setTargetSpeed(0.74); }), //intake on
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Start-1 to Close-1")),
-            getIntakeWaiterCommand(intake),
+            new InstantCommand(() -> { intake.setTargetSpeed(0); }), //intake off
             arm.getPitchControlCommand(driveTrain).andThen(Commands.waitUntil(arm::atSetpoint)), //aim
             new IntakeIndexCommand(intake) //fire
         );
@@ -191,8 +194,9 @@ public final class AutoCommands {
 
     public static SequentialCommandGroup getClose2Close1 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
         return new SequentialCommandGroup(
+            new InstantCommand(() -> { intake.setTargetSpeed(0.74); }), //intake on
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Close-1 to Close-2")),
-            getIntakeWaiterCommand(intake),
+            new InstantCommand(() -> { intake.setTargetSpeed(0); }), //intake off
             arm.getPitchControlCommand(driveTrain).andThen(Commands.waitUntil(arm::atSetpoint)), //aim
             new IntakeIndexCommand(intake) //fire
         );
@@ -200,8 +204,9 @@ public final class AutoCommands {
 
     public static SequentialCommandGroup getClose3Close2 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
         return new SequentialCommandGroup(
+            new InstantCommand(() -> { intake.setTargetSpeed(0.74); }), //intake on
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Close-2 to Close-3")),
-            getIntakeWaiterCommand(intake),
+            new InstantCommand(() -> { intake.setTargetSpeed(0); }), //intake off
             arm.getPitchControlCommand(driveTrain).andThen(Commands.waitUntil(arm::atSetpoint)), //aim
             new IntakeIndexCommand(intake) //fire
         );
@@ -209,8 +214,9 @@ public final class AutoCommands {
 
     public static SequentialCommandGroup getClose3StartBottom (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
         return new SequentialCommandGroup(
+            new InstantCommand(() -> { intake.setTargetSpeed(0.74); }), //intake on
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Start-Bottom to Close-3")),
-            getIntakeWaiterCommand(intake),
+            new InstantCommand(() -> { intake.setTargetSpeed(0); }), //intake off
             arm.getPitchControlCommand(driveTrain).andThen(Commands.waitUntil(arm::atSetpoint)), //aim
             new IntakeIndexCommand(intake) //fire
         );
@@ -219,8 +225,9 @@ public final class AutoCommands {
 
     public static SequentialCommandGroup getClose2Close3 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
         return new SequentialCommandGroup(
+            new InstantCommand(() -> { intake.setTargetSpeed(0.74); }), //intake on
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Close-3 to Close-2 P1")),
-            getIntakeWaiterCommand(intake),
+            new InstantCommand(() -> { intake.setTargetSpeed(0); }), //intake off
             arm.getPitchControlCommand(driveTrain).andThen(Commands.waitUntil(arm::atSetpoint)), //aim
             new IntakeIndexCommand(intake), //fire
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Close-3 to Close-2 P2"))
@@ -229,8 +236,9 @@ public final class AutoCommands {
 
     public static SequentialCommandGroup getClose1Close2 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
         return new SequentialCommandGroup(
+            new InstantCommand(() -> { intake.setTargetSpeed(0.74); }), //intake on
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("Close-2 to Close-1")),
-            getIntakeWaiterCommand(intake),
+            new InstantCommand(() -> { intake.setTargetSpeed(0); }), //intake off
             arm.getPitchControlCommand(driveTrain).andThen(Commands.waitUntil(arm::atSetpoint)), //aim
             new IntakeIndexCommand(intake) //fire
         );

@@ -1,6 +1,5 @@
 package frc.robot.auto;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.commands.intake.IntakeIndexCommand;
@@ -15,7 +14,6 @@ public class MoveOutRightTwoRing extends ParallelCommandGroup {
         addRequirements(intake);
         System.out.println("Running Auto");
         final ToggleShooterCommand shooterCommand = new ToggleShooterCommand(() -> 1, shooter);
-        final Timer timer = new Timer();
         addCommands( //all commands run at once
             shooterCommand, //turns on shooter
             new SequentialCommandGroup( //following commands run in sequence
@@ -30,14 +28,12 @@ public class MoveOutRightTwoRing extends ParallelCommandGroup {
                 ),
                 new InstantCommand(() -> {
                     intake.setTargetSpeed(0.74);
-                    timer.restart();
                 }),
                 new ParallelDeadlineGroup(new WaitCommand(2.7),
                     driveTrain.driveBySetpointPercentagesCommand(Math.max(0, 0.3), Math.max(0, 0.3))
                 ).until(intake::notePresent),
                 new InstantCommand(()-> {
                     intake.setTargetSpeed(0);
-                    timer.stop();
                 })
                 )
             );
