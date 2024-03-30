@@ -20,6 +20,7 @@ public class CloseRingsFromStartMid extends ParallelCommandGroup {
             shooterCommand, //spin up shooter
             new SequentialCommandGroup(
                 new IntakeIndexCommand(intake), //fire
+                
                 AutoCommands.getClose1StartMid(intake, shooter, arm, driveTrain), //collect close 1 and shoot
                 AutoCommands.getClose2Close1(intake, shooter, arm, driveTrain), //collect close 2 and shoot
                 AutoCommands.getClose3Close2(intake, shooter, arm, driveTrain), //collect close 3 and shoot
