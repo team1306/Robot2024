@@ -58,14 +58,14 @@ public class DriveTrain extends SubsystemBase {
     private static final double leftKS = 0;//0.0087513; volts
     private static final double leftKV = 0.23815; //0.24656; volts seconds per meter
     private static final double leftKA = 0.083936; // volts seconds squared per meter
-    private static double leftP = 7, leftD = 0.2; // 0.14339;
+    private static double leftP = 2.9, leftD = 0; // 0.14339;
     private final SimpleMotorFeedforward leftFeedforward;
     private final PIDController leftPID;
 
     private static final double rightKS = 0; //-0.010876;
     private static final double rightKV = 0.21758; //0.24307;
     private static final double rightKA = 0.108; //0.080477;
-    private static double rightP = 6.8, rightD = 0.2; //0.0032142;
+    private static double rightP = 2.8, rightD = 0; //0.0032142;
     private final SimpleMotorFeedforward rightFeedforward;
     private final PIDController rightPID;
     //Percentage

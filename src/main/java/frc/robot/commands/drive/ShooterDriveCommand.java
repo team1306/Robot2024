@@ -47,11 +47,11 @@ public class ShooterDriveCommand extends Command {
         Rotation2d robotAngle = driveTrain.getRotation();
 
         final double delta = angle.minus(robotAngle)
-            .plus(Rotation2d.fromDegrees(Utilities.isRedAlliance() ? 0 : 180))
+            .plus(Rotation2d.fromDegrees(Utilities.isRedAlliance() ? 180 : 0))
             .minus(Rotation2d.fromDegrees(4))
             .getDegrees();
 
-        final double outputPower = MathUtil.clamp(rotationController.calculate(delta), -0.5, 0.5) * -1;
+        final double outputPower = MathUtil.clamp(rotationController.calculate(delta), -0.5, 0.5);
 
         SmartDashboard.putNumber("Delta Drive Angle", delta);
         SmartDashboard.putNumber("Drive PID output", outputPower);
