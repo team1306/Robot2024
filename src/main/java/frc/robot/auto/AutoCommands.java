@@ -183,19 +183,20 @@ public final class AutoCommands {
     }
 
     @SafeVarargs
-    public static Command followPathsWhileIntakingAndThenShoot(Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain, String... pathNames) {
+    public static Command followPathsWhileIntakingAndThenShoot(Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain, boolean armAfterFirstPath, String... pathNames) {
         final IntakeDriverCommand intakeDriverCommand = new IntakeDriverCommand(intake, shooter, () -> arm.getCurrentAngle().getDegrees(), IntakeDriverCommand.State.POWERED_NO_ELEMENT);
-        
+        final Command pitchControlCommand = arm.getPitchControlCommand(driveTrain);
         final SequentialCommandGroup pathsAndArm = new SequentialCommandGroup();
-        if (pathNames.length == 0) {
-            pathsAndArm.addCommands(arm.getPitchControlCommand(driveTrain));
-        } else {
-            for (int i = 0; i < pathNames.length; ++i) {
-                pathsAndArm.addCommands(AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathNames[i])));
-                if (i == 0) {
-                    pathsAndArm.addCommands(arm.getPitchControlCommand(driveTrain));
-                }
-             }       
+
+        for (int i = 0; i < pathNames.length; ++i) {
+            pathsAndArm.addCommands(AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathNames[i])));
+            if (i == 0 && armAfterFirstPath) {
+                pathsAndArm.addCommands(pitchControlCommand);
+            }
+        }
+
+        if (!armAfterFirstPath || pathNames.length == 0) {
+            pathsAndArm.addCommands(pitchControlCommand);
         }
 
         return new ParallelDeadlineGroup(
@@ -210,6 +211,11 @@ public final class AutoCommands {
             ),
             intakeDriverCommand
         );
+    }
+
+    @SafeVarargs
+    public static Command followPathsWhileIntakingAndThenShoot(Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain, String... pathNames) {
+        return followPathsWhileIntakingAndThenShoot(intake, shooter, arm, driveTrain, true, pathNames);
     }
 
     public static Command getStartMidToClose1 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
@@ -233,7 +239,7 @@ public final class AutoCommands {
     }
 
     public static Command getClose3ToClose2 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
-        return followPathsWhileIntakingAndThenShoot(intake, shooter, arm, driveTrain, "Close-3 to Close-2 P1", "Close-3 to Close-2 P2");
+        return followPathsWhileIntakingAndThenShoot(intake, shooter, arm, driveTrain, false, "Close-3 to Close-2 P1", "Close-3 to Close-2 P2");
     }
 
     public static Command getClose2ToClose1 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
