@@ -29,18 +29,26 @@ public class IntakeDriverCommand extends Command {
     private State state = State.UNPOWERED_NO_ELEMENT;
     private short noteNotPresentConfidence = 0; // this does not need to be a short but i am doing it for funsies
     private boolean wasReversed = false;
-
+    
     public IntakeDriverCommand(Intake intake, Shooter shooter, BooleanSupplier reverseOverride, DoubleSupplier armAngle) {
+        this(intake, shooter, reverseOverride, armAngle, null); 
+    }
+
+    public IntakeDriverCommand(Intake intake, Shooter shooter, DoubleSupplier armAngle, State state) {
+        this(intake, shooter, () -> false, armAngle, state); 
+    }
+
+    public IntakeDriverCommand(Intake intake, Shooter shooter, BooleanSupplier reverseOverride, DoubleSupplier armAngle, State state) {
         this.intake = intake;
         this.reverseOverride = reverseOverride;
         this.shooter = shooter;
         this.armAngle = armAngle;
+        if (state == null) {
+            reset();
+        } else {
+            this.state = state;
+        }
         addRequirements(intake);
-    }
-
-    @Override
-    public void initialize(){
-        intake.setTargetSpeed(0);
     }
 
     public void setState(State state) {
@@ -53,6 +61,10 @@ public class IntakeDriverCommand extends Command {
 
     public boolean readyToShoot() {
         return this.state == State.UNPOWERED_WITH_ELEMENT;
+    }
+
+    public boolean noLongerIndexing() {
+        return this.state != State.INDEXING;
     }
 
     @Override

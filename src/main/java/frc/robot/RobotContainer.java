@@ -17,8 +17,12 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.auto.AutoCommands;
 import frc.robot.auto.AutonomousFactory;
+import frc.robot.auto.CloseRingsFromStartBottom;
 import frc.robot.auto.CloseRingsFromStartMid;
+import frc.robot.auto.CloseRingsFromStartTop;
+import frc.robot.auto.CloseTopRingAndTopFarTwoRingsFromStartTop;
 import frc.robot.auto.FarRingsFromStartBottom;
 import frc.robot.auto.FarRingsFromStartMid;
 import frc.robot.auto.FarRingsFromStartTop;
@@ -102,7 +106,7 @@ public class RobotContainer {
     shooterDriveCommand = new ShooterDriveCommand(driveTrain);
     moveArmCommand = new MoveArmCommand(arm, controller2::getRightY);
     toggleIntakeCommand = new ToggleIntakeCommand(intake, controller2.a(), controller2.b());
-    intakeDriverCommand = new IntakeDriverCommand(intake, shooter, controller2.b(), arm.getCurrentAngle()::getDegrees);
+    intakeDriverCommand = new IntakeDriverCommand(intake, shooter, controller2.b(), () -> arm.getCurrentAngle().getDegrees());
     teleopDriveCommand = new TeleopDriveCommand(driveTrain, controller1::getLeftTriggerAxis, controller1::getRightTriggerAxis, () -> -controller1.getLeftX());
     toggleShooterCommand = new ToggleShooterCommand(() -> Shooter.peakOutput, shooter);
     ampShooterCommand = new ToggleShooterCommand(() -> Shooter.peakOutput /3D, shooter);
@@ -116,6 +120,10 @@ public class RobotContainer {
     autoChooser.addOption("move out right 2", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutRightTwoRing(driveTrain, shooter, arm, intake));
 
     autoChooser.addOption("Close Rings from Start Mid", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new CloseRingsFromStartMid(detector, intake, shooter, arm, driveTrain));
+    autoChooser.addOption("Close Rings from Start Bottom", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new CloseRingsFromStartBottom(detector, intake, shooter, arm, driveTrain));
+    autoChooser.addOption("Close Rings from Start Top", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new CloseRingsFromStartTop(detector, intake, shooter, arm, driveTrain));
+    autoChooser.addOption("Close Top Ring and Top Far Two Rings From Start Top", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new CloseTopRingAndTopFarTwoRingsFromStartTop(detector, intake, shooter, arm, driveTrain));
+
     autoChooser.addOption("Far Rings from Start Bottom (right around stage)", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromStartBottom(detector, intake, shooter, arm, driveTrain));
     autoChooser.addOption("Far Rings from Start Top (left around stage)", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromStartMid(detector, intake, shooter, arm, driveTrain));
     autoChooser.addOption("Far Rings from Start Mid (left around stage)", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromStartTop(detector, intake, shooter, arm, driveTrain));
@@ -181,7 +189,7 @@ public class RobotContainer {
             .andThen(
               Commands.waitUntil(arm::atSetpoint),
               Commands.either(
-                  Commands.waitUntil(() -> intakeDriverCommand.getState() != IntakeDriverCommand.State.INDEXING)
+                  Commands.waitUntil(intakeDriverCommand::noLongerIndexing)
                     .andThen(toggleShooterCommand::stop)
                     .andThen(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE)),
                   Commands.none(),
@@ -202,6 +210,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
+    AutoCommands.firstSpinUp = true;
     return autonomousCommand;
   }
 

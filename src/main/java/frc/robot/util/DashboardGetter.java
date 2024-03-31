@@ -21,7 +21,7 @@ public class DashboardGetter {
          */
         void updateVariable();
     }
-    private static abstract class GetData<T>{
+    private static abstract class GetData<T> {
         public final String key;
         public final T defaultValue;
         public final Consumer<T> consumer;

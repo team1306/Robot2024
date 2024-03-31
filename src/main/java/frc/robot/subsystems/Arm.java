@@ -48,7 +48,7 @@ public class Arm extends SubsystemBase  {
     }
 
     public enum SetpointOptions implements Setpoint {
-        AMP(108),
+        AMP(102),
         INTAKE(0),
         DOWN(4),
         SHOOT_CLOSE(16),
@@ -75,14 +75,14 @@ public class Arm extends SubsystemBase  {
     private final ProfiledPIDController profiledPIDController;
     private ArmFeedforward feedforward;
 
-    public static double kP = 0.0225, kI = 0.0005, kD = 0.0018; // Do we want PID Controller? Or do we want to do state space model?
+    public static double kP = 0.036, kI = 0.0012, kD = 0.0018; // Do we want PID Controller? Or do we want to do state space model?
                                                  // need to read https://file.tavsys.net/control/controls-engineering-in-frc.pdf more so I know what I am doing
     public static double kG = 0.0725, kV = .17;
     private static final double MAX_VELOCITY = 360;
     private static double maxAcceleration = 140; // kMA MIGHT BE WRONG
     private double armMaxPower = 1;
 
-    public static final double OFFSET = 202.925, DELTA_AT_SETPOINT = .3;
+    public static final double OFFSET = 202.925, DELTA_AT_SETPOINT = .6;
     
     private Rotation2d targetAngle = Rotation2d.fromDegrees(0);
 
@@ -144,7 +144,7 @@ public class Arm extends SubsystemBase  {
     }
 
     public boolean atSetpoint() {
-        return profiledPIDController.atGoal();
+        return Math.abs(getCurrentAngle().minus(targetAngle).getDegrees()) < DELTA_AT_SETPOINT * 2;
     }
 
     @Override
@@ -181,7 +181,7 @@ public class Arm extends SubsystemBase  {
         SmartDashboard.putNumber("right arm power", rightArmMotor.get());
         SmartDashboard.putNumber("left arm power", leftArmMotor.get());
         SmartDashboard.putNumber("arm current", rightArmMotor.getOutputCurrent() + leftArmMotor.getOutputCurrent());
-
+        SmartDashboard.putBoolean("arm at setpoint", atSetpoint());
         SmartDashboard.putNumber("Arm Current Angle", getCurrentAngle().getDegrees());
         SmartDashboard.putNumber("Arm Raw Velocity", relativeThroughBore.getRate());
         
@@ -200,6 +200,6 @@ public class Arm extends SubsystemBase  {
             SmartDashboard.putNumber("Arm auto pitch angle", theta);
             // Set the target angle of the arm
             new MoveArmToSetpointCommand(this, new Setpoint.Custom(theta)).schedule();
-        }, this);
+        });
     }
 }

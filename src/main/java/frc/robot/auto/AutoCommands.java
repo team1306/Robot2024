@@ -2,7 +2,17 @@ package frc.robot.auto;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
-import edu.wpi.first.wpilibj2.command.*;
+
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import frc.robot.commands.arm.MoveArmToSetpointCommand;
+import frc.robot.commands.intake.IntakeDriverCommand;
 import frc.robot.commands.intake.IntakeIndexCommand;
 import frc.robot.commands.shooter.ToggleShooterCommand;
 import frc.robot.subsystems.Arm;
@@ -11,6 +21,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 
 public final class AutoCommands {
+    public static boolean firstSpinUp = true;
     //variables naming guide: get Ring ID + Starting Location
 
     // arm.getPitchControlCommand(driveTrain).andThen(Commands.waitUntil(arm::atSetpoint)), AIM
@@ -171,79 +182,71 @@ public final class AutoCommands {
         );
     }
 
-    public static SequentialCommandGroup getClose1StartMid (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
-        return new SequentialCommandGroup(
-            new InstantCommand(() -> { intake.setTargetSpeed(0.74); }), //intake on
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Start-Mid to Close-1")),
-            new InstantCommand(() -> { intake.setTargetSpeed(0); }), //intake off
-            //getIntakeWaiterCommand(intake), //intake
-            arm.getPitchControlCommand(driveTrain).andThen(Commands.waitUntil(arm::atSetpoint)), //aim
-            new IntakeIndexCommand(intake) //fire
+    @SafeVarargs
+    public static Command followPathsWhileIntakingAndThenShoot(Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain, String... pathNames) {
+        final IntakeDriverCommand intakeDriverCommand = new IntakeDriverCommand(intake, shooter, () -> arm.getCurrentAngle().getDegrees(), IntakeDriverCommand.State.POWERED_NO_ELEMENT);
+        
+        final SequentialCommandGroup pathsAndArm = new SequentialCommandGroup();
+        if (pathNames.length == 0) {
+            pathsAndArm.addCommands(arm.getPitchControlCommand(driveTrain));
+        } else {
+            for (int i = 0; i < pathNames.length; ++i) {
+                pathsAndArm.addCommands(AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathNames[i])));
+                if (i == 0) {
+                    pathsAndArm.addCommands(arm.getPitchControlCommand(driveTrain));
+                }
+             }       
+        }
+
+        return new ParallelDeadlineGroup(
+            new SequentialCommandGroup(
+                new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE, () -> true),
+                pathsAndArm,
+                Commands.waitUntil(arm::atSetpoint),
+                firstSpinUp ? new WaitCommand(0.5) : Commands.none(),
+                new InstantCommand(() -> firstSpinUp = false),
+                new InstantCommand(intakeDriverCommand::buttonPress),
+                new WaitUntilCommand(intakeDriverCommand::noLongerIndexing)
+            ),
+            intakeDriverCommand
         );
     }
 
-    public static SequentialCommandGroup getClose1StartTop (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
-        return new SequentialCommandGroup(
-            new InstantCommand(() -> { intake.setTargetSpeed(0.74); }), //intake on
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Start-1 to Close-1")),
-            new InstantCommand(() -> { intake.setTargetSpeed(0); }), //intake off
-            arm.getPitchControlCommand(driveTrain).andThen(Commands.waitUntil(arm::atSetpoint)), //aim
-            new IntakeIndexCommand(intake) //fire
-        );
+    public static Command getStartMidToClose1 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
+        return followPathsWhileIntakingAndThenShoot(intake, shooter, arm, driveTrain, "Start-Mid to Close-1");
     }
 
-    public static SequentialCommandGroup getClose2Close1 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
-        return new SequentialCommandGroup(
-            new InstantCommand(() -> { intake.setTargetSpeed(0.74); }), //intake on
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Close-1 to Close-2")),
-            new InstantCommand(() -> { intake.setTargetSpeed(0); }), //intake off
-            arm.getPitchControlCommand(driveTrain).andThen(Commands.waitUntil(arm::atSetpoint)), //aim
-            new IntakeIndexCommand(intake) //fire
-        );
+    public static Command getStartTopToClose1 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
+        return followPathsWhileIntakingAndThenShoot(intake, shooter, arm, driveTrain, "Start-1 to Close-1");
     }
 
-    public static SequentialCommandGroup getClose3Close2 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
-        return new SequentialCommandGroup(
-            new InstantCommand(() -> { intake.setTargetSpeed(0.74); }), //intake on
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Close-2 to Close-3")),
-            new InstantCommand(() -> { intake.setTargetSpeed(0); }), //intake off
-            arm.getPitchControlCommand(driveTrain).andThen(Commands.waitUntil(arm::atSetpoint)), //aim
-            new IntakeIndexCommand(intake) //fire
-        );
+    public static Command getClose1ToClose2 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
+        return followPathsWhileIntakingAndThenShoot(intake, shooter, arm, driveTrain, "Close-1 to Close-2");
     }
 
-    public static SequentialCommandGroup getClose3StartBottom (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
-        return new SequentialCommandGroup(
-            new InstantCommand(() -> { intake.setTargetSpeed(0.74); }), //intake on
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Start-Bottom to Close-3")),
-            new InstantCommand(() -> { intake.setTargetSpeed(0); }), //intake off
-            arm.getPitchControlCommand(driveTrain).andThen(Commands.waitUntil(arm::atSetpoint)), //aim
-            new IntakeIndexCommand(intake) //fire
-        );
+    public static Command getClose2ToClose3 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
+        return followPathsWhileIntakingAndThenShoot(intake, shooter, arm, driveTrain, "Close-2 to Close-3");
     }
 
-
-    public static SequentialCommandGroup getClose2Close3 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
-        return new SequentialCommandGroup(
-            new InstantCommand(() -> { intake.setTargetSpeed(0.74); }), //intake on
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Close-3 to Close-2 P1")),
-            new InstantCommand(() -> { intake.setTargetSpeed(0); }), //intake off
-            arm.getPitchControlCommand(driveTrain).andThen(Commands.waitUntil(arm::atSetpoint)), //aim
-            new IntakeIndexCommand(intake), //fire
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Close-3 to Close-2 P2"))
-        );
+    public static Command getStartBottomToClose3 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
+        return followPathsWhileIntakingAndThenShoot(intake, shooter, arm, driveTrain, "Start-Bottom to Close-3");
     }
 
-    public static SequentialCommandGroup getClose1Close2 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
-        return new SequentialCommandGroup(
-            new InstantCommand(() -> { intake.setTargetSpeed(0.74); }), //intake on
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("Close-2 to Close-1")),
-            new InstantCommand(() -> { intake.setTargetSpeed(0); }), //intake off
-            arm.getPitchControlCommand(driveTrain).andThen(Commands.waitUntil(arm::atSetpoint)), //aim
-            new IntakeIndexCommand(intake) //fire
-        );
+    public static Command getClose3ToClose2 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
+        return followPathsWhileIntakingAndThenShoot(intake, shooter, arm, driveTrain, "Close-3 to Close-2 P1", "Close-3 to Close-2 P2");
     }
 
+    public static Command getClose2ToClose1 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
+        return followPathsWhileIntakingAndThenShoot(intake, shooter, arm, driveTrain, "Close-2 to Close-1");
+    }
+
+    public static Command getClose1ToFar1ToShootMidTop(Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
+        return followPathsWhileIntakingAndThenShoot(intake, shooter, arm, driveTrain, "Close-1 to Far-1", "Far-1 to Shoot-MidTop");
+    }
+
+    public static Command getShootMidTopToFar2ToShootMidTop(Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
+        return followPathsWhileIntakingAndThenShoot(intake, shooter, arm, driveTrain, "Shoot-MidTop to Far-2", "Far-2 to Shoot-MidTop");
+    }
 
     public static Command getIntakeWaiterCommand(Intake intake) {
         return new ParallelRaceGroup(new WaitUntilCommand(intake::notePresent), new WaitCommand(waitTime));

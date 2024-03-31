@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.2611870911804413,
-      "y": 5.566874071049189
+      "x": 0.7,
+      "y": 6.6
     },
     "rotation": 0
   },
@@ -14,13 +14,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "line test"
+            "pathName": "Start-1 to Close-1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "curvy test"
+            "pathName": "Close-1 to Close-2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Close-2 to Close-3"
           }
         }
       ]

@@ -1,0 +1,49 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.7,
+      "y": 6.6
+    },
+    "rotation": 60.0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Start-1 to Close-1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Close-1 to Far-1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Far-1 to Shoot-MidTop"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Shoot-MidTop to Far-2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Far-2 to Shoot-MidTop"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}
