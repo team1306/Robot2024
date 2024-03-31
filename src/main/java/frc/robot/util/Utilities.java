@@ -14,6 +14,8 @@ import java.util.function.Consumer;
 import static frc.robot.Constants.*;
 
 public class Utilities {
+    private Utilities() {} // block instantiation
+
     /**
      * Returns whether the Driverstation is on the red alliance
      * @return true if on the red alliance, false if on the blue alliance or the alliance is not present
