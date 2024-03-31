@@ -79,6 +79,18 @@ public class Utilities {
         return arrayList;
     }
 
+    @SafeVarargs
+    public static <T> T[] arrayFromParams(T... items) {
+        return items;
+    }
+
+    @SafeVarargs
+    public static <T> void applyConsumerToParams(Consumer<T> consumer, T... items) {
+        for (T item : items) {
+            consumer.accept(item);
+        }
+    }
+
     public static class WrappedDouble {
         public double val;
 
