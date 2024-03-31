@@ -113,13 +113,13 @@ public class RobotContainer {
     arm.setDefaultCommand(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE));
     configureBindings();
     
-    autoChooser.setDefaultOption("move out mid", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutMid(driveTrain, shooter, arm, intake));
+    autoChooser.addOption("move out mid", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutMid(driveTrain, shooter, arm, intake));
     autoChooser.addOption("move out left", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutLeft(driveTrain, shooter, arm, intake));
     autoChooser.addOption("move out right", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutRight(driveTrain, shooter, arm, intake));
     autoChooser.addOption("move out mid 2", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutMidTwoRing(driveTrain, shooter, arm, intake));
     autoChooser.addOption("move out right 2", (NoteDetector unused,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new MoveOutRightTwoRing(driveTrain, shooter, arm, intake));
 
-    autoChooser.addOption("Close Rings from Start Mid", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new CloseRingsFromStartMid(detector, intake, shooter, arm, driveTrain));
+    autoChooser.setDefaultOption("Close Rings from Start Mid", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new CloseRingsFromStartMid(detector, intake, shooter, arm, driveTrain));
     autoChooser.addOption("Close Rings from Start Bottom", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new CloseRingsFromStartBottom(detector, intake, shooter, arm, driveTrain));
     autoChooser.addOption("Close Rings from Start Top", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new CloseRingsFromStartTop(detector, intake, shooter, arm, driveTrain));
     autoChooser.addOption("Close Top Ring and Top Far Two Rings From Start Top", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new CloseTopRingAndTopFarTwoRingsFromStartTop(detector, intake, shooter, arm, driveTrain));

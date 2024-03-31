@@ -10,6 +10,7 @@ public class IntakeIndexCommand extends Command {
     
     public IntakeIndexCommand(Intake intake) {
         this.intake = intake;
+        addRequirements(intake);
     }
 
     @Override

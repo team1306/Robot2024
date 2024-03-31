@@ -3,15 +3,18 @@ package frc.robot.auto;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
+import frc.robot.commands.drive.ShooterDriveCommand;
 import frc.robot.commands.intake.IntakeDriverCommand;
 import frc.robot.commands.intake.IntakeIndexCommand;
 import frc.robot.commands.shooter.ToggleShooterCommand;
@@ -184,9 +187,11 @@ public final class AutoCommands {
 
     @SafeVarargs
     public static Command followPathsWhileIntakingAndThenShoot(Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain, boolean armAfterFirstPath, String... pathNames) {
+        System.out.println(pathNames[0]);
         final IntakeDriverCommand intakeDriverCommand = new IntakeDriverCommand(intake, shooter, () -> arm.getCurrentAngle().getDegrees(), IntakeDriverCommand.State.POWERED_NO_ELEMENT);
         final Command pitchControlCommand = arm.getPitchControlCommand(driveTrain);
         final SequentialCommandGroup pathsAndArm = new SequentialCommandGroup();
+        final ToggleShooterCommand shooterCommand = new ToggleShooterCommand(() -> 1, shooter);
 
         for (int i = 0; i < pathNames.length; ++i) {
             pathsAndArm.addCommands(AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathNames[i])));
@@ -199,18 +204,28 @@ public final class AutoCommands {
             pathsAndArm.addCommands(pitchControlCommand);
         }
 
-        return new ParallelDeadlineGroup(
+        ParallelDeadlineGroup command = 
+        new ParallelDeadlineGroup(
             new SequentialCommandGroup(
-                new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE, () -> true),
+                new InstantCommand(() -> arm.setTargetAngle(Rotation2d.fromDegrees(2))),
+                // new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE, () -> true),
                 pathsAndArm,
-                Commands.waitUntil(arm::atSetpoint),
-                firstSpinUp ? new WaitCommand(0.5) : Commands.none(),
-                new InstantCommand(() -> firstSpinUp = false),
-                new InstantCommand(intakeDriverCommand::buttonPress),
-                new WaitUntilCommand(intakeDriverCommand::noLongerIndexing)
+                // new ParallelRaceGroup(new ShooterDriveCommand(driveTrain), new WaitCommand(0.2)),
+                new ParallelCommandGroup(
+                shooterCommand,
+                // Commands.waitUntil(arm::atSetpoint),
+                // firstSpinUp ? new WaitCommand(0.5) : Commands.none(),
+                // new InstantCommand(() -> firstSpinUp = false),
+                new SequentialCommandGroup(
+                    new WaitCommand(1.65),
+                    new InstantCommand(intakeDriverCommand::buttonPress),
+                    new WaitCommand(0.15),
+                    new InstantCommand(shooterCommand::stop),
+                    new WaitCommand(0.1)))
             ),
             intakeDriverCommand
         );
+        return command;
     }
 
     @SafeVarargs
