@@ -202,24 +202,24 @@ public final class AutoCommands {
             pathsAndArm.addCommands(pitchControlCommand);
         }
 
-        ParallelDeadlineGroup command = 
-        new ParallelDeadlineGroup(
+        ParallelDeadlineGroup command = new ParallelDeadlineGroup(
             new SequentialCommandGroup(
                 new InstantCommand(() -> arm.setTargetAngle(Rotation2d.fromDegrees(2))),
                 // new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE, () -> true),
                 pathsAndArm,
                 // new ParallelRaceGroup(new ShooterDriveCommand(driveTrain), new WaitCommand(0.2)),
                 new ParallelCommandGroup(
-                shooterCommand,
-                // Commands.waitUntil(arm::atSetpoint),
-                // firstSpinUp ? new WaitCommand(0.5) : Commands.none(),
-                // new InstantCommand(() -> firstSpinUp = false),
-                new SequentialCommandGroup(
-                    new WaitCommand(1.65),
-                    new InstantCommand(intakeDriverCommand::buttonPress),
-                    new WaitCommand(0.15),
-                    new InstantCommand(shooterCommand::stop),
-                    new WaitCommand(0.1)))
+                    shooterCommand,
+                    // Commands.waitUntil(arm::atSetpoint),
+                    // firstSpinUp ? new WaitCommand(0.5) : Commands.none(),
+                    // new InstantCommand(() -> firstSpinUp = false),
+                    new SequentialCommandGroup(
+                        new WaitCommand(1.65),
+                        new InstantCommand(intakeDriverCommand::buttonPress),
+                        new WaitUntilCommand(intakeDriverCommand::noLongerIndexing),
+                        new InstantCommand(shooterCommand::stop)
+                    )
+                )
             ),
             intakeDriverCommand
         );

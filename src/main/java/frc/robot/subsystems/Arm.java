@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
@@ -188,7 +189,7 @@ public class Arm extends SubsystemBase  {
         ++velocityIndex;
     }
 
-    public InstantCommand getPitchControlCommand(DriveTrain driveTrain) {
+    public Command getPitchControlCommand(DriveTrain driveTrain) {
         return new InstantCommand(() -> {
             //38.0625 is the distance from the subwoofer to the speaker and tape in inches
             //2.3125 is the distance from the center of the limelight to the edge
