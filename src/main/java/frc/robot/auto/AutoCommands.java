@@ -4,15 +4,16 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import frc.robot.commands.drive.ShooterDriveCommand;
 import frc.robot.commands.intake.IntakeDriverCommand;
 import frc.robot.commands.intake.IntakeIndexCommand;
 import frc.robot.commands.shooter.ToggleShooterCommand;
@@ -184,42 +185,39 @@ public final class AutoCommands {
     }
 
     @SafeVarargs
-    public static Command followPathsWhileIntakingAndThenShoot(Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain, boolean armAfterFirstPath, String... pathNames) {
+    public static Command followPathsWhileIntakingAndThenShoot(Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain, boolean shooterAfterFirstPath, String... pathNames) {
         System.out.println(pathNames[0]);
         final IntakeDriverCommand intakeDriverCommand = new IntakeDriverCommand(intake, shooter, () -> arm.getCurrentAngle().getDegrees(), IntakeDriverCommand.State.POWERED_NO_ELEMENT);
-        final Command pitchControlCommand = arm.getPitchControlCommand(driveTrain);
-        final SequentialCommandGroup pathsAndArm = new SequentialCommandGroup();
+        final SequentialCommandGroup pathsAndShooter = new SequentialCommandGroup();
         final ToggleShooterCommand shooterCommand = new ToggleShooterCommand(() -> 1, shooter);
-
+        final InstantCommand scheduleShooterCommand = new InstantCommand(shooterCommand::schedule);
+        
         for (int i = 0; i < pathNames.length; ++i) {
-            pathsAndArm.addCommands(AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathNames[i])));
-            if (i == 0 && armAfterFirstPath) {
-                pathsAndArm.addCommands(pitchControlCommand);
+            pathsAndShooter.addCommands(AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathNames[i])));
+            if (i == 0 && shooterAfterFirstPath) {
+                pathsAndShooter.addCommands(scheduleShooterCommand);
             }
         }
 
-        if (!armAfterFirstPath || pathNames.length == 0) {
-            pathsAndArm.addCommands(pitchControlCommand);
+        if (!shooterAfterFirstPath || pathNames.length == 0) {
+            pathsAndShooter.addCommands(scheduleShooterCommand);
         }
 
         ParallelDeadlineGroup command = new ParallelDeadlineGroup(
             new SequentialCommandGroup(
                 new InstantCommand(() -> arm.setTargetAngle(Rotation2d.fromDegrees(2))),
-                // new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE, () -> true),
-                pathsAndArm,
-                // new ParallelRaceGroup(new ShooterDriveCommand(driveTrain), new WaitCommand(0.2)),
-                new ParallelCommandGroup(
-                    shooterCommand,
-                    // Commands.waitUntil(arm::atSetpoint),
-                    // firstSpinUp ? new WaitCommand(0.5) : Commands.none(),
-                    // new InstantCommand(() -> firstSpinUp = false),
-                    new SequentialCommandGroup(
-                        new WaitCommand(1.65),
-                        new InstantCommand(intakeDriverCommand::buttonPress),
-                        new WaitUntilCommand(intakeDriverCommand::noLongerIndexing),
-                        new InstantCommand(shooterCommand::stop)
-                    )
-                )
+                pathsAndShooter,
+                new InstantCommand(()->driveTrain.setSideVoltages(0, 0)),
+                new ShooterDriveCommand(driveTrain),
+                new InstantCommand(()->driveTrain.setSideVoltages(0, 0)),
+                arm.getPitchControlCommand(driveTrain),
+                new WaitUntilCommand(() -> Math.abs(shooter.getTopRPM()) > 3500 && arm.atSetpoint()),
+                new InstantCommand(intakeDriverCommand::buttonPress),
+                new WaitUntilCommand(intakeDriverCommand::noLongerIndexing),
+                new InstantCommand(() -> {
+                    shooterCommand.stop();
+                    driveTrain.setSideVoltages(0, 0);
+                })
             ),
             intakeDriverCommand
         );
@@ -244,7 +242,7 @@ public final class AutoCommands {
     }
 
     public static Command getClose2ToClose3 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
-        return followPathsWhileIntakingAndThenShoot(intake, shooter, arm, driveTrain, "Close-2 to Close-3");
+        return followPathsWhileIntakingAndThenShoot(intake, shooter, arm, driveTrain, false, "Close-2 to Close-3 P1", "Close-2 to Close-3 P2");
     }
 
     public static Command getStartBottomToClose3 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
@@ -267,7 +265,12 @@ public final class AutoCommands {
         return followPathsWhileIntakingAndThenShoot(intake, shooter, arm, driveTrain, "Shoot-MidTop to Far-2", "Far-2 to Shoot-MidTop");
     }
 
+    public static Command getStartSourceToShootBottom(Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
+        return followPathsWhileIntakingAndThenShoot(intake, shooter, arm, driveTrain, "Shoot-MidTop to Far-2", "Far-2 to Shoot-MidTop");
+    }
+
     public static Command getIntakeWaiterCommand(Intake intake) {
         return new ParallelRaceGroup(new WaitUntilCommand(intake::notePresent), new WaitCommand(waitTime));
     }
+    
 }

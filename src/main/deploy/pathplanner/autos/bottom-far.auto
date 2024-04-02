@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.2611870911804413,
-      "y": 5.566874071049189
+      "x": 0.51,
+      "y": 2.06
     },
     "rotation": 0
   },
@@ -14,25 +14,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Start-Mid to Close-1"
+            "pathName": "Start-Source to Shoot-Bottom"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Close-1 to Close-2"
+            "pathName": "Shoot-Bottom to Far-5"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Close-2 to Close-3 P1"
+            "pathName": "Far-5 to Shoot-Bottom"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Close-2 to Close-3 P2"
+            "pathName": "Shoot-Bottom to Far-4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Angled Far-4 to Shoot-Bottom"
           }
         }
       ]

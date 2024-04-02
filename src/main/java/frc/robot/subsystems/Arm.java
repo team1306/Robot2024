@@ -145,7 +145,7 @@ public class Arm extends SubsystemBase  {
     }
 
     public boolean atSetpoint() {
-        return Math.abs(getCurrentAngle().minus(targetAngle).getDegrees()) < DELTA_AT_SETPOINT * 2;
+        return Math.abs(getCurrentAngle().minus(targetAngle).getDegrees()) < 2.6;
     }
 
     @Override

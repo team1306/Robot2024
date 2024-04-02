@@ -56,17 +56,17 @@ public class DriveTrain extends SubsystemBase {
     private static final String AUTO_NAME = "abcdef";
 
     private static final double leftKS = 0;//0.0087513; volts
-    private static final double leftKV = 0.23815; //0.24656; volts seconds per meter
-    private static final double leftKA = 0.083936; // volts seconds squared per meter
-    private static double leftP = 2.9, leftD = 0; // 0.14339;
-    private final SimpleMotorFeedforward leftFeedforward;
+    private static double leftKV = 3; //0.24656; volts seconds per meter
+    private static double leftKA = 0.0001 * (2.9 / 0.3); // volts seconds squared per meter
+    private static double leftP = 1, leftD = 0.01; // 0.14339;
+    private SimpleMotorFeedforward leftFeedforward;
     private final PIDController leftPID;
 
     private static final double rightKS = 0; //-0.010876;
-    private static final double rightKV = 0.21758; //0.24307;
-    private static final double rightKA = 0.108; //0.080477;
-    private static double rightP = 2.8, rightD = 0; //0.0032142;
-    private final SimpleMotorFeedforward rightFeedforward;
+    private static double rightKV = 3; //0.24307;
+    private static double rightKA = 0.0001 * (2.7/0.3); //0.080477;
+    private static double rightP = .7, rightD = 0.03; //0.0032142;
+    private SimpleMotorFeedforward rightFeedforward;
     private final PIDController rightPID;
     //Percentage
     public static double maxSpeed = 1;
@@ -121,11 +121,12 @@ public class DriveTrain extends SubsystemBase {
         motorControllers = Utilities.listFromParams(leftLeader, rightLeader, leftFollower, rightFollower);
         
         //Pathplanner configuration
-        AutoBuilder.configureRamsete(
+        AutoBuilder.configureLTV(
                 this::getPose, // Robot pose supplier
                 this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
                 this::getCurrentSpeeds, // Current ChassisSpeeds supplier
-                this::drive, // Method that will drive the robot given ChassisSpeeds
+                this::drive,
+                .02, // Method that will drive the robot given ChassisSpeeds
                 new ReplanningConfig(), // Default path replanning config. See the API for the options here
                 Utilities::isRedAlliance,
                 this // Reference to this subsystem to set requirements
@@ -144,6 +145,10 @@ public class DriveTrain extends SubsystemBase {
         DashboardGetter.addGetDoubleData("Right Drive P", rightP, value -> rightP = value);
         DashboardGetter.addGetDoubleData("Left Drive D", leftD, value -> leftD = value);
         DashboardGetter.addGetDoubleData("Right Drive D", rightD, value -> rightD = value);
+        DashboardGetter.addGetDoubleData("Left Drive v", leftKV, value -> leftKV = value);
+        DashboardGetter.addGetDoubleData("Right Drive v", rightKV, value -> rightKV = value);
+        DashboardGetter.addGetDoubleData("Left Drive a", leftKA, value -> leftKA = value);
+        DashboardGetter.addGetDoubleData("Right Drive a", rightKA, value -> rightKA = value);
 
 
     }
@@ -211,7 +216,7 @@ public class DriveTrain extends SubsystemBase {
 
         double leftVoltage = leftFeedforward.calculate(lastWheelSpeeds.leftMetersPerSecond, wheelSpeeds.leftMetersPerSecond, LOOP_TIME_SECONDS);
         leftVoltage += leftPID.calculate(lEncoder.getRate(), wheelSpeeds.leftMetersPerSecond);
-
+        
         setSideVoltages(leftVoltage, rightVoltage);
         lastWheelSpeeds = wheelSpeeds;
     }
@@ -227,7 +232,7 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public Rotation2d getRotation() {
-        return Rotation2d.fromDegrees(gyro.getRotation2d().getDegrees() % 360);
+        return poseEstimator.getEstimatedPosition().getRotation();
     }
 
     public DifferentialDriveWheelPositions getWheelPositions() {
@@ -253,13 +258,16 @@ public class DriveTrain extends SubsystemBase {
         rightPID.setP(rightP);
         leftPID.setD(leftD);
         rightPID.setD(rightD);
+        leftFeedforward = new SimpleMotorFeedforward(leftKS, leftKV, leftKA);
+        rightFeedforward = new SimpleMotorFeedforward(rightKS, rightKV, rightKA);
+        
         SmartDashboard.putNumber("gyro", getRotation().getDegrees());
         poseEstimator.update(gyro.getRotation2d(), new DifferentialDriveWheelPositions(lEncoder.getDistance(), rEncoder.getDistance()));
         m_field.setRobotPose(getPose());
         SmartDashboard.putData("Field", m_field);
         if (INCLUDE_LIMELIGHT && LimelightHelpers.getTV(LIMELIGHT_NAME)) poseEstimator.addVisionMeasurement(Utilities.getRobotPos(), Timer.getFPGATimestamp());
-        SmartDashboard.putNumber("left vel", lEncoder.getRate());
-        SmartDashboard.putNumber("right vel", rEncoder.getRate());
+        SmartDashboard.putNumber("left vel drivetrain", lEncoder.getRate());
+        SmartDashboard.putNumber("right vel drivetrain", rEncoder.getRate());
         SmartDashboard.putNumber("left pos", lEncoder.getDistance());
         SmartDashboard.putNumber("right pos", rEncoder.getDistance());
         SmartDashboard.putNumber("left applied out", leftLeader.getAppliedOutput());
@@ -267,6 +275,10 @@ public class DriveTrain extends SubsystemBase {
 
         //rightFriction = SmartDashboard.getNumber("Left Drive Static Friction", 0);  
         //leftFriction = SmartDashboard.getNumber("Right Drive Static Friction", 0);
+        SmartDashboard.putNumber("left target vel drivetrain", leftPID.getSetpoint());
+                SmartDashboard.putNumber("right target vel drivetrain", rightPID.getSetpoint());
+
+
     }
 
     public Command getSetSpeedMultiplierCommand(double multiplier) {

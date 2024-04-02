@@ -19,6 +19,8 @@ public class ShooterDriveCommand extends Command {
     public static double kP = 0.0185, kI = 0, kD = 2.2e-3;
     public static final double TOLERANCE_DEGREES = 1;
 
+    public double delta = Double.POSITIVE_INFINITY;
+
     public ShooterDriveCommand(DriveTrain driveTrain){
         this.driveTrain = driveTrain;
         this.addRequirements(driveTrain);
@@ -38,7 +40,7 @@ public class ShooterDriveCommand extends Command {
     }
 
     @Override
-    public void execute(){
+    public void execute() {
         rotationController.setPID(kP, kI, kD);
         Pose2d botPose = driveTrain.getPose();
 
@@ -46,7 +48,7 @@ public class ShooterDriveCommand extends Command {
         Rotation2d angle = Rotation2d.fromRadians(Math.atan2(targetPos.getY(), targetPos.getX()));
         Rotation2d robotAngle = driveTrain.getRotation();
 
-        final double delta = angle.minus(robotAngle)
+        delta = angle.minus(robotAngle)
             .plus(Rotation2d.fromDegrees(Utilities.isRedAlliance() ? 0 : 180))
             .minus(Rotation2d.fromDegrees(4))
             .getDegrees();
@@ -56,12 +58,11 @@ public class ShooterDriveCommand extends Command {
         SmartDashboard.putNumber("Delta Drive Angle", delta);
         SmartDashboard.putNumber("Drive PID output", outputPower);
 
-        driveTrain.arcadeDrive(0, outputPower);
-        
+        driveTrain.arcadeDrive(0, outputPower);   
     }
 
     @Override
     public boolean isFinished() {            
-        return rotationController.atSetpoint();
+        return Math.abs(delta) < TOLERANCE_DEGREES * 1.5;
     }
 }
