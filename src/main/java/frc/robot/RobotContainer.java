@@ -10,10 +10,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -183,22 +180,11 @@ public class RobotContainer {
     controller2.y().toggleOnTrue(ampShooterCommand);
     controller2.leftBumper().onTrue(arm.getPitchControlCommand(driveTrain));
     controller2.rightBumper().onTrue(new InstantCommand(intakeDriverCommand::clearNote));
-    
-    controller2.rightTrigger(0.5).onTrue(Commands.either(
-        arm.getPitchControlCommand(driveTrain)
-            .andThen(
-              Commands.waitUntil(arm::atSetpoint),
-              Commands.either(
-                  Commands.waitUntil(intakeDriverCommand::noLongerIndexing)
-                    .andThen(toggleShooterCommand::stop)
-                    .andThen(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE)),
-                  Commands.none(),
-                  intakeDriverCommand::buttonPress
-              )
-            ),
-        Commands.none(),
-        intakeDriverCommand::readyToShoot
-    ));
+
+    //Don't wait for shooter, instead rely on p2 to spin up shooter
+    controller1.rightBumper().and(controller1.leftBumper().negate()).onTrue(new ParallelCommandGroup(getAutoShootCommand(false), toggleShooterCommand));
+    //Spin up shooter, must wait to allow the shooter to spin up
+    controller1.rightBumper().and(controller1.leftBumper()).onTrue(new ParallelCommandGroup(getAutoShootCommand(true), toggleShooterCommand));
 
     controller2.povUp().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.AMP, cancelSetpoint));
     controller2.povLeft().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.STAGE_SHOT, cancelSetpoint));
@@ -212,6 +198,23 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     AutoCommands.firstSpinUp = true;
     return autonomousCommand;
+  }
+
+  public Command getAutoShootCommand(boolean waitForShooter){
+      return Commands.either(
+              arm.getPitchControlCommand(driveTrain)
+                      .andThen(
+                              new ParallelCommandGroup(Commands.waitUntil(arm::atSetpoint), new WaitCommand(waitForShooter ? 1.65 : 0)),
+                              Commands.either(
+                                      Commands.waitUntil(intakeDriverCommand::noLongerIndexing)
+                                              .andThen(toggleShooterCommand::stop)
+                                              .andThen(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE)),
+                                      Commands.none(),
+                                      intakeDriverCommand::buttonPress
+                              )),
+              Commands.none(),
+              intakeDriverCommand::readyToShoot
+      );
   }
 
   public void loadAuto() {

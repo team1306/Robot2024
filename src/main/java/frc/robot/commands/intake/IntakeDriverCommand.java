@@ -133,7 +133,7 @@ public class IntakeDriverCommand extends Command {
             case INDEXING -> reset(); // THIS COULD BE QUITE BUGGY, MAKE SURE TO TEST
             case REVERSING -> State.REVERSING; // loop
         };
-        return oldState == state;
+        return oldState != state;
     }
 
     public void clearNote() {
