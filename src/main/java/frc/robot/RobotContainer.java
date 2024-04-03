@@ -43,6 +43,8 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.vision.NoteDetector;
 import frc.robot.util.DashboardGetter;
 import frc.robot.util.Utilities;
+import frc.robot.util.Utilities.WrappedBoolean;
+import frc.robot.util.Utilities.WrappedDouble;
 
 import static frc.robot.util.Utilities.removeAndCancelDefaultCommand;
 import static frc.robot.util.Utilities.WrappedDouble;
@@ -175,16 +177,13 @@ public class RobotContainer {
     controller1.a().whileTrue(shooterDriveCommand);
     controller1.b().whileTrue(driveTrain.getSetSpeedMultiplierCommand(Constants.SLOW_MODE_SPEED));
 
+    controller1.rightBumper().onTrue(getAutoShootCommand());
+
     controller2.a().onTrue(new InstantCommand(intakeDriverCommand::buttonPress));
     controller2.x().toggleOnTrue(toggleShooterCommand);
     controller2.y().toggleOnTrue(ampShooterCommand);
     controller2.leftBumper().onTrue(arm.getPitchControlCommand(driveTrain));
     controller2.rightBumper().onTrue(new InstantCommand(intakeDriverCommand::clearNote));
-
-    //Don't wait for shooter, instead rely on p2 to spin up shooter
-    controller1.rightBumper().and(controller1.leftBumper().negate()).onTrue(new ParallelCommandGroup(getAutoShootCommand(false), toggleShooterCommand));
-    //Spin up shooter, must wait to allow the shooter to spin up
-    controller1.rightBumper().and(controller1.leftBumper()).onTrue(new ParallelCommandGroup(getAutoShootCommand(true), toggleShooterCommand));
 
     controller2.povUp().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.AMP, cancelSetpoint));
     controller2.povLeft().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.STAGE_SHOT, cancelSetpoint));
@@ -200,21 +199,28 @@ public class RobotContainer {
     return autonomousCommand;
   }
 
-  public Command getAutoShootCommand(boolean waitForShooter){
+  public Command getAutoShootCommand(){
+    final WrappedBoolean startedShooter = new WrappedBoolean(false);
       return Commands.either(
-              arm.getPitchControlCommand(driveTrain)
-                      .andThen(
-                              new ParallelCommandGroup(Commands.waitUntil(arm::atSetpoint), new WaitCommand(waitForShooter ? 1.65 : 0)),
-                              Commands.either(
-                                      Commands.waitUntil(intakeDriverCommand::noLongerIndexing)
-                                              .andThen(toggleShooterCommand::stop)
-                                              .andThen(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE)),
-                                      Commands.none(),
-                                      intakeDriverCommand::buttonPress
-                              )),
-              Commands.none(),
-              intakeDriverCommand::readyToShoot
-      );
+          arm.getPitchControlCommand(driveTrain)
+              .andThen(
+                    new InstantCommand(() -> {
+                      if (!toggleShooterCommand.isScheduled()) {
+                        toggleShooterCommand.schedule();
+                        startedShooter.val = true;
+                      }
+                    }),
+                    new WaitUntilCommand(() -> Math.abs(shooter.getTopRPM()) > 4206.9 && arm.atSetpoint()),
+                    Commands.either(
+                        Commands.waitUntil(intakeDriverCommand::noLongerIndexing)
+                            .andThen(toggleShooterCommand::stop)
+                            .andThen(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE)),
+                        Commands.none(),
+                        intakeDriverCommand::buttonPress
+                    )),
+            Commands.none(),
+        intakeDriverCommand::readyToShoot
+      ).andThen(Commands.either(new InstantCommand(toggleShooterCommand::cancel), Commands.none(), () -> startedShooter.val));
   }
 
   public void loadAuto() {

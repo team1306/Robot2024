@@ -104,4 +104,12 @@ public class Utilities {
             this(0D);
         }
     }
+
+    public static class WrappedBoolean {
+        public boolean val;
+
+        public WrappedBoolean(boolean val) {
+            this.val = val;
+        }
+    }
 }

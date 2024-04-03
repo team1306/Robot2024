@@ -195,23 +195,25 @@ public final class AutoCommands {
         for (int i = 0; i < pathNames.length; ++i) {
             pathsAndShooter.addCommands(AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathNames[i])));
             if (i == 0 && shooterAfterFirstPath) {
-                pathsAndShooter.addCommands(scheduleShooterCommand);
+                // pathsAndShooter.addCommands(scheduleShooterCommand);
             }
         }
 
         if (!shooterAfterFirstPath || pathNames.length == 0) {
-            pathsAndShooter.addCommands(scheduleShooterCommand);
+            // pathsAndShooter.addCommands(scheduleShooterCommand);
         }
 
         ParallelDeadlineGroup command = new ParallelDeadlineGroup(
             new SequentialCommandGroup(
                 new InstantCommand(() -> arm.setTargetAngle(Rotation2d.fromDegrees(2))),
-                pathsAndShooter,
+                new ParallelDeadlineGroup(new WaitUntilCommand(intake::notePresent), pathsAndShooter),
+                new WaitCommand(0.2),
+                scheduleShooterCommand,
                 new InstantCommand(()->driveTrain.setSideVoltages(0, 0)),
                 new ShooterDriveCommand(driveTrain),
                 new InstantCommand(()->driveTrain.setSideVoltages(0, 0)),
                 arm.getPitchControlCommand(driveTrain),
-                new WaitUntilCommand(() -> Math.abs(shooter.getTopRPM()) > 3500 && arm.atSetpoint()),
+                new WaitUntilCommand(() -> Math.abs(shooter.getTopRPM()) > 4250 && arm.atSetpoint()),
                 new InstantCommand(intakeDriverCommand::buttonPress),
                 new WaitUntilCommand(intakeDriverCommand::noLongerIndexing),
                 new InstantCommand(() -> {
@@ -242,7 +244,7 @@ public final class AutoCommands {
     }
 
     public static Command getClose2ToClose3 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
-        return followPathsWhileIntakingAndThenShoot(intake, shooter, arm, driveTrain, false, "Close-2 to Close-3 P1", "Close-2 to Close-3 P2");
+        return followPathsWhileIntakingAndThenShoot(intake, shooter, arm, driveTrain, false, "Close-2 to Close-3");
     }
 
     public static Command getStartBottomToClose3 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
