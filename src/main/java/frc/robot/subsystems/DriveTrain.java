@@ -118,7 +118,7 @@ public class DriveTrain extends SubsystemBase {
         leftPID = new PIDController(leftP, 0, leftD);
         rightPID = new PIDController(rightP, 0, rightD);
 
-        motorControllers = Utilities.listFromParams(leftLeader, rightLeader, leftFollower, rightFollower);
+        motorControllers = Utilities.arrayListFromParams(leftLeader, rightLeader, leftFollower, rightFollower);
         
         //Pathplanner configuration
         AutoBuilder.configureLTV(

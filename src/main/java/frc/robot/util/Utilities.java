@@ -8,8 +8,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static frc.robot.Constants.*;
 
@@ -73,7 +76,7 @@ public class Utilities {
     }
 
     @SafeVarargs
-    public static <T> ArrayList<T> listFromParams(T... items) {
+    public static <T> ArrayList<T> arrayListFromParams(T... items) {
         final ArrayList<T> arrayList = new ArrayList<>();
         for (T item : items) {
             arrayList.add(item);
@@ -91,6 +94,17 @@ public class Utilities {
         for (T item : items) {
             consumer.accept(item);
         }
+    }
+
+    public static <T, R> ArrayList<R> map(Function<T, R> function, List<T> items) {
+        ArrayList<R> output = new ArrayList<>(items.size());
+        items.forEach(item -> output.add(function.apply(item)));
+        return output;
+    }
+
+    @SafeVarargs
+    public static <T, R> ArrayList<R> map(Function<T, R> function, T... items) {
+        return map(function, Arrays.asList(items));
     }
 
     public static class WrappedDouble {

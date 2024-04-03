@@ -4,7 +4,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -21,6 +20,7 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.util.Utilities;
 
 public final class AutoCommands {
     public static boolean firstSpinUp = true;
@@ -198,6 +198,8 @@ public final class AutoCommands {
                 // pathsAndShooter.addCommands(scheduleShooterCommand);
             }
         }
+        // above for loop should be replaced with the below
+        // pathsAndShooter.addCommands((Command[]) Utilities.map(path -> AutoBuilder.followPath(PathPlannerPath.fromPathFile(path)), pathNames).toArray());
 
         if (!shooterAfterFirstPath || pathNames.length == 0) {
             // pathsAndShooter.addCommands(scheduleShooterCommand);
