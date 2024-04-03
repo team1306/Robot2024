@@ -40,6 +40,7 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Arm.SetpointOptions;
 import frc.robot.subsystems.vision.NoteDetector;
 import frc.robot.util.DashboardGetter;
 import frc.robot.util.Utilities;
@@ -200,27 +201,13 @@ public class RobotContainer {
   }
 
   public Command getAutoShootCommand(){
-    final WrappedBoolean startedShooter = new WrappedBoolean(false);
       return Commands.either(
-          arm.getPitchControlCommand(driveTrain)
-              .andThen(
-                    new InstantCommand(() -> {
-                      if (!toggleShooterCommand.isScheduled()) {
-                        toggleShooterCommand.schedule();
-                        startedShooter.val = true;
-                      }
-                    }),
+          arm.getPitchControlCommand(driveTrain).andThen(
                     new WaitUntilCommand(() -> Math.abs(shooter.getTopRPM()) > 4206.9 && arm.atSetpoint()),
-                    Commands.either(
-                        Commands.waitUntil(intakeDriverCommand::noLongerIndexing)
-                            .andThen(toggleShooterCommand::stop)
-                            .andThen(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE)),
-                        Commands.none(),
-                        intakeDriverCommand::buttonPress
-                    )),
+                    new InstantCommand(intakeDriverCommand::buttonPress)),
             Commands.none(),
         intakeDriverCommand::readyToShoot
-      ).andThen(Commands.either(new InstantCommand(toggleShooterCommand::cancel), Commands.none(), () -> startedShooter.val));
+      ).andThen(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE, ()->true)).andThen(toggleShooterCommand::stop);
   }
 
   public void loadAuto() {
