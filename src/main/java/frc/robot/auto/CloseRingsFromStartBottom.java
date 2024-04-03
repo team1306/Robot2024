@@ -13,7 +13,7 @@ import frc.robot.subsystems.vision.NoteDetector;
 public class CloseRingsFromStartBottom extends SequentialCommandGroup {
     public CloseRingsFromStartBottom(NoteDetector detector, Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
         addCommands(
-            new InstantCommand(() -> shooter.setTargetSpeed(.79)), //spin up shooter
+            new InstantCommand(() -> {shooter.setTargetSpeed(.79);driveTrain.setSideVoltages(0, 0);}), //spin up shooter
             arm.getPitchControlCommand(driveTrain),
             new WaitUntilCommand(arm::atSetpoint),
             new IntakeIndexCommand(intake), //fire
