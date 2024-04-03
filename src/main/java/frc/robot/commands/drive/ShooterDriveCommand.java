@@ -49,7 +49,7 @@ public class ShooterDriveCommand extends Command {
         Rotation2d robotAngle = driveTrain.getRotation();
 
         delta = angle.minus(robotAngle)
-            .plus(Rotation2d.fromDegrees(Utilities.isRedAlliance() ? 0 : 180))
+            .plus(Rotation2d.fromDegrees(180))
             .minus(Rotation2d.fromDegrees(4))
             .getDegrees();
 

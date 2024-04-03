@@ -206,7 +206,7 @@ public final class AutoCommands {
         ParallelDeadlineGroup command = new ParallelDeadlineGroup(
             new SequentialCommandGroup(
                 new InstantCommand(() -> arm.setTargetAngle(Rotation2d.fromDegrees(2))),
-                new ParallelDeadlineGroup(new WaitUntilCommand(intake::notePresent), pathsAndShooter),
+                new ParallelRaceGroup(new WaitUntilCommand(intake::notePresent), pathsAndShooter),
                 new WaitCommand(0.2),
                 scheduleShooterCommand,
                 new InstantCommand(()->driveTrain.setSideVoltages(0, 0)),
