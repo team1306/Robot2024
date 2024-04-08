@@ -53,7 +53,8 @@ public class Arm extends SubsystemBase  {
         INTAKE(0),
         DOWN(4),
         SHOOT_CLOSE(16),
-        STAGE_SHOT(35);
+        STAGE_SHOT(35),
+        OVER_STAGE(32.5);
 
         private final double pos;
 
@@ -76,9 +77,10 @@ public class Arm extends SubsystemBase  {
     private final ProfiledPIDController profiledPIDController;
     private ArmFeedforward feedforward;
 
-    public static double kP = 0.036, kI = 0.0012, kD = 0.0018; // Do we want PID Controller? Or do we want to do state space model?
+    public static double kP = 0.035, kI = 0.02, kD = 0.004; // Do we want PID Controller? Or do we want to do state space model?
                                                  // need to read https://file.tavsys.net/control/controls-engineering-in-frc.pdf more so I know what I am doing
-    public static double kG = 0.0725, kV = .17;
+    public static double ampKP= 0.01, ampKI = 0, ampKD = .002;
+                                                 public static double kG = 0.0725, kV = .17; 
     private static final double MAX_VELOCITY = 360;
     private static double maxAcceleration = 140; // kMA MIGHT BE WRONG
     private double armMaxPower = 1;
@@ -152,8 +154,12 @@ public class Arm extends SubsystemBase  {
     public void periodic() {
         constraints = new TrapezoidProfile.Constraints(constraints.maxVelocity, maxAcceleration);
         profiledPIDController.setConstraints(constraints);
-        profiledPIDController.setPID(kP, kI, kD);
-        feedforward = new ArmFeedforward(0, Math.min(0.25,kG), kV, 0);
+        if (getCurrentAngle().getDegrees() > 70) {
+            profiledPIDController.setPID(ampKP, ampKI, ampKD);
+        } else {
+            profiledPIDController.setPID(kP, kI, kD);
+        }
+        feedforward = new ArmFeedforward(0, Math.min(0.25, kG), kV, 0);
 
         velocities[calcVelocityIndex(velocityIndex)] = relativeThroughBore.getRate();
 

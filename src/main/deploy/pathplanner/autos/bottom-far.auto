@@ -28,18 +28,6 @@
           "data": {
             "pathName": "Far-5 to Shoot-Bottom"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Shoot-Bottom to Far-4"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Angled Far-4 to Shoot-Bottom"
-          }
         }
       ]
     }

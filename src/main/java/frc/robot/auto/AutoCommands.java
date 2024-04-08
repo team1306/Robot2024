@@ -207,9 +207,9 @@ public final class AutoCommands {
 
         ParallelDeadlineGroup command = new ParallelDeadlineGroup(
             new SequentialCommandGroup(
-                new InstantCommand(() -> arm.setTargetAngle(Rotation2d.fromDegrees(2))),
-                new ParallelRaceGroup(new WaitUntilCommand(intake::notePresent), pathsAndShooter),
-                new WaitCommand(0.2),
+                new InstantCommand(() -> arm.setTargetAngle(Rotation2d.fromDegrees(0))),
+                pathNames.length == 1 ? new ParallelRaceGroup(new WaitUntilCommand(intake::notePresent), pathsAndShooter) : pathsAndShooter,
+                new WaitCommand(pathNames.length == 1 ? 0.2 : 0),
                 scheduleShooterCommand,
                 new InstantCommand(()->driveTrain.setSideVoltages(0, 0)),
                 new ShooterDriveCommand(driveTrain),
@@ -235,6 +235,10 @@ public final class AutoCommands {
 
     public static Command getStartMidToClose1 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
         return followPathsWhileIntakingAndThenShoot(intake, shooter, arm, driveTrain, "Start-Mid to Close-1");
+    }
+
+    public static Command getStartMidToClose2(Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
+        return followPathsWhileIntakingAndThenShoot(intake, shooter, arm, driveTrain, "Start-Mid to Close-2");
     }
 
     public static Command getStartTopToClose1 (Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
@@ -276,5 +280,11 @@ public final class AutoCommands {
     public static Command getIntakeWaiterCommand(Intake intake) {
         return new ParallelRaceGroup(new WaitUntilCommand(intake::notePresent), new WaitCommand(waitTime));
     }
+
+    public static Command getShootBottomToFar5(Intake intake, Shooter shooter, Arm arm, DriveTrain driveTrain) {
+        return followPathsWhileIntakingAndThenShoot(intake, shooter, arm, driveTrain, "Shoot-Bottom to Far-5", "Far-5 to Shoot-Bottom");
+    }
+
+
     
 }

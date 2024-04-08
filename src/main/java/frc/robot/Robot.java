@@ -90,7 +90,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-
+    robotContainer.hapticsPeriodic();
   }
 
   @Override
@@ -109,7 +109,7 @@ public class Robot extends TimedRobot {
   public void testPeriodic() {}
 
   @Override
-  public void testExit() {}
-
-
+  public void testExit() {
+    robotContainer.unBindDrivetrainTestMode();
+  }
 }

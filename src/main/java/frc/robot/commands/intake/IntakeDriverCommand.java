@@ -28,6 +28,7 @@ public class IntakeDriverCommand extends Command {
 
     private State state = State.UNPOWERED_NO_ELEMENT;
     private short noteNotPresentConfidence = 0; // this does not need to be a short but i am doing it for funsies
+    private short notePresentConfidence = 5;
     private boolean wasReversed = false;
     
     public IntakeDriverCommand(Intake intake, Shooter shooter, BooleanSupplier reverseOverride, DoubleSupplier armAngle) {
@@ -83,11 +84,16 @@ public class IntakeDriverCommand extends Command {
                     intake.setTargetSpeed(INTAKE_SPEED);
                     break;
                 }
+                if (notePresentConfidence < 5){
+                    notePresentConfidence++;
+                    break;
+                }
+                notePresentConfidence = 0;
                 state = State.REVERSING;
                 intake.setTargetSpeed(-1.0 / 8.0);
                 timer.restart();
             case REVERSING:
-                if (timer.get() > 0.26) {
+                if (timer.get() > 0.25) {
                     intake.setTargetSpeed(0);
                     state = State.UNPOWERED_WITH_ELEMENT;
                 }

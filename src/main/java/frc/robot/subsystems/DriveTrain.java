@@ -52,7 +52,6 @@ public class DriveTrain extends SubsystemBase {
     // public static double leftFriction = 0;
     // public static double rightFriction = 0;
 
-    // TODO: WHAT SHOULD THIS BE? IS THIS NEEDED?
     private static final String AUTO_NAME = "abcdef";
 
     private static final double leftKS = 0;//0.0087513; volts
@@ -95,10 +94,10 @@ public class DriveTrain extends SubsystemBase {
 
     public DriveTrain(){
         gyro.reset();
-        leftLeader = MotorUtil.initSparkMax(FRONT_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
-        leftFollower = MotorUtil.initSparkMax(BACK_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
-        rightLeader = MotorUtil.initSparkMax(FRONT_RIGHT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
-        rightFollower = MotorUtil.initSparkMax(BACK_RIGHT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake);
+        leftLeader = MotorUtil.initSparkMax(FRONT_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake, 48);
+        leftFollower = MotorUtil.initSparkMax(BACK_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake, 48);
+        rightLeader = MotorUtil.initSparkMax(FRONT_RIGHT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake, 48);
+        rightFollower = MotorUtil.initSparkMax(BACK_RIGHT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake, 48);
         leftLeader.setInverted(false);
         leftFollower.follow(leftLeader, false);
 
@@ -131,7 +130,6 @@ public class DriveTrain extends SubsystemBase {
                 Utilities::isRedAlliance,
                 this // Reference to this subsystem to set requirements
         );
-        
         poseEstimator = new DifferentialDrivePoseEstimator(kinematics, gyro.getRotation2d(), lEncoder.getDistance(), rEncoder.getDistance(),
             INCLUDE_AUTO ? PathPlannerAuto.getStaringPoseFromAutoFile(AUTO_NAME) : new Pose2d());
 
@@ -364,4 +362,5 @@ public class DriveTrain extends SubsystemBase {
   public void pushCurrentLimitToAllDrivetrainMotors(int amps) {
     motorControllers.forEach(motor -> motor.setSmartCurrentLimit(amps));
   }
+  
 }

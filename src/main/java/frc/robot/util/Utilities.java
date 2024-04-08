@@ -25,6 +25,11 @@ public class Utilities {
      */
     public static boolean isRedAlliance(){
         var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent()) {
+            System.out.println(alliance.get());
+        } else {
+            System.out.println("COLOR NOT RETURNED");
+        }
         return alliance.isEmpty() || (alliance.get() == DriverStation.Alliance.Red);
     }
     /**
@@ -124,6 +129,18 @@ public class Utilities {
 
         public WrappedBoolean(boolean val) {
             this.val = val;
+        }
+    }
+
+    public static class WrappedInteger {
+        public int val;
+
+        public WrappedInteger(int val) {
+            this.val = val;
+        }
+        
+        public WrappedInteger() {
+            this(0);
         }
     }
 }

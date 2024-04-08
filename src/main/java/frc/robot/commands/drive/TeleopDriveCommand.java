@@ -35,7 +35,7 @@ public class TeleopDriveCommand extends Command{
         final double driveValue = MathUtil.applyDeadband(isForward ? forward : -backward, deadbandValue);
         driveTrain.arcadeDrive(
             driveValue, 
-            MathUtil.applyDeadband(rotation * (((Math.abs(driveValue) > 1e-2) ? isForward : lastIsForward) ? 1 : -1), deadbandValue)
+            MathUtil.applyDeadband(rotation * (((Math.abs(driveValue) > 1e-2) ?  isForward : lastIsForward) ? 1 : -1), deadbandValue)
         );
         SmartDashboard.putBoolean("is Forward", (Math.abs(driveValue) > 1e-2) ? isForward : lastIsForward);
         lastIsForward = (Math.abs(driveValue) > 1e-3) ? isForward : lastIsForward;

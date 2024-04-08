@@ -7,7 +7,7 @@ import frc.robot.subsystems.Shooter;
 
 public class MoveOutLeft extends MoveOutMid {
     public MoveOutLeft(DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) {
-        super(0.3, 0.2, 1, driveTrain, shooter, arm, intake, 1.3);
+        super(0.15, 0.3, 1.2, driveTrain, shooter, arm, intake, 1.46);
     }
     
     @Override

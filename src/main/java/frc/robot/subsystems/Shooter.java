@@ -60,6 +60,8 @@ public class Shooter extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("shooter top rpm", getTopRPM());
+        SmartDashboard.putNumber("shooter bottom rpm", getBottomRPM());
+
         SmartDashboard.putBoolean("SHOOTER RUNNING", Math.abs(targetSpeed) > 0);
 
         topMotor.set(targetSpeed); // CHANGE TO FLYWHEEL STATE MODEL.

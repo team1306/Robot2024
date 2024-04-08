@@ -23,7 +23,7 @@ public class MoveArmCommand extends Command {
     }
 
     @Override
-    public void initialize(){
+    public void initialize() {
         targetAngle = arm.getTargetAngle();
     }
 

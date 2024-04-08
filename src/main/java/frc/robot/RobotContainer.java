@@ -8,6 +8,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
@@ -16,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.auto.AutoCommands;
 import frc.robot.auto.AutonomousFactory;
+import frc.robot.auto.BottomTwoRingsFromBottom;
 import frc.robot.auto.CloseRingsFromStartBottom;
 import frc.robot.auto.CloseRingsFromStartMid;
 import frc.robot.auto.CloseRingsFromStartTop;
@@ -23,12 +25,15 @@ import frc.robot.auto.CloseTopRingAndTopFarTwoRingsFromStartTop;
 import frc.robot.auto.FarRingsFromStartBottom;
 import frc.robot.auto.FarRingsFromStartMid;
 import frc.robot.auto.FarRingsFromStartTop;
+import frc.robot.auto.FunnyMid;
 import frc.robot.auto.JustShoot;
 import frc.robot.auto.MoveOutLeft;
 import frc.robot.auto.MoveOutMid;
 import frc.robot.auto.MoveOutMidTwoRing;
 import frc.robot.auto.MoveOutRight;
 import frc.robot.auto.MoveOutRightTwoRing;
+import frc.robot.commands.VibrateControllersCommand;
+import frc.robot.commands.VibrateControllersCommand.HIDSubsystem;
 import frc.robot.commands.arm.MoveArmCommand;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.commands.drive.ShooterDriveCommand;
@@ -40,14 +45,13 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Arm.SetpointOptions;
 import frc.robot.subsystems.vision.NoteDetector;
 import frc.robot.util.DashboardGetter;
 import frc.robot.util.Utilities;
-import frc.robot.util.Utilities.WrappedBoolean;
-import frc.robot.util.Utilities.WrappedDouble;
+import frc.robot.util.Utilities.WrappedInteger;
 
 import static frc.robot.util.Utilities.removeAndCancelDefaultCommand;
+import static frc.robot.Constants.LOOP_TIME_SECONDS;
 import static frc.robot.util.Utilities.WrappedDouble;
 
 import java.util.function.BooleanSupplier;
@@ -64,6 +68,7 @@ public class RobotContainer {
   public final Intake intake;
   public final Arm arm;
 
+  private Command currentAdjustmentCommand = null;
   private final Shooter shooter;
   public final TeleopDriveCommand teleopDriveCommand;
   public final IntakeDriverCommand intakeDriverCommand;
@@ -72,7 +77,8 @@ public class RobotContainer {
   private final MoveArmCommand moveArmCommand;
   private final ToggleShooterCommand toggleShooterCommand, ampShooterCommand;
   private final ToggleIntakeCommand toggleIntakeCommand;
-
+  private final EventLoop hapticLoop = new EventLoop();
+  
   private Command autonomousCommand = new InstantCommand() {
     @Override
     public String getName() {
@@ -123,8 +129,10 @@ public class RobotContainer {
     autoChooser.addOption("Close Rings from Start Bottom", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new CloseRingsFromStartBottom(detector, intake, shooter, arm, driveTrain));
     autoChooser.addOption("Close Rings from Start Top", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new CloseRingsFromStartTop(detector, intake, shooter, arm, driveTrain));
     autoChooser.addOption("Close Top Ring and Top Far Two Rings From Start Top", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new CloseTopRingAndTopFarTwoRingsFromStartTop(detector, intake, shooter, arm, driveTrain));
+    autoChooser.addOption("funny mid", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FunnyMid(detector, intake, shooter, arm, driveTrain));
 
     autoChooser.addOption("Far Rings from Start Bottom (right around stage)", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromStartBottom(detector, intake, shooter, arm, driveTrain));
+    autoChooser.addOption("bottom funny", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new BottomTwoRingsFromBottom(detector, intake, shooter, arm, driveTrain));
     autoChooser.addOption("Far Rings from Start Top (left around stage)", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromStartMid(detector, intake, shooter, arm, driveTrain));
     autoChooser.addOption("Far Rings from Start Mid (left around stage)", (NoteDetector detector,  DriveTrain driveTrain, Shooter shooter, Arm arm, Intake intake) -> new FarRingsFromStartTop(detector, intake, shooter, arm, driveTrain));
     autoChooser.addOption("testPath", (NoteDetector a,  DriveTrain b, Shooter c, Arm d, Intake e) -> new PathPlannerAuto("abcdef"));
@@ -141,6 +149,23 @@ public class RobotContainer {
         DashboardGetter.addGetDoubleData("Right Side Drivetrain Test Voltage", rightVolts.val, a -> rightVolts.val = a);
       }, () -> driveTrain.setSideVoltages(leftVolts.val, rightVolts.val), interrupted -> {}, () -> false, driveTrain).schedule();
     });
+    drivetrainTestModeChooser.addOption("traction current testing", () -> {
+      final WrappedDouble currentLimit = new WrappedDouble();
+      final WrappedInteger i = new WrappedInteger(-1);
+      currentAdjustmentCommand = new FunctionalCommand(
+        () -> {
+          DashboardGetter.addGetDoubleData("Drivetrain Current Limit", currentLimit.val, a -> currentLimit.val = a);
+          bindDrivetrainTeleop();
+        }, 
+        () -> {
+          if (++i.val % (0.5 / LOOP_TIME_SECONDS) == 0) {
+            driveTrain.pushCurrentLimitToAllDrivetrainMotors((int) Math.round(currentLimit.val));
+          }
+        },
+        interrupted -> {}, () -> false
+      );
+      currentAdjustmentCommand.schedule();
+    });
     drivetrainTestModeChooser.addOption("manual meters per second input", () -> {
       final WrappedDouble leftMetersS = new WrappedDouble(), rightMetersS = new WrappedDouble();
       new FunctionalCommand(() -> {
@@ -152,7 +177,7 @@ public class RobotContainer {
 
     SmartDashboard.putData("Drivetrain Test Mode Chooser", drivetrainTestModeChooser);
 
-    notePresentOutput = new DigitalOutput(8);
+    notePresentOutput = new DigitalOutput(11);
     ledRedBlueOutput = new DigitalOutput(9);
     notePresentOutput.set(false);
     ledRedBlueOutput.set(true);
@@ -186,6 +211,8 @@ public class RobotContainer {
     controller2.leftBumper().onTrue(arm.getPitchControlCommand(driveTrain));
     controller2.rightBumper().onTrue(new InstantCommand(intakeDriverCommand::clearNote));
 
+    //32.5
+    controller2.rightTrigger(0.5).onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.OVER_STAGE));
     controller2.povUp().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.AMP, cancelSetpoint));
     controller2.povLeft().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.STAGE_SHOT, cancelSetpoint));
     controller2.povRight().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.SHOOT_CLOSE, cancelSetpoint));
@@ -193,6 +220,16 @@ public class RobotContainer {
 
     controller2.rightStick().onTrue(moveArmCommand);
     controller2.back().toggleOnTrue(new InstantCommand(intakeDriverCommand::reset).andThen(toggleIntakeCommand));
+
+    new Trigger(hapticLoop, intake::notePresent).onTrue(
+      new ParallelDeadlineGroup(
+        new WaitCommand(VibrateControllersCommand.RUMBLE_TIME),
+        new VibrateControllersCommand(
+          new HIDSubsystem(controller1.getHID()),
+          new HIDSubsystem(controller2.getHID())
+        )
+      )
+    );
   }
 
   public Command getAutonomousCommand() {
@@ -242,5 +279,13 @@ public class RobotContainer {
 
   public void bindDrivetrainTeleop() {
     driveTrain.setDefaultCommand(teleopDriveCommand);
+  }
+
+  public void unBindDrivetrainTestMode() {
+    Utilities.runIfNotNull(currentAdjustmentCommand, Command::cancel);
+  }
+
+  public void hapticsPeriodic() {
+    hapticLoop.poll();
   }
 }
