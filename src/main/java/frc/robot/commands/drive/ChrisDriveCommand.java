@@ -8,7 +8,7 @@ import frc.robot.util.DashboardGetter;
 
 import java.util.function.DoubleSupplier;
 
-public class TeleopDriveCommand extends Command{    
+public class ChrisDriveCommand extends Command{    
     
     private final DriveTrain driveTrain;
     private final DoubleSupplier forwardSupplier;
@@ -17,7 +17,8 @@ public class TeleopDriveCommand extends Command{
  
     private double deadbandValue = 0.0;
     private boolean lastIsForward = true;
-    public TeleopDriveCommand(DriveTrain driveTrain, DoubleSupplier forwardSupplier, DoubleSupplier backwardSupplier, DoubleSupplier rotationSupplier){
+    
+    public ChrisDriveCommand(DriveTrain driveTrain, DoubleSupplier forwardSupplier, DoubleSupplier backwardSupplier, DoubleSupplier rotationSupplier){
         this.driveTrain = driveTrain;
         this.forwardSupplier = forwardSupplier;
         this.backwardSupplier = backwardSupplier;
@@ -40,6 +41,7 @@ public class TeleopDriveCommand extends Command{
         SmartDashboard.putBoolean("is Forward", (Math.abs(driveValue) > 1e-2) ? isForward : lastIsForward);
         lastIsForward = (Math.abs(driveValue) > 1e-3) ? isForward : lastIsForward;
     }
+    
     @Override
     public boolean isFinished(){
         return false;
