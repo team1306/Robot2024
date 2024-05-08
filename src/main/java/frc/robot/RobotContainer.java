@@ -37,7 +37,8 @@ import frc.robot.commands.VibrateControllersCommand.HIDSubsystem;
 import frc.robot.commands.arm.MoveArmCommand;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.commands.drive.ShooterDriveCommand;
-import frc.robot.commands.drive.TeleopDriveCommand;
+import frc.robot.commands.drive.ChrisDriveCommand;
+import frc.robot.commands.drive.JoystickDriveCommand;
 import frc.robot.commands.intake.IntakeDriverCommand;
 import frc.robot.commands.intake.ToggleIntakeCommand;
 import frc.robot.commands.shooter.ToggleShooterCommand;
@@ -63,6 +64,13 @@ public class RobotContainer {
 
   private final SendableChooser<AutonomousFactory> autoChooser = new SendableChooser<>();
   private final SendableChooser<Runnable> drivetrainTestModeChooser = new SendableChooser<>();
+  private final SendableChooser<Runnable> buttonBindingsChooser = new SendableChooser<>();
+
+  private final EventLoop safeP1EventLoop = new EventLoop();
+  private final EventLoop safeP2EventLoop = new EventLoop();
+  private final EventLoop skilledEventLoop = new EventLoop();
+  private final EventLoop superviseEventLoop = new EventLoop();
+
   
   public final DriveTrain driveTrain;
   public final Intake intake;
@@ -70,7 +78,7 @@ public class RobotContainer {
 
   private Command currentAdjustmentCommand = null;
   private final Shooter shooter;
-  public final TeleopDriveCommand teleopDriveCommand;
+  public final JoystickDriveCommand teleopDriveCommand;
   public final IntakeDriverCommand intakeDriverCommand;
  
   private final ShooterDriveCommand shooterDriveCommand;
@@ -113,7 +121,7 @@ public class RobotContainer {
     moveArmCommand = new MoveArmCommand(arm, controller2::getRightY);
     toggleIntakeCommand = new ToggleIntakeCommand(intake, controller2.a(), controller2.b());
     intakeDriverCommand = new IntakeDriverCommand(intake, shooter, controller2.b(), () -> arm.getCurrentAngle().getDegrees());
-    teleopDriveCommand = new TeleopDriveCommand(driveTrain, controller1::getLeftTriggerAxis, controller1::getRightTriggerAxis, () -> -controller1.getLeftX());
+    teleopDriveCommand = new JoystickDriveCommand(driveTrain, controller1::getLeftY, () -> -controller1.getRightX());
     toggleShooterCommand = new ToggleShooterCommand(() -> Shooter.peakOutput, shooter);
     ampShooterCommand = new ToggleShooterCommand(() -> Shooter.peakOutput /3D, shooter);
     arm.setDefaultCommand(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE));
@@ -177,6 +185,13 @@ public class RobotContainer {
 
     SmartDashboard.putData("Drivetrain Test Mode Chooser", drivetrainTestModeChooser);
 
+    buttonBindingsChooser.addOption("Safety 1 Player", this::configureSafeP1Bindings);
+    buttonBindingsChooser.addOption("Safety 2 Player", this::configureSafeP2Bindings);
+    buttonBindingsChooser.addOption("Skilled Player", this::configureSkilledBindings);
+    buttonBindingsChooser.addOption("Supervisor Player", this::configureSuperviseBindings);
+
+    SmartDashboard.putData("Outreach mode chooser", buttonBindingsChooser);
+
     notePresentOutput = new DigitalOutput(11);
     ledRedBlueOutput = new DigitalOutput(9);
     notePresentOutput.set(false);
@@ -200,36 +215,55 @@ public class RobotContainer {
      * joysticks}.
      */
   private void configureBindings() {
-    controller1.a().whileTrue(shooterDriveCommand);
-    controller1.b().whileTrue(driveTrain.getSetSpeedMultiplierCommand(Constants.SLOW_MODE_SPEED));
+    // controller1.a().whileTrue(shooterDriveCommand);
+    // controller1.b().whileTrue(driveTrain.getSetSpeedMultiplierCommand(Constants.SLOW_MODE_SPEED));
 
-    controller1.rightBumper().onTrue(getAutoShootCommand());
+    // controller1.rightBumper().onTrue(getAutoShootCommand());
 
-    controller2.a().onTrue(new InstantCommand(intakeDriverCommand::buttonPress));
-    controller2.x().toggleOnTrue(toggleShooterCommand);
-    controller2.y().toggleOnTrue(ampShooterCommand);
-    controller2.leftBumper().onTrue(arm.getPitchControlCommand(driveTrain));
-    controller2.rightBumper().onTrue(new InstantCommand(intakeDriverCommand::clearNote));
+    // controller2.a().onTrue(new InstantCommand(intakeDriverCommand::buttonPress));
+    // controller2.x().toggleOnTrue(toggleShooterCommand);
+    // controller2.y().toggleOnTrue(ampShooterCommand);
+    // controller2.leftBumper().onTrue(arm.getPitchControlCommand(driveTrain));
+    // controller2.rightBumper().onTrue(new InstantCommand(intakeDriverCommand::clearNote));
 
-    //32.5
-    controller2.rightTrigger(0.5).onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.OVER_STAGE));
-    controller2.povUp().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.AMP, cancelSetpoint));
-    controller2.povLeft().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.STAGE_SHOT, cancelSetpoint));
-    controller2.povRight().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.SHOOT_CLOSE, cancelSetpoint));
-    controller2.povDown().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE, cancelSetpoint));
+    // //32.5
+    // controller2.rightTrigger(0.5).onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.OVER_STAGE));
+    // controller2.povUp().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.AMP, cancelSetpoint));
+    // controller2.povLeft().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.STAGE_SHOT, cancelSetpoint));
+    // controller2.povRight().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.SHOOT_CLOSE, cancelSetpoint));
+    // controller2.povDown().onTrue(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE, cancelSetpoint));
 
-    controller2.rightStick().onTrue(moveArmCommand);
-    controller2.back().toggleOnTrue(new InstantCommand(intakeDriverCommand::reset).andThen(toggleIntakeCommand));
+    // controller2.rightStick().onTrue(moveArmCommand);
 
-    new Trigger(hapticLoop, intake::notePresent).onTrue(
-      new ParallelDeadlineGroup(
-        new WaitCommand(VibrateControllersCommand.RUMBLE_TIME),
-        new VibrateControllersCommand(
-          new HIDSubsystem(controller1.getHID()),
-          new HIDSubsystem(controller2.getHID())
-        )
-      )
-    );
+    // new Trigger(hapticLoop, intake::notePresent).onTrue(
+    //   new ParallelDeadlineGroup(
+    //     new WaitCommand(VibrateControllersCommand.RUMBLE_TIME),
+    //     new VibrateControllersCommand(
+    //       new HIDSubsystem(controller1.getHID()),
+    //       new HIDSubsystem(controller2.getHID())
+    //     )
+    //   )
+    // );
+  }
+
+  private void configureSafeP1Bindings(){
+    driveTrain.getSetSpeedMultiplierCommand(0.25).schedule();
+    CommandScheduler.getInstance().setActiveButtonLoop(safeP1EventLoop);
+  }
+  private void configureSafeP2Bindings(){
+    driveTrain.getSetSpeedMultiplierCommand(0.25).schedule();
+
+    CommandScheduler.getInstance().setActiveButtonLoop(safeP2EventLoop);
+  }
+  private void configureSkilledBindings(){
+    driveTrain.getSetSpeedMultiplierCommand(0.5).schedule();
+
+    CommandScheduler.getInstance().setActiveButtonLoop(skilledEventLoop);
+  }
+  private void configureSuperviseBindings(){
+    driveTrain.getSetSpeedMultiplierCommand(0.5).schedule();
+
+    CommandScheduler.getInstance().setActiveButtonLoop(superviseEventLoop); 
   }
 
   public Command getAutonomousCommand() {

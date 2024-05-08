@@ -83,7 +83,7 @@ public class Robot extends TimedRobot {
     if (armDebugCommand != null) {
       armDebugCommand.cancel();
     }
-    robotContainer.intake.setDefaultCommand(robotContainer.intakeDriverCommand);
+    // robotContainer.intake.setDefaultCommand(robotContainer.intakeDriverCommand);
     robotContainer.bindDrivetrainTeleop();
     // robotContainer.climberDriverCommand.resetState();
   }
