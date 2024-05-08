@@ -18,6 +18,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.*;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -27,6 +28,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
@@ -88,11 +90,13 @@ public class DriveTrain extends SubsystemBase {
 
     private DifferentialDriveWheelSpeeds lastWheelSpeeds = new DifferentialDriveWheelSpeeds();
 
+    private Shooter shooter;
+
     public void setPoseToVisionPosition() {
         resetPose(LimelightHelpers.getBotPose2d_wpiBlue(LIMELIGHT_NAME));
     }
 
-    public DriveTrain(){
+    public DriveTrain() {
         gyro.reset();
         leftLeader = MotorUtil.initSparkMax(FRONT_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake, 48);
         leftFollower = MotorUtil.initSparkMax(BACK_LEFT_DRIVE_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake, 48);
@@ -168,6 +172,7 @@ public class DriveTrain extends SubsystemBase {
         setSideVoltages(left * 12D, right * 12D);
     }
 
+    //rotation is the speed that it rotates between -1 and 1.
     public void arcadeDrive(double speed, double rotation){
         SmartDashboard.putNumber("Speed", speed);
         SmartDashboard.putNumber("Rotation", rotation);
@@ -359,7 +364,7 @@ public class DriveTrain extends SubsystemBase {
     }
     
     
-  public void pushCurrentLimitToAllDrivetrainMotors(int amps) {
+    public void pushCurrentLimitToAllDrivetrainMotors(int amps) {
     motorControllers.forEach(motor -> motor.setSmartCurrentLimit(amps));
   }
   
