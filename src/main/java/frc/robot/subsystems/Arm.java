@@ -23,10 +23,14 @@ import frc.robot.util.Utilities;
 
 import static frc.robot.Constants.*;
 
+import java.util.function.BooleanSupplier;
+
 public class Arm extends SubsystemBase  {
 
     private static double a = -9.99e-4, b = 0.408, c = -1.1;
+    
     //-0.000905, 0.368, 3.41
+    @FunctionalInterface
     public static interface Setpoint {
         double getPos();
 
