@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.event.EventLoop;
@@ -13,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.auto.AutoCommands;
@@ -41,6 +43,9 @@ import frc.robot.commands.drive.ChrisDriveCommand;
 import frc.robot.commands.drive.JoystickDriveCommand;
 import frc.robot.commands.intake.IntakeDriverCommand;
 import frc.robot.commands.intake.ToggleIntakeCommand;
+import frc.robot.commands.outreach.FireCommand;
+import frc.robot.commands.outreach.IntakeCommand;
+import frc.robot.commands.outreach.ShooterSpeedCommand;
 import frc.robot.commands.shooter.ToggleShooterCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveTrain;
@@ -84,6 +89,8 @@ public class RobotContainer {
   private final ShooterDriveCommand shooterDriveCommand;
   private final MoveArmCommand moveArmCommand;
   private final ToggleShooterCommand toggleShooterCommand, ampShooterCommand;
+  private final IntakeCommand intakeCommand;
+  private final FireCommand fireCommand;
   private final ToggleIntakeCommand toggleIntakeCommand;
   private final EventLoop hapticLoop = new EventLoop();
   
@@ -113,6 +120,7 @@ public class RobotContainer {
 
     VideoSink videoSink = CameraServer.addSwitchedCamera("driver");
     */
+    
     driveTrain = new DriveTrain();
     intake = new Intake();
     shooter = new Shooter();
@@ -121,9 +129,13 @@ public class RobotContainer {
     moveArmCommand = new MoveArmCommand(arm, controller2::getRightY);
     toggleIntakeCommand = new ToggleIntakeCommand(intake, controller2.a(), controller2.b());
     intakeDriverCommand = new IntakeDriverCommand(intake, shooter, controller2.b(), () -> arm.getCurrentAngle().getDegrees());
-    teleopDriveCommand = new JoystickDriveCommand(driveTrain, controller1::getLeftY, () -> -controller1.getRightX());
+    teleopDriveCommand = new JoystickDriveCommand(driveTrain, () -> -controller1.getLeftY(), () -> controller1.getRightX());
     toggleShooterCommand = new ToggleShooterCommand(() -> Shooter.peakOutput, shooter);
     ampShooterCommand = new ToggleShooterCommand(() -> Shooter.peakOutput /3D, shooter);
+
+    fireCommand = new FireCommand(intake, shooter);
+    intakeCommand = new IntakeCommand(intake);
+    intake.setDefaultCommand(intakeCommand);
     arm.setDefaultCommand(new MoveArmToSetpointCommand(arm, Arm.SetpointOptions.INTAKE));
     configureBindings();
     
@@ -147,7 +159,6 @@ public class RobotContainer {
     autoChooser.addOption("linetest", (NoteDetector a,  DriveTrain b, Shooter c, Arm d, Intake e) -> new PathPlannerAuto("linetest"));
     autoChooser.addOption("Just Shoot", (NoteDetector unused,  DriveTrain alsoUnused, Shooter shooter, Arm arm, Intake intake) -> new JustShoot(shooter, arm, intake));
     SmartDashboard.putData("auto chooser", autoChooser);
-
     drivetrainTestModeChooser.setDefaultOption("sysid", this::configureSysIDBindings);
     drivetrainTestModeChooser.addOption("controller", this::bindDrivetrainTeleop);
     drivetrainTestModeChooser.addOption("manual voltage input", () -> {
@@ -185,12 +196,12 @@ public class RobotContainer {
 
     SmartDashboard.putData("Drivetrain Test Mode Chooser", drivetrainTestModeChooser);
 
-    buttonBindingsChooser.addOption("Safety 1 Player", this::configureSafeP1Bindings);
-    buttonBindingsChooser.addOption("Safety 2 Player", this::configureSafeP2Bindings);
-    buttonBindingsChooser.addOption("Skilled Player", this::configureSkilledBindings);
-    buttonBindingsChooser.addOption("Supervisor Player", this::configureSuperviseBindings);
+    buttonBindingsChooser.addOption("Safety w/ 1 Player", this::changeSafeP1Bindings);
+    buttonBindingsChooser.addOption("Safety w/ 2 Players", this::changeSafeP2Bindings);
+    buttonBindingsChooser.addOption("TRAINING REQUIRED: 1 Skilled Player", this::changeSkilledBindings);
+    buttonBindingsChooser.addOption("Supervisor Player", this::changeSuperviseBindings);
 
-    SmartDashboard.putData("Outreach mode chooser", buttonBindingsChooser);
+    SmartDashboard.putData("Control mode chooser", buttonBindingsChooser);
 
     notePresentOutput = new DigitalOutput(11);
     ledRedBlueOutput = new DigitalOutput(9);
@@ -244,26 +255,75 @@ public class RobotContainer {
     //     )
     //   )
     // );
+    configureSafeP1Bindings();
+    configureSafeP2Bindings();
+    configureSkilledBindings();
+    configureSuperviseBindings();
+
+    changeSafeP1Bindings();
   }
 
-  private void configureSafeP1Bindings(){
-    driveTrain.getSetSpeedMultiplierCommand(0.25).schedule();
+  private void changeSafeP1Bindings() {
+    driveTrain.currentSpeedMultiplier = 0.25;
     CommandScheduler.getInstance().setActiveButtonLoop(safeP1EventLoop);
   }
-  private void configureSafeP2Bindings(){
-    driveTrain.getSetSpeedMultiplierCommand(0.25).schedule();
-
+  private void changeSafeP2Bindings(){
+    driveTrain.currentSpeedMultiplier = 0.25;
+    //TODO TEST
     CommandScheduler.getInstance().setActiveButtonLoop(safeP2EventLoop);
   }
-  private void configureSkilledBindings(){
-    driveTrain.getSetSpeedMultiplierCommand(0.5).schedule();
-
+  private void changeSkilledBindings(){
+    driveTrain.currentSpeedMultiplier = 0.5;
+    //TODO TEST
     CommandScheduler.getInstance().setActiveButtonLoop(skilledEventLoop);
   }
-  private void configureSuperviseBindings(){
-    driveTrain.getSetSpeedMultiplierCommand(0.5).schedule();
-
+  private void changeSuperviseBindings(){
+    driveTrain.currentSpeedMultiplier = 0.5;
     CommandScheduler.getInstance().setActiveButtonLoop(superviseEventLoop); 
+  }
+
+
+  private void configureSafeP1Bindings(){
+    final ShooterSpeedCommand shooterSpeedCommand = new ShooterSpeedCommand(shooter, () -> controller1.getLeftTriggerAxis()); 
+    controller1.a(safeP1EventLoop).onTrue(new InstantCommand(intakeCommand::buttonPress));
+    controller1.b(safeP1EventLoop).onTrue(new InstantCommand(intakeCommand::reverseOverride));
+    controller1.leftTrigger(0.1, safeP1EventLoop).toggleOnTrue(shooterSpeedCommand);
+    controller1.rightTrigger(0.5, safeP1EventLoop).onTrue(fireCommand);
+    controller1.pov(0, 0, safeP1EventLoop).onTrue(new MoveArmToSetpointCommand(arm, new Arm.Setpoint.Custom(Rotation2d.fromDegrees(60))));
+    controller1.pov(0, 180, safeP1EventLoop).onTrue(new MoveArmToSetpointCommand(arm, new Arm.Setpoint.Custom(Rotation2d.fromDegrees(0))));
+  }
+  private void configureSafeP2Bindings(){
+    final ShooterSpeedCommand shooterSpeedCommand = new ShooterSpeedCommand(shooter, () -> controller2.getLeftTriggerAxis()); 
+    controller2.a(safeP2EventLoop).onTrue(new InstantCommand(intakeCommand::buttonPress));
+    controller2.b(safeP2EventLoop).onTrue(new InstantCommand(intakeCommand::reverseOverride));
+    controller2.leftTrigger(0.1, safeP2EventLoop).toggleOnTrue(shooterSpeedCommand);
+    controller2.rightTrigger(0.5, safeP2EventLoop).onTrue(fireCommand);
+    controller2.pov(0, 0, safeP2EventLoop).onTrue(new MoveArmToSetpointCommand(arm, new Arm.Setpoint.Custom(Rotation2d.fromDegrees(60))));
+    controller2.pov(0, 180, safeP2EventLoop).onTrue(new MoveArmToSetpointCommand(arm, new Arm.Setpoint.Custom(Rotation2d.fromDegrees(0))));
+  }
+  private void configureSkilledBindings(){
+    final ShooterSpeedCommand halfShooterSpeedCommand = new ShooterSpeedCommand(shooter, () -> Shooter.peakOutput / 2); 
+    final MoveArmCommand moveArmCommand = new MoveArmCommand(arm, controller1::getLeftY);
+    controller1.a(skilledEventLoop).onTrue(new InstantCommand(intakeCommand::buttonPress));
+    controller1.b(skilledEventLoop).onTrue(new InstantCommand(intakeCommand::reverseOverride));
+    controller1.x(skilledEventLoop).toggleOnTrue(toggleShooterCommand);
+    controller1.x(skilledEventLoop).toggleOnTrue(halfShooterSpeedCommand);
+
+    controller1.rightTrigger(0.5, skilledEventLoop).onTrue(fireCommand);
+    controller1.pov(0, 0, skilledEventLoop).onTrue(new MoveArmToSetpointCommand(arm, new Arm.Setpoint.Custom(Rotation2d.fromDegrees(60))));
+    controller1.pov(0, 90, skilledEventLoop).onTrue(new MoveArmToSetpointCommand(arm, new Arm.Setpoint.Custom(Rotation2d.fromDegrees(30))));
+    controller1.pov(0, 180, skilledEventLoop).onTrue(new MoveArmToSetpointCommand(arm, new Arm.Setpoint.Custom(Rotation2d.fromDegrees(0))));
+    controller1.pov(0, 270, skilledEventLoop).onTrue(new MoveArmToSetpointCommand(arm, new Arm.Setpoint.Custom(Rotation2d.fromDegrees(15))));
+    controller1.rightBumper().onTrue(new InstantCommand(() -> {
+      unbindDrivetrainTeleop();
+      moveArmCommand.schedule();
+    }));
+    controller1.rightBumper().onFalse(new InstantCommand(() -> {
+      bindDrivetrainTeleop();
+      moveArmCommand.cancel();
+    }));
+  }
+  private void configureSuperviseBindings(){
   }
 
   public Command getAutonomousCommand() {
@@ -313,6 +373,10 @@ public class RobotContainer {
 
   public void bindDrivetrainTeleop() {
     driveTrain.setDefaultCommand(teleopDriveCommand);
+  }
+
+  public void unbindDrivetrainTeleop() {
+    Utilities.removeAndCancelDefaultCommand(driveTrain);
   }
 
   public void unBindDrivetrainTestMode() {

@@ -25,11 +25,6 @@ public class Utilities {
      */
     public static boolean isRedAlliance(){
         var alliance = DriverStation.getAlliance();
-        if (alliance.isPresent()) {
-            System.out.println(alliance.get());
-        } else {
-            System.out.println("COLOR NOT RETURNED");
-        }
         return alliance.isEmpty() || (alliance.get() == DriverStation.Alliance.Red);
     }
     /**
