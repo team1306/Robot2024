@@ -13,17 +13,12 @@ public class JoystickDriveCommand extends Command{
     private final DriveTrain driveTrain;
     private final DoubleSupplier forwardSupplier;
     private final DoubleSupplier rotationSupplier;
- 
-    private double deadbandValue = 0.0;
-    private boolean lastIsForward = true;
-    
+     
     public JoystickDriveCommand(DriveTrain driveTrain, DoubleSupplier leftYSupplier, DoubleSupplier rotationSupplier) {
         this.driveTrain = driveTrain;
         this.forwardSupplier = leftYSupplier;
         this.rotationSupplier = rotationSupplier;
         this.addRequirements(driveTrain);
-
-        DashboardGetter.addGetDoubleData("Teleop Drive Deadband", deadbandValue, value -> deadbandValue = value);
     }
 
     @Override

@@ -44,6 +44,8 @@ import static frc.robot.Constants.*;
 
 import java.util.ArrayList;
 
+import javax.sound.midi.SysexMessage;
+
 
 //Implemented as Ramsete (Differential)
 public class DriveTrain extends SubsystemBase {
@@ -72,7 +74,7 @@ public class DriveTrain extends SubsystemBase {
     //Percentage
     public static double maxSpeed = 1;
 
-    private double currentSpeedMultiplier = 1;
+    public double currentSpeedMultiplier = 1;
 
     private CANSparkMax leftLeader;
     private CANSparkMax leftFollower;
@@ -158,7 +160,7 @@ public class DriveTrain extends SubsystemBase {
     public void setSideVoltages(double left, double right) {
         double leftOutput = (left * currentSpeedMultiplier + (Math.signum(MathUtil.applyDeadband(left, 12e-2))) * 12 * 0.0175) * maxSpeed;
         double rightOutput = (right * currentSpeedMultiplier + (Math.signum(MathUtil.applyDeadband(right, 12e-2))) * 12 * 0.0105) * maxSpeed;
-        
+
         if (DriverStation.isTeleopEnabled()) {
             leftOutput *= 1 - leftDowntiplier;
             rightOutput *= 1 - rightDowntiplier;
@@ -291,10 +293,10 @@ public class DriveTrain extends SubsystemBase {
                 currentSpeedMultiplier = multiplier;
             }
 
-            @Override
-            public void end(boolean interrupted) {
-                currentSpeedMultiplier = 1;
-            }
+            // @Override
+            // public void end(boolean interrupted) {
+            //     currentSpeedMultiplier = 1;
+            // }
         };
     }
 
