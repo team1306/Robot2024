@@ -269,12 +269,10 @@ public class RobotContainer {
   }
   private void changeSafeP2Bindings(){
     driveTrain.currentSpeedMultiplier = 0.25;
-    //TODO TEST
     CommandScheduler.getInstance().setActiveButtonLoop(safeP2EventLoop);
   }
   private void changeSkilledBindings(){
     driveTrain.currentSpeedMultiplier = 0.5;
-    //TODO TEST
     CommandScheduler.getInstance().setActiveButtonLoop(skilledEventLoop);
   }
   private void changeSuperviseBindings(){
@@ -307,7 +305,7 @@ public class RobotContainer {
     controller1.a(skilledEventLoop).onTrue(new InstantCommand(intakeCommand::buttonPress));
     controller1.b(skilledEventLoop).onTrue(new InstantCommand(intakeCommand::reverseOverride));
     controller1.x(skilledEventLoop).toggleOnTrue(toggleShooterCommand);
-    controller1.x(skilledEventLoop).toggleOnTrue(halfShooterSpeedCommand);
+    controller1.y(skilledEventLoop).toggleOnTrue(halfShooterSpeedCommand);
 
     controller1.rightTrigger(0.5, skilledEventLoop).onTrue(fireCommand);
     controller1.pov(0, 0, skilledEventLoop).onTrue(new MoveArmToSetpointCommand(arm, new Arm.Setpoint.Custom(Rotation2d.fromDegrees(60))));

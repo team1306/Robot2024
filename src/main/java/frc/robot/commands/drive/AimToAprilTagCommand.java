@@ -118,7 +118,8 @@ public class AimToAprilTagCommand extends Command {
             case RELOADING:
                 outputPower = 0;
                 break;
-                
+            default:
+                outputPower = 0;
                 
         }
         driveTrain.arcadeDrive(0, outputPower); //physically turn
