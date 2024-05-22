@@ -40,6 +40,7 @@ import frc.robot.commands.VibrateControllersCommand.HIDSubsystem;
 import frc.robot.commands.arm.MoveArmCommand;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.commands.drive.ShooterDriveCommand;
+import frc.robot.commands.drive.AimToAprilTagCommand;
 import frc.robot.commands.drive.ChrisDriveCommand;
 import frc.robot.commands.drive.JoystickDriveCommand;
 import frc.robot.commands.intake.IntakeDriverCommand;
@@ -93,6 +94,7 @@ public class RobotContainer {
   private final IntakeCommand intakeCommand;
   private final FireCommand fireCommand;
   private final ToggleIntakeCommand toggleIntakeCommand;
+  private final AimToAprilTagCommand aimToAprilTagCommand;
   private final EventLoop hapticLoop = new EventLoop();
   
   private Command autonomousCommand = new InstantCommand() {
@@ -135,6 +137,7 @@ public class RobotContainer {
     teleopDriveCommand = new JoystickDriveCommand(driveTrain, () -> -controller1.getLeftY(), () -> -controller1.getRightX());
     toggleShooterCommand = new ToggleShooterCommand(() -> Shooter.peakOutput, shooter);
     ampShooterCommand = new ToggleShooterCommand(() -> Shooter.peakOutput /3D, shooter);
+    aimToAprilTagCommand = new AimToAprilTagCommand(driveTrain, shooter, intake, arm);
 
     fireCommand = new FireCommand(intake, shooter);
     intakeCommand = new IntakeCommand(intake);
@@ -274,21 +277,27 @@ public class RobotContainer {
   private void changeSafeP1Bindings() {
     driveTrain.currentSpeedMultiplier = 0.25;
     System.out.println("Change to Safe P1");
+    bindDrivetrainTeleop();
     CommandScheduler.getInstance().setActiveButtonLoop(safeP1EventLoop);
   }
   private void changeSafeP2Bindings(){
     driveTrain.currentSpeedMultiplier = 0.25;
     System.out.println("Change to Safe P2");
+    bindDrivetrainTeleop();
     CommandScheduler.getInstance().setActiveButtonLoop(safeP2EventLoop);
   }
   private void changeSkilledBindings(){
     driveTrain.currentSpeedMultiplier = 1;
     System.out.println("Change to Skilled");
+    bindDrivetrainTeleop();
     CommandScheduler.getInstance().setActiveButtonLoop(skilledEventLoop);
   }
   private void changeSuperviseBindings(){
     driveTrain.currentSpeedMultiplier = 0.5;
     System.out.println("Change to Supervise");
+    CommandScheduler.getInstance().cancelAll();
+    unbindDrivetrainTeleop();
+    aimToAprilTagCommand.schedule();
     CommandScheduler.getInstance().setActiveButtonLoop(superviseEventLoop); 
   }
 
@@ -334,6 +343,7 @@ public class RobotContainer {
     }));
   }
   private void configureSuperviseBindings(){
+    controller1.a(superviseEventLoop).onTrue(new InstantCommand(aimToAprilTagCommand::buttonPress));
   }
 
   public Command getAutonomousCommand() {

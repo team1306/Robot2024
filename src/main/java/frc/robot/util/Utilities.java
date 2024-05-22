@@ -70,8 +70,8 @@ public class Utilities {
 
     public static void removeAndCancelDefaultCommand(Subsystem subsystem) {
         runIfNotNull(subsystem.getDefaultCommand(), (Command command) -> {
-            command.cancel();
             subsystem.removeDefaultCommand();
+            command.cancel();
         });
     }
 

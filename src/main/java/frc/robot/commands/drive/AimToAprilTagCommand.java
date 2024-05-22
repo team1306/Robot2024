@@ -37,7 +37,7 @@ public class AimToAprilTagCommand extends Command {
 
     private State state = State.IDLE;
 
-    public static double kP = 0.0185, kI = 0, kD = 2.2e-3;
+    public static double kP = 0.1, kI = 0, kD = 0;
     public static double toleranceDegrees = 1;
 
     private boolean targetRight = false;
