@@ -21,6 +21,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.*;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
@@ -181,38 +183,10 @@ public class DriveTrain extends SubsystemBase {
         // Clamp inputs
         speed = MotorUtil.clampPercent(speed);
         rotation = MotorUtil.clampPercent(rotation);
-
-        double maxInput = Math.copySign(Math.max(Math.abs(speed), Math.abs(rotation)), speed);
-        double leftMotorOutput, rightMotorOutput;
-
-        if (speed >= 0) {
-            if (rotation >= 0) {
-                // Quadrant 1 (+R, +S)
-                leftMotorOutput = maxInput;
-                rightMotorOutput = speed - rotation;
-            } else {
-                // Quadrant 2 (-R, +S)
-                leftMotorOutput = speed + rotation;
-                rightMotorOutput = maxInput;
-            }
-        } else {
-            if (rotation >= 0) {
-                // Quadrant 4 (+R, -S)
-                leftMotorOutput = speed + rotation;
-                rightMotorOutput = maxInput;
-            } else {
-                // Quadrant 3 (-R, -S)
-                leftMotorOutput = maxInput;
-                rightMotorOutput = speed - rotation;
-            }
-        }
-        if (speed == 0 && rotation == 0){
-            leftMotorOutput = 0;
-            rightMotorOutput = 0;
-        }
-        SmartDashboard.putNumber("Left Drive Output", leftMotorOutput);
-        SmartDashboard.putNumber("Right Drive Output", rightMotorOutput);
-        setSidePercentages(leftMotorOutput, rightMotorOutput);
+        WheelSpeeds speeds = DifferentialDrive.arcadeDriveIK(speed, rotation, true);
+        SmartDashboard.putNumber("Left Drive Output", speeds.left);
+        SmartDashboard.putNumber("Right Drive Output", speeds.right);
+        setSidePercentages(speeds.left, speeds.right);
     }
 
     public void driveMetersPerSecond(DifferentialDriveWheelSpeeds wheelSpeeds) {

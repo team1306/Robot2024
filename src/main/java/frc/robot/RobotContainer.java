@@ -8,6 +8,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -105,6 +106,8 @@ public class RobotContainer {
   private final DigitalOutput ledRedBlueOutput, notePresentOutput;
   private double beginningAutoWait = 0;
 
+  private Runnable lastFunMode;
+
   public RobotContainer() {
     SmartDashboard.putNumber("Beginning Auto Wait", beginningAutoWait);
     /*
@@ -120,7 +123,7 @@ public class RobotContainer {
 
     VideoSink videoSink = CameraServer.addSwitchedCamera("driver");
     */
-    
+  
     driveTrain = new DriveTrain();
     intake = new Intake();
     shooter = new Shooter();
@@ -129,7 +132,7 @@ public class RobotContainer {
     moveArmCommand = new MoveArmCommand(arm, controller2::getRightY);
     toggleIntakeCommand = new ToggleIntakeCommand(intake, controller2.a(), controller2.b());
     intakeDriverCommand = new IntakeDriverCommand(intake, shooter, controller2.b(), () -> arm.getCurrentAngle().getDegrees());
-    teleopDriveCommand = new JoystickDriveCommand(driveTrain, () -> -controller1.getLeftY(), () -> controller1.getRightX());
+    teleopDriveCommand = new JoystickDriveCommand(driveTrain, () -> -controller1.getLeftY(), () -> -controller1.getRightX());
     toggleShooterCommand = new ToggleShooterCommand(() -> Shooter.peakOutput, shooter);
     ampShooterCommand = new ToggleShooterCommand(() -> Shooter.peakOutput /3D, shooter);
 
@@ -212,6 +215,11 @@ public class RobotContainer {
     Commands.run(() -> ledRedBlueOutput.set(Utilities.isRedAlliance())).ignoringDisable(true).schedule();
   }
 
+  public void updateButtonBindings(){
+    if(lastFunMode != buttonBindingsChooser.getSelected()) buttonBindingsChooser.getSelected().run();
+    lastFunMode = buttonBindingsChooser.getSelected();
+  }
+
   public void autoWaitGetterPeriodic() {
     beginningAutoWait = SmartDashboard.getNumber("Beginning Auto Wait", beginningAutoWait);
   }
@@ -265,18 +273,22 @@ public class RobotContainer {
 
   private void changeSafeP1Bindings() {
     driveTrain.currentSpeedMultiplier = 0.25;
+    System.out.println("Change to Safe P1");
     CommandScheduler.getInstance().setActiveButtonLoop(safeP1EventLoop);
   }
   private void changeSafeP2Bindings(){
     driveTrain.currentSpeedMultiplier = 0.25;
+    System.out.println("Change to Safe P2");
     CommandScheduler.getInstance().setActiveButtonLoop(safeP2EventLoop);
   }
   private void changeSkilledBindings(){
-    driveTrain.currentSpeedMultiplier = 0.5;
+    driveTrain.currentSpeedMultiplier = 1;
+    System.out.println("Change to Skilled");
     CommandScheduler.getInstance().setActiveButtonLoop(skilledEventLoop);
   }
   private void changeSuperviseBindings(){
     driveTrain.currentSpeedMultiplier = 0.5;
+    System.out.println("Change to Supervise");
     CommandScheduler.getInstance().setActiveButtonLoop(superviseEventLoop); 
   }
 
@@ -287,7 +299,7 @@ public class RobotContainer {
     controller1.b(safeP1EventLoop).onTrue(new InstantCommand(intakeCommand::reverseOverride));
     controller1.leftTrigger(0.1, safeP1EventLoop).toggleOnTrue(shooterSpeedCommand);
     controller1.rightTrigger(0.5, safeP1EventLoop).onTrue(fireCommand);
-    controller1.pov(0, 0, safeP1EventLoop).onTrue(new MoveArmToSetpointCommand(arm, new Arm.Setpoint.Custom(Rotation2d.fromDegrees(60))));
+    controller1.pov(0, 0, safeP1EventLoop).onTrue(new MoveArmToSetpointCommand(arm, new Arm.Setpoint.Custom(Rotation2d.fromDegrees(55))));
     controller1.pov(0, 180, safeP1EventLoop).onTrue(new MoveArmToSetpointCommand(arm, new Arm.Setpoint.Custom(Rotation2d.fromDegrees(0))));
   }
   private void configureSafeP2Bindings(){

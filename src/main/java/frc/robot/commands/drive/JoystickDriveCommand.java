@@ -23,7 +23,9 @@ public class JoystickDriveCommand extends Command{
 
     @Override
     public void execute() {
-        driveTrain.arcadeDrive(Math.pow(forwardSupplier.getAsDouble(), 2), Math.pow(rotationSupplier.getAsDouble(), 2));
+        double forward = Math.copySign(Math.pow(forwardSupplier.getAsDouble(), 2), forwardSupplier.getAsDouble());
+        double rotation = Math.copySign(Math.pow(rotationSupplier.getAsDouble(), 2), rotationSupplier.getAsDouble());
+        driveTrain.arcadeDrive(forward, rotation);
     }
     
     @Override

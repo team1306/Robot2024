@@ -31,6 +31,7 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
     DashboardGetter.update();
+    robotContainer.updateButtonBindings();
     SmartDashboard.putNumber("Speaker Distance", Utilities.getSpeakerDistance(robotContainer.driveTrain.getPose()));
   }
   
