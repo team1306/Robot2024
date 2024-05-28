@@ -327,6 +327,8 @@ public class RobotContainer {
     controller1.b(skilledEventLoop).onTrue(new InstantCommand(intakeCommand::reverseOverride));
     controller1.x(skilledEventLoop).toggleOnTrue(toggleShooterCommand);
     controller1.y(skilledEventLoop).toggleOnTrue(halfShooterSpeedCommand);
+    
+    controller1.leftBumper(skilledEventLoop).onTrue(arm.getPitchControlCommand(driveTrain));
 
     controller1.rightTrigger(0.5, skilledEventLoop).onTrue(fireCommand);
     controller1.pov(0, 0, skilledEventLoop).onTrue(new MoveArmToSetpointCommand(arm, new Arm.Setpoint.Custom(Rotation2d.fromDegrees(60))));
