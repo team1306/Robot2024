@@ -40,6 +40,7 @@ import frc.robot.commands.VibrateControllersCommand.HIDSubsystem;
 import frc.robot.commands.arm.MoveArmCommand;
 import frc.robot.commands.arm.MoveArmToSetpointCommand;
 import frc.robot.commands.drive.ShooterDriveCommand;
+import frc.robot.commands.drive.AimBotCommand;
 import frc.robot.commands.drive.AimToAprilTagCommand;
 import frc.robot.commands.drive.ChrisDriveCommand;
 import frc.robot.commands.drive.JoystickDriveCommand;
@@ -94,7 +95,7 @@ public class RobotContainer {
   private final IntakeCommand intakeCommand;
   private final FireCommand fireCommand;
   private final ToggleIntakeCommand toggleIntakeCommand;
-  private final AimToAprilTagCommand aimToAprilTagCommand;
+  private final AimBotCommand aimToAprilTagCommand;
   private final EventLoop hapticLoop = new EventLoop();
   
   private Command autonomousCommand = new InstantCommand() {
@@ -137,7 +138,7 @@ public class RobotContainer {
     teleopDriveCommand = new JoystickDriveCommand(driveTrain, () -> -controller1.getLeftY(), () -> -controller1.getRightX());
     toggleShooterCommand = new ToggleShooterCommand(() -> Shooter.peakOutput, shooter);
     ampShooterCommand = new ToggleShooterCommand(() -> Shooter.peakOutput /3D, shooter);
-    aimToAprilTagCommand = new AimToAprilTagCommand(driveTrain, shooter, intake, arm);
+    aimToAprilTagCommand = new AimBotCommand(driveTrain, shooter, intake, arm, () -> -controller1.getLeftY(), () -> -controller1.getRightX());
 
     fireCommand = new FireCommand(intake, shooter);
     intakeCommand = new IntakeCommand(intake);
@@ -297,6 +298,7 @@ public class RobotContainer {
     System.out.println("Change to Supervise");
     CommandScheduler.getInstance().cancelAll();
     unbindDrivetrainTeleop();
+    Utilities.removeAndCancelDefaultCommand(intake);
     aimToAprilTagCommand.schedule();
     CommandScheduler.getInstance().setActiveButtonLoop(superviseEventLoop); 
   }
@@ -327,7 +329,7 @@ public class RobotContainer {
     controller1.b(skilledEventLoop).onTrue(new InstantCommand(intakeCommand::reverseOverride));
     controller1.x(skilledEventLoop).toggleOnTrue(toggleShooterCommand);
     controller1.y(skilledEventLoop).toggleOnTrue(halfShooterSpeedCommand);
-    
+
     controller1.leftBumper(skilledEventLoop).onTrue(arm.getPitchControlCommand(driveTrain));
 
     controller1.rightTrigger(0.5, skilledEventLoop).onTrue(fireCommand);
@@ -345,7 +347,8 @@ public class RobotContainer {
     }));
   }
   private void configureSuperviseBindings(){
-    controller1.a(superviseEventLoop).onTrue(new InstantCommand(aimToAprilTagCommand::buttonPress));
+    controller1.a(superviseEventLoop).onTrue(new InstantCommand(aimToAprilTagCommand::reload));
+    controller1.x(superviseEventLoop).onTrue(new InstantCommand(aimToAprilTagCommand::switchState));
   }
 
   public Command getAutonomousCommand() {
