@@ -298,6 +298,7 @@ public class RobotContainer {
     unbindDrivetrainTeleop();
     Utilities.removeAndCancelDefaultCommand(intake);
     CommandScheduler.getInstance().setActiveButtonLoop(superviseEventLoop); 
+    //Command is not scheduled, which doesn't allow for any logic to run -> drivetrain suspiciously runs though
     aimToAprilTagCommand.schedule();
   }
 
