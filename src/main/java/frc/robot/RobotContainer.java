@@ -271,8 +271,6 @@ public class RobotContainer {
     configureSafeP2Bindings();
     configureSkilledBindings();
     configureSuperviseBindings();
-
-    changeSafeP1Bindings();
   }
 
   private void changeSafeP1Bindings() {
@@ -299,8 +297,8 @@ public class RobotContainer {
     CommandScheduler.getInstance().cancelAll();
     unbindDrivetrainTeleop();
     Utilities.removeAndCancelDefaultCommand(intake);
-    aimToAprilTagCommand.schedule();
     CommandScheduler.getInstance().setActiveButtonLoop(superviseEventLoop); 
+    aimToAprilTagCommand.schedule();
   }
 
 

@@ -72,6 +72,7 @@ public class AimBotCommand extends Command{
     }
 
     public void initialize(){
+        System.out.println("INit");
         intakeDriverCommand.schedule();
     }
 
@@ -156,10 +157,12 @@ public class AimBotCommand extends Command{
             default -> State.Idle;
             case Idle -> State.Searching;
         };
+        System.out.println(state);
     }
 
     public void reload(){
         intakeDriverCommand.buttonPress();
+        System.out.println("Reloading");
     }
 
     public boolean isFinished(){
