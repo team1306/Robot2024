@@ -68,14 +68,16 @@ public class AimBotCommand extends Command{
     }
     
     private void armUp() {
-        new MoveArmToSetpointCommand(arm, () -> 60).schedule();
+        new MoveArmToSetpointCommand(arm, () -> 53).schedule();
     }
 
+    @Override
     public void initialize(){
-        System.out.println("INit");
         intakeDriverCommand.schedule();
+        state = State.Idle;
     }
 
+    @Override
     public void execute(){
         double rotation = 0;
         double forward = 0;
@@ -83,7 +85,7 @@ public class AimBotCommand extends Command{
         boolean targetVisible = LimelightHelpers.getTV(LIMELIGHT_NAME);
         double xOffset = LimelightHelpers.getTX(LIMELIGHT_NAME);
 
-        if(Math.abs(forwardSupplier.getAsDouble()) < 0.05 || Math.abs(rotationSupplier.getAsDouble()) < 0.05 )
+        if(Math.abs(forwardSupplier.getAsDouble()) > 0.05 || Math.abs(rotationSupplier.getAsDouble()) > 0.05 )
             state = State.Driving;
         
         switch(state){
@@ -114,12 +116,13 @@ public class AimBotCommand extends Command{
                     state = State.Tracking;
                     break;
                 } //if it sees the target, switch to tracking mode
-                if (lastTargetRight) rotation = 0.3; //if last seen to the right, turn right
-                else rotation = -0.3; //if last seen to the left, turn left
+                if (lastTargetRight) rotation = 0.4; //if last seen to the right, turn right
+                else rotation = -0.4; //if last seen to the left, turn left
                 break;
 
             case Shooting:
-                if(shooter.getBottomRPM() > 3000){
+                if(shooter.getBottomRPM() > 3800){
+                    //Intake doesn't run after shooter spins up
                     intakeDriverCommand.setState(IntakeDriverCommand.State.INDEXING);
                     if(!timerStarted) {
                         timer.restart();
@@ -148,7 +151,7 @@ public class AimBotCommand extends Command{
         if (targetVisible) lastTargetRight = 0 < xOffset;
 
         SmartDashboard.putNumber("Supervise Rotation", rotation);
-        System.out.println(rotation);
+        SmartDashboard.putString("Aim Bot State", state.toString());
         driveTrain.arcadeDrive(forward, rotation);
     }
 
@@ -157,14 +160,13 @@ public class AimBotCommand extends Command{
             default -> State.Idle;
             case Idle -> State.Searching;
         };
-        System.out.println(state);
     }
 
     public void reload(){
         intakeDriverCommand.buttonPress();
-        System.out.println("Reloading");
     }
 
+    @Override
     public boolean isFinished(){
         return false;
     }

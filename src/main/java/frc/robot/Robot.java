@@ -16,9 +16,13 @@ import frc.robot.util.Utilities;
 
 import static frc.robot.util.Utilities.removeAndCancelDefaultCommand;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Robot extends TimedRobot {
   private Command autonomousCommand, armDebugCommand;
   private RobotContainer robotContainer;
+
   
   @Override
   public void robotInit() {
@@ -84,8 +88,9 @@ public class Robot extends TimedRobot {
     if (armDebugCommand != null) {
       armDebugCommand.cancel();
     }
+    robotContainer.teleopScheduleCommand();
     // robotContainer.intake.setDefaultCommand(robotContainer.intakeDriverCommand);
-    robotContainer.bindDrivetrainTeleop();
+    // robotContainer.bindDrivetrainTeleop();
     // robotContainer.climberDriverCommand.resetState();
   }
 

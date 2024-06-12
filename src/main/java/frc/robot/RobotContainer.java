@@ -57,12 +57,15 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.vision.NoteDetector;
 import frc.robot.util.DashboardGetter;
 import frc.robot.util.Utilities;
+import frc.robot.util.Utilities.WrappedDouble;
 import frc.robot.util.Utilities.WrappedInteger;
 
 import static frc.robot.util.Utilities.removeAndCancelDefaultCommand;
 import static frc.robot.Constants.LOOP_TIME_SECONDS;
 import static frc.robot.util.Utilities.WrappedDouble;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BooleanSupplier;
 
 
@@ -97,6 +100,8 @@ public class RobotContainer {
   private final ToggleIntakeCommand toggleIntakeCommand;
   private final AimBotCommand aimToAprilTagCommand;
   private final EventLoop hapticLoop = new EventLoop();
+
+  private final List<Command> commandQueueOnStart = new ArrayList<>();
   
   private Command autonomousCommand = new InstantCommand() {
     @Override
@@ -168,6 +173,7 @@ public class RobotContainer {
     SmartDashboard.putData("auto chooser", autoChooser);
     drivetrainTestModeChooser.setDefaultOption("sysid", this::configureSysIDBindings);
     drivetrainTestModeChooser.addOption("controller", this::bindDrivetrainTeleop);
+    drivetrainTestModeChooser.addOption("none", () -> {});
     drivetrainTestModeChooser.addOption("manual voltage input", () -> {
       final WrappedDouble leftVolts = new WrappedDouble(), rightVolts = new WrappedDouble();
       new FunctionalCommand(() -> {
@@ -298,8 +304,12 @@ public class RobotContainer {
     unbindDrivetrainTeleop();
     Utilities.removeAndCancelDefaultCommand(intake);
     CommandScheduler.getInstance().setActiveButtonLoop(superviseEventLoop); 
-    //Command is not scheduled, which doesn't allow for any logic to run -> drivetrain suspiciously runs though
-    aimToAprilTagCommand.schedule();
+    commandQueueOnStart.add(aimToAprilTagCommand);
+  }
+
+  public void teleopScheduleCommand(){
+    if(!commandQueueOnStart.isEmpty())
+      commandQueueOnStart.forEach(command -> command.schedule());
   }
 
 
@@ -336,11 +346,11 @@ public class RobotContainer {
     controller1.pov(0, 90, skilledEventLoop).onTrue(new MoveArmToSetpointCommand(arm, new Arm.Setpoint.Custom(Rotation2d.fromDegrees(30))));
     controller1.pov(0, 180, skilledEventLoop).onTrue(new MoveArmToSetpointCommand(arm, new Arm.Setpoint.Custom(Rotation2d.fromDegrees(0))));
     controller1.pov(0, 270, skilledEventLoop).onTrue(new MoveArmToSetpointCommand(arm, new Arm.Setpoint.Custom(Rotation2d.fromDegrees(15))));
-    controller1.rightBumper().onTrue(new InstantCommand(() -> {
+    controller1.rightBumper(skilledEventLoop).onTrue(new InstantCommand(() -> {
       unbindDrivetrainTeleop();
       moveArmCommand.schedule();
     }));
-    controller1.rightBumper().onFalse(new InstantCommand(() -> {
+    controller1.rightBumper(skilledEventLoop).onFalse(new InstantCommand(() -> {
       bindDrivetrainTeleop();
       moveArmCommand.cancel();
     }));
