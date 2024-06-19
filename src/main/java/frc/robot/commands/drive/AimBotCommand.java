@@ -119,7 +119,7 @@ public class AimBotCommand extends Command{
                 break;
 
             case Shooting:
-                if(shooter.getBottomRPM() > 3000){
+                if(shooter.getBottomRPM() > 1500){
                     intakeDriverCommand.setState(IntakeDriverCommand.State.INDEXING);
                     if(!timerStarted) {
                         timer.restart();
