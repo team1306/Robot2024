@@ -59,7 +59,7 @@ public class AimBotCommand extends Command{
         this.rotationSupplier = rotationSupplier;
         
         DashboardGetter.addGetDoubleData("Locking Range", toleranceDegrees, (value)-> toleranceDegrees = value);
-
+        LimelightHelpers.setPipelineIndex(LIMELIGHT_NAME, 1);
         addRequirements(driveTrain, shooter);
     }
 
@@ -90,11 +90,13 @@ public class AimBotCommand extends Command{
         
         switch(state){
             case Driving:
+                System.out.println("Driving");    
                 forward = Math.copySign(Math.pow(forwardSupplier.getAsDouble(), 2), forwardSupplier.getAsDouble());
                 rotation = Math.copySign(Math.pow(rotationSupplier.getAsDouble(), 2), rotationSupplier.getAsDouble());
                 break;
 
             case Idle:
+                System.out.println("Idle");
                 armDown();
                 shooter.setTargetSpeed(0);
                 intakeDriverCommand.setState(intake.notePresent() ? IntakeDriverCommand.State.UNPOWERED_WITH_ELEMENT : IntakeDriverCommand.State.UNPOWERED_NO_ELEMENT);
@@ -102,7 +104,7 @@ public class AimBotCommand extends Command{
             
             case Locked:
                 if(shooter.getTargetSpeed() == 0 && intake.notePresent() && targetVisible) {
-                    shooter.setTargetSpeed(0.7);
+                    shooter.setTargetSpeed(1);
                     armUp();
                     timerStarted = false;
                     state = State.Shooting;
@@ -116,16 +118,19 @@ public class AimBotCommand extends Command{
                     state = State.Tracking;
                     break;
                 } //if it sees the target, switch to tracking mode
-                if (lastTargetRight) rotation = 0.4; //if last seen to the right, turn right
-                else rotation = -0.4; //if last seen to the left, turn left
+                if (lastTargetRight) rotation = 0.5; //if last seen to the right, turn right
+                else rotation = -0.5; //if last seen to the left, turn left
                 break;
 
             case Shooting:
-                if(shooter.getBottomRPM() > 1500){
-                    intakeDriverCommand.setState(IntakeDriverCommand.State.INDEXING);
+                System.out.println(intakeDriverCommand.getState());
+                if(shooter.getBottomRPM() > 4500){
+                    
                     if(!timerStarted) {
                         timer.restart();
                         timerStarted = true;
+                        intakeDriverCommand.timer.restart();
+                        intakeDriverCommand.setState(IntakeDriverCommand.State.INDEXING);
                     }
                     if(timer.hasElapsed(1))
                         state = State.Idle;

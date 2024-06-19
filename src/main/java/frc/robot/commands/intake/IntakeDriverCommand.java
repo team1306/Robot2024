@@ -21,7 +21,7 @@ public class IntakeDriverCommand extends Command {
 
     private final Intake intake;
     private final Shooter shooter;
-    private final Timer timer = new Timer();
+    public final Timer timer = new Timer();
 
     private final BooleanSupplier reverseOverride;
     private final DoubleSupplier armAngle;
