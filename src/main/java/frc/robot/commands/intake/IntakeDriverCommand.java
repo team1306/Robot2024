@@ -1,6 +1,8 @@
 package frc.robot.commands.intake;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
@@ -21,7 +23,7 @@ public class IntakeDriverCommand extends Command {
 
     private final Intake intake;
     private final Shooter shooter;
-    private final Timer timer = new Timer();
+    public final Timer timer = new Timer();
 
     private final BooleanSupplier reverseOverride;
     private final DoubleSupplier armAngle;
@@ -70,6 +72,7 @@ public class IntakeDriverCommand extends Command {
 
     @Override
     public void execute() {
+        SmartDashboard.putString("Intake State", state.name());
         if (reverseOverride.getAsBoolean()) {
             intake.setTargetSpeed(-1);
             wasReversed = true;
@@ -93,7 +96,7 @@ public class IntakeDriverCommand extends Command {
                 intake.setTargetSpeed(-1.0 / 8.0);
                 timer.restart();
             case REVERSING:
-                if (timer.get() > 0.25) {
+                if (timer.get() > 0.4) {
                     intake.setTargetSpeed(0);
                     state = State.UNPOWERED_WITH_ELEMENT;
                 }

@@ -56,11 +56,13 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.vision.NoteDetector;
 import frc.robot.util.DashboardGetter;
+import frc.robot.util.LimelightHelpers;
 import frc.robot.util.Utilities;
 import frc.robot.util.Utilities.WrappedDouble;
 import frc.robot.util.Utilities.WrappedInteger;
 
 import static frc.robot.util.Utilities.removeAndCancelDefaultCommand;
+import static frc.robot.Constants.LIMELIGHT_NAME;
 import static frc.robot.Constants.LOOP_TIME_SECONDS;
 import static frc.robot.util.Utilities.WrappedDouble;
 
@@ -283,18 +285,21 @@ public class RobotContainer {
     driveTrain.currentSpeedMultiplier = 0.25;
     System.out.println("Change to Safe P1");
     bindDrivetrainTeleop();
+    LimelightHelpers.setPipelineIndex(LIMELIGHT_NAME, 0);
     CommandScheduler.getInstance().setActiveButtonLoop(safeP1EventLoop);
   }
   private void changeSafeP2Bindings(){
     driveTrain.currentSpeedMultiplier = 0.25;
     System.out.println("Change to Safe P2");
     bindDrivetrainTeleop();
+    LimelightHelpers.setPipelineIndex(LIMELIGHT_NAME, 0);
     CommandScheduler.getInstance().setActiveButtonLoop(safeP2EventLoop);
   }
   private void changeSkilledBindings(){
     driveTrain.currentSpeedMultiplier = 1;
     System.out.println("Change to Skilled");
     bindDrivetrainTeleop();
+    LimelightHelpers.setPipelineIndex(LIMELIGHT_NAME, 0);
     CommandScheduler.getInstance().setActiveButtonLoop(skilledEventLoop);
   }
   private void changeSuperviseBindings(){
@@ -304,6 +309,7 @@ public class RobotContainer {
     unbindDrivetrainTeleop();
     Utilities.removeAndCancelDefaultCommand(intake);
     CommandScheduler.getInstance().setActiveButtonLoop(superviseEventLoop); 
+    LimelightHelpers.setPipelineIndex(LIMELIGHT_NAME, 1);
     commandQueueOnStart.add(aimToAprilTagCommand);
   }
 

@@ -38,6 +38,8 @@ public class AimBotCommand extends Command{
     private final DoubleSupplier rotationSupplier;
 
     private State state = State.Idle;
+    private int missingConfidence = 5;
+    private int offConfidence = 0;
 
     public static double kP = 0.1, kI = 0, kD = 0;
     private PIDController rotationController = new PIDController(kP, kI, kD);
@@ -87,6 +89,7 @@ public class AimBotCommand extends Command{
 
         if(Math.abs(forwardSupplier.getAsDouble()) > 0.05 || Math.abs(rotationSupplier.getAsDouble()) > 0.05 )
             state = State.Driving;
+        if(targetVisible) missingConfidence = 0;
         
         switch(state){
             case Driving:
@@ -107,8 +110,18 @@ public class AimBotCommand extends Command{
                     timerStarted = false;
                     state = State.Shooting;
                 }
-                else if (!targetVisible) state = State.Searching;
-                else if (Math.abs(xOffset) > toleranceDegrees) state = State.Tracking;
+                else if (!targetVisible) {
+                    if(missingConfidence >= 5)
+                        state = State.Searching;
+                    else
+                        missingConfidence++;
+                }
+                else if (Math.abs(xOffset) > toleranceDegrees){
+                    if(offConfidence >= 5)
+                        state = State.Tracking;
+                    else
+                        offConfidence++;            
+                }
                 break;
 
             case Searching:
@@ -116,13 +129,35 @@ public class AimBotCommand extends Command{
                     state = State.Tracking;
                     break;
                 } //if it sees the target, switch to tracking mode
-                if (lastTargetRight) rotation = 0.4; //if last seen to the right, turn right
-                else rotation = -0.4; //if last seen to the left, turn left
+                if (lastTargetRight) rotation = 0.6; //if last seen to the right, turn right
+                else rotation = -0.6; //if last seen to the left, turn left
                 break;
 
             case Shooting:
+                if (!targetVisible){
+                    if(missingConfidence >= 5){
+                        state = State.Searching;
+                        shooter.setTargetSpeed(0);
+                        armDown();
+                    }
+                    else
+                        missingConfidence++;
+                    
+                }
+                if (Math.abs(xOffset) > toleranceDegrees * 5){
+                     if(offConfidence >= 5){
+                        state = State.Tracking;
+                        shooter.setTargetSpeed(0);
+                        armDown();
+                    }
+                    else
+                        offConfidence++;
+                  
+                }
+                else
+                    offConfidence = 0;
                 if(shooter.getBottomRPM() > 3800){
-                    //Intake doesn't run after shooter spins up
+                    intakeDriverCommand.timer.restart();
                     intakeDriverCommand.setState(IntakeDriverCommand.State.INDEXING);
                     if(!timerStarted) {
                         timer.restart();
@@ -137,6 +172,7 @@ public class AimBotCommand extends Command{
                 //if crosshair is on target, switch to locked mode    
                 if (Math.abs(xOffset) < toleranceDegrees) { 
                     state = State.Locked; 
+                    offConfidence = 0;
                     break;
                 } 
                 //if target leaves the screen, switch to searching
