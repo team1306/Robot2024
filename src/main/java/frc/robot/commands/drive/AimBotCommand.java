@@ -61,7 +61,7 @@ public class AimBotCommand extends Command{
         this.rotationSupplier = rotationSupplier;
         
         DashboardGetter.addGetDoubleData("Locking Range", toleranceDegrees, (value)-> toleranceDegrees = value);
-
+        LimelightHelpers.setPipelineIndex(LIMELIGHT_NAME, 1);
         addRequirements(driveTrain, shooter);
     }
 
@@ -93,11 +93,13 @@ public class AimBotCommand extends Command{
         
         switch(state){
             case Driving:
+                System.out.println("Driving");    
                 forward = Math.copySign(Math.pow(forwardSupplier.getAsDouble(), 2), forwardSupplier.getAsDouble());
                 rotation = Math.copySign(Math.pow(rotationSupplier.getAsDouble(), 2), rotationSupplier.getAsDouble());
                 break;
 
             case Idle:
+                System.out.println("Idle");
                 armDown();
                 shooter.setTargetSpeed(0);
                 intakeDriverCommand.setState(intake.notePresent() ? IntakeDriverCommand.State.UNPOWERED_WITH_ELEMENT : IntakeDriverCommand.State.UNPOWERED_NO_ELEMENT);
@@ -105,7 +107,7 @@ public class AimBotCommand extends Command{
             
             case Locked:
                 if(shooter.getTargetSpeed() == 0 && intake.notePresent() && targetVisible) {
-                    shooter.setTargetSpeed(0.7);
+                    shooter.setTargetSpeed(1);
                     armUp();
                     timerStarted = false;
                     state = State.Shooting;
@@ -162,6 +164,8 @@ public class AimBotCommand extends Command{
                     if(!timerStarted) {
                         timer.restart();
                         timerStarted = true;
+                        intakeDriverCommand.timer.restart();
+                        intakeDriverCommand.setState(IntakeDriverCommand.State.INDEXING);
                     }
                     if(timer.hasElapsed(1))
                         state = State.Idle;
