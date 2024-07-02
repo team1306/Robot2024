@@ -4,20 +4,12 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.arm.DebugArmCommand;
-import frc.robot.util.DashboardGetter;
-import frc.robot.util.Utilities;
-
-import static frc.robot.util.Utilities.removeAndCancelDefaultCommand;
 
 public class Robot extends TimedRobot {
-  private Command autonomousCommand, armDebugCommand;
+  private Command autonomousCommand;
   private RobotContainer robotContainer;
   
   @Override
@@ -29,31 +21,16 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    CommandScheduler.getInstance().run();
-    DashboardGetter.update();
-    robotContainer.updateButtonBindings();
-    SmartDashboard.putNumber("Speaker Distance", Utilities.getSpeakerDistance(robotContainer.driveTrain.getPose()));
+
   }
-  
 
   @Override
   public void disabledInit() {
-    SmartDashboard.putBoolean("Load Auto", false);
   }
 
   @Override
   public void disabledPeriodic() {
-    if (SmartDashboard.getBoolean("Load Auto", false)) {
-      robotContainer.loadAuto();
-      SmartDashboard.putBoolean("Load Auto", false);
-    }
-    SmartDashboard.putString("Auto Name", robotContainer.getAutonomousCommand().getName());
-
-    final Rotation2d armAngle = robotContainer.arm.getCurrentAngle();
-    SmartDashboard.putNumber("Arm Current Angle", armAngle.getDegrees());
-    robotContainer.arm.setTargetAngle(armAngle);
-
-    robotContainer.autoWaitGetterPeriodic();
+  
   }
 
   @Override
@@ -62,8 +39,6 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     autonomousCommand = robotContainer.getAutonomousCommand();
-    removeAndCancelDefaultCommand(robotContainer.driveTrain);
-    removeAndCancelDefaultCommand(robotContainer.intake);
 
     if (autonomousCommand != null) {
       autonomousCommand.schedule();
@@ -81,17 +56,11 @@ public class Robot extends TimedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
-    if (armDebugCommand != null) {
-      armDebugCommand.cancel();
-    }
-    // robotContainer.intake.setDefaultCommand(robotContainer.intakeDriverCommand);
-    robotContainer.bindDrivetrainTeleop();
-    // robotContainer.climberDriverCommand.resetState();
   }
 
   @Override
   public void teleopPeriodic() {
-    robotContainer.hapticsPeriodic();
+
   }
 
   @Override
@@ -99,11 +68,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
-    CommandScheduler.getInstance().cancelAll();
-    armDebugCommand = new DebugArmCommand(robotContainer.arm);
-    armDebugCommand.schedule();
-    robotContainer.intake.setDefaultCommand(robotContainer.intakeDriverCommand);
-    robotContainer.bindDrivetrainTestMode();
+
   }
 
   @Override
@@ -111,6 +76,5 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testExit() {
-    robotContainer.unBindDrivetrainTestMode();
   }
 }
