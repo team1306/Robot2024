@@ -33,7 +33,7 @@ public class NeoGroupSubsystem extends SubsystemBase{
     }
 
     public final List<NeoData> neoGroup;
-    public final double relativeSpeed = 1;
+    public double relativeSpeed = 0;
 
     @SafeVarargs
     public NeoGroupSubsystem(NeoData... neoData) {

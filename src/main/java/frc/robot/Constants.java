@@ -29,13 +29,15 @@ public final class Constants {
     public static final int           INTAKE_CENTER_OMNI_MOTOR_ID = 12;
     public static final int           INTAKE_CENTER_BELT_MOTOR_ID = 13;
 
-    public static final int           SHOOTER_TOP_MOTOR_ID        = 14;
-    public static final int           SHOOTER_BOTTOM_MOTOR_ID     = 15;
- 
-    public static final int           PIVOTER_LEFT_MOTOR_ID       = 16;
-    public static final int           PIVOTER_RIGHT_MOTOR_ID      = 17;
+    public static final int           INDEXER_MOTOR_ID            = 14; 
 
-    public static final int           TURRET_MOTOR_ID             = 18;
+    public static final int           SHOOTER_TOP_MOTOR_ID        = 15;
+    public static final int           SHOOTER_BOTTOM_MOTOR_ID     = 16;
+ 
+    public static final int           PIVOTER_LEFT_MOTOR_ID       = 17;
+    public static final int           PIVOTER_RIGHT_MOTOR_ID      = 18;
+
+    public static final int           TURRET_MOTOR_ID             = 19;
  
     public static final double        LOOP_TIME_MS                = 20;
     public static final double        LOOP_TIME_SECONDS           = LOOP_TIME_MS / 1000D;
