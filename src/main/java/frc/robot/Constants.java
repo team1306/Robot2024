@@ -38,6 +38,10 @@ public final class Constants {
     public static final int           PIVOTER_RIGHT_MOTOR_ID      = 18;
 
     public static final int           TURRET_MOTOR_ID             = 19;
+
+
+    public static final int           INTAKE_SENSOR_DIO_PORT      = 1;
+
  
     public static final double        LOOP_TIME_MS                = 20;
     public static final double        LOOP_TIME_SECONDS           = LOOP_TIME_MS / 1000D;

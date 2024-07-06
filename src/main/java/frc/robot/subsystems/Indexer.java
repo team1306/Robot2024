@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Indexer extends NeoGroupSubsystem{
 
     private double targetSpeed = 0;
+    //TODO NOTE PRESENT SENSOR??
 
     public Indexer(){
         super(new NeoData(MotorUtil.initSparkMax(INDEXER_MOTOR_ID, MotorType.kBrushless, IdleMode.kCoast), false));
@@ -22,9 +23,10 @@ public class Indexer extends NeoGroupSubsystem{
     @Override
     public void periodic(){
         super.relativeSpeed = targetSpeed;
-        super.periodic();
 
-        SmartDashboard.putNumber("Indexer Target Speed", getTargetSpeed());
+        SmartDashboard.putNumber("Indexer Target Speed", targetSpeed);
+
+        super.periodic();
     }
 
     public double getTargetSpeed(){

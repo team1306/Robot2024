@@ -27,6 +27,10 @@ public class Utilities {
         var alliance = DriverStation.getAlliance();
         return alliance.isEmpty() || (alliance.get() == DriverStation.Alliance.Red);
     }
+
+    public static boolean isValidDouble(double value){
+        return !Double.isNaN(value) && !Double.isInfinite(value);
+    }
     /**
      * Returns where the speaker is on the field
      * @return a {@link Translation2d} that represents where the alliance speaker is on the field

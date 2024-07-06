@@ -1,5 +1,6 @@
 package frc.robot.subsystems.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.revrobotics.CANSparkMax;
@@ -38,6 +39,14 @@ public class NeoGroupSubsystem extends SubsystemBase{
     @SafeVarargs
     public NeoGroupSubsystem(NeoData... neoData) {
         this.neoGroup = Utilities.arrayListFromParams(neoData);
+    }
+
+    public NeoGroupSubsystem(){
+        neoGroup = new ArrayList<>();
+    }
+
+    public void addNeo(NeoData neoData){
+        neoGroup.add(neoData);
     }
 
     @Override

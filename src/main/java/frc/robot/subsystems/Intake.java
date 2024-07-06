@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.utils.NeoGroupSubsystem;
 import frc.robot.util.MotorUtil;
@@ -11,7 +12,11 @@ import static frc.robot.Constants.*;
 
 public class Intake extends NeoGroupSubsystem{
 
+    private final DigitalInput intakeSensor;
+
     private double targetSpeed = 0;
+
+    private boolean notePresent = false;
 
     public Intake() {
         super(
@@ -23,15 +28,19 @@ public class Intake extends NeoGroupSubsystem{
         );
         super.relativeSpeed = 0;
 
-        //TODO INCLUDE NOTE SENSOR
+        intakeSensor = new DigitalInput(INTAKE_SENSOR_DIO_PORT);
     }
 
     @Override
     public void periodic(){
         super.relativeSpeed = targetSpeed;
-        super.periodic();
 
-        SmartDashboard.putNumber("Intake Target Speed", getTargetSpeed());
+        notePresent = intakeSensor.get();
+
+        SmartDashboard.putNumber("Intake Target Speed", targetSpeed);
+        SmartDashboard.putBoolean("Intake Note Present", notePresent);
+
+        super.periodic();
     }
 
     public double getTargetSpeed(){
@@ -40,5 +49,9 @@ public class Intake extends NeoGroupSubsystem{
 
     public void setTargetSpeed(double targetSpeed){
         this.targetSpeed = MotorUtil.clampPercent(targetSpeed);
+    }
+
+    public boolean notePresent(){
+        return notePresent;
     }
 }
