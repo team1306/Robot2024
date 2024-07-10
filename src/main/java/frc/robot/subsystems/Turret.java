@@ -3,15 +3,20 @@ package frc.robot.subsystems;
 import frc.robot.subsystems.utils.NeoGroupSubsystem;
 import frc.robot.util.DashboardGetter;
 import frc.robot.util.MotorUtil;
+import frc.robot.util.Utilities;
 
 import static frc.robot.Constants.*;
+
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Turret extends NeoGroupSubsystem{
@@ -20,32 +25,58 @@ public class Turret extends NeoGroupSubsystem{
     public final double MAX_TURRET_ANGLE_DEGREES = 900;
     public final Rotation2d MAX_TURRET_ANGLE = Rotation2d.fromDegrees(MAX_TURRET_ANGLE_DEGREES);
 
+    private final double TURRET_GEAR_RATIO = 5;
+
     private Rotation2d targetAngle = new Rotation2d();
     private Rotation2d currentAngle = new Rotation2d();
 
     private double kP = 1, kI = 0, kD = 0;
     private PIDController pidController = new PIDController(kP, kI, kD);
+    
+    private double kS = 0, kV = 0;
+    private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(kS, kV);
+    
+    private Encoder absoluteEncoder = new Encoder(TURRET_ENCODER_DIO_PORT_A, TURRET_ENCODER_DIO_PORT_B, false, EncodingType.k1X);
 
     public Turret() {
         super(new NeoData(MotorUtil.initSparkMax(TURRET_MOTOR_ID, MotorType.kBrushless, IdleMode.kBrake), false));
         super.relativeSpeed = 0;
 
+        absoluteEncoder.setDistancePerPulse(1 / 4096D / TURRET_GEAR_RATIO);
+        absoluteEncoder.reset();
+
         DashboardGetter.addGetDoubleData("Turret kP", kP, value -> kP = value);    
         DashboardGetter.addGetDoubleData("Turret kI", kI, value -> kI = value);        
-        DashboardGetter.addGetDoubleData("Turret kD", kD, value -> kD = value);   
+        DashboardGetter.addGetDoubleData("Turret kD", kD, value -> kD = value); 
+
+        DashboardGetter.addGetDoubleData("Turret kS", kS, value -> kS = value); 
+        DashboardGetter.addGetDoubleData("Turret kV", kV, value -> kV = value); 
+
+        DashboardGetter.addGetBooleanData("Reset Turret Angle", false, value -> {
+            if(value){ 
+                absoluteEncoder.reset();
+                SmartDashboard.putBoolean("Reset Turret Angle", false);
+            }
+        });
     }
 
     @Override
     public void periodic(){
+        pidController.setPID(kP, kI, kD);
+        feedforward = new SimpleMotorFeedforward(kS, kV);
 
-        //TODO GET CURRENT ANGLE OF TURRET -> figure out if there will be an absolute encoder
-        currentAngle = new Rotation2d();
+        currentAngle = Rotation2d.fromDegrees(absoluteEncoder.getDistance());
 
-        double output = pidController.calculate(currentAngle.getDegrees(), getAngleDifference().getDegrees());
+        double pidOutput = pidController.calculate(currentAngle.getDegrees(), getAngleDifference().getDegrees());
+        if(!Utilities.isValidDouble(pidOutput)) pidOutput = 0;
+
+        double feedforwardOutput = feedforward.calculate(absoluteEncoder.getRate());
+        if(!Utilities.isValidDouble(feedforwardOutput)) feedforwardOutput = 0;
 
         SmartDashboard.putNumber("Turret Target Angle", targetAngle.getDegrees());
         SmartDashboard.putNumber("Turret Current Angle", currentAngle.getDegrees());
-        SmartDashboard.putNumber("Turret PID Output", output);
+        SmartDashboard.putNumber("Turret PID Output", pidOutput);
+        SmartDashboard.putNumber("Turret Feedforward Output", feedforwardOutput);
 
         //TODO DECIDE ON BEST METHOD TO ROTATE TURRET -> Maybe make into a command that other commands feed things into
 

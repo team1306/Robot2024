@@ -41,8 +41,8 @@ public class Pivoter extends NeoGroupSubsystem{
     private ArmFeedforward pivoterFeedforward = new ArmFeedforward(0, kG, kV);
 
     //TODO ENCODER INIT AND TUNING
-    private DutyCycleEncoder leftEncoder;
-    private DutyCycleEncoder rightEncoder;
+    private DutyCycleEncoder leftEncoder = new DutyCycleEncoder(PIVOTER_LEFT_ENCODER_DIO_PORT);
+    private DutyCycleEncoder rightEncoder = new DutyCycleEncoder(PIVOTER_RIGHT_ENCODER_DIO_PORT);
 
     public Pivoter(){
         super(
@@ -79,12 +79,12 @@ public class Pivoter extends NeoGroupSubsystem{
         currentAngle = internalGetCurrentAngle();
 
         double pidOutput = pidController.calculate(currentAngle.getDegrees(), targetAngle.getDegrees());        
-        if (Utilities.isValidDouble(pidOutput)) pidOutput = 0;
+        if (!Utilities.isValidDouble(pidOutput)) pidOutput = 0;
 
         final State state = pidController.getSetpoint();
 
         double feedforwardOutput = pivoterFeedforward.calculate(Math.toRadians(state.position), Math.toRadians(state.velocity));
-        if (Utilities.isValidDouble(feedforwardOutput)) feedforwardOutput = 0;        
+        if (!Utilities.isValidDouble(feedforwardOutput)) feedforwardOutput = 0;        
 
         super.relativeSpeed = MotorUtil.clampPercent(pidOutput + feedforwardOutput);
 
