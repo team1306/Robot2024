@@ -40,7 +40,6 @@ public class Pivoter extends NeoGroupSubsystem{
     private double kG = 0, kV = 0;
     private ArmFeedforward pivoterFeedforward = new ArmFeedforward(0, kG, kV);
 
-    //TODO ENCODER INIT AND TUNING
     private DutyCycleEncoder leftEncoder = new DutyCycleEncoder(PIVOTER_LEFT_ENCODER_DIO_PORT);
     private DutyCycleEncoder rightEncoder = new DutyCycleEncoder(PIVOTER_RIGHT_ENCODER_DIO_PORT);
 

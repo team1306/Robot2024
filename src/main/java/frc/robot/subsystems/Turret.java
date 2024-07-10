@@ -22,10 +22,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Turret extends NeoGroupSubsystem{
 
     //Maximum angle for turret. Will not allow ANY angle above this
-    public final double MAX_TURRET_ANGLE_DEGREES = 900;
-    public final Rotation2d MAX_TURRET_ANGLE = Rotation2d.fromDegrees(MAX_TURRET_ANGLE_DEGREES);
+    public static final double MAX_TURRET_ANGLE_DEGREES = 850;
+    public static final Rotation2d MAX_TURRET_ANGLE = Rotation2d.fromDegrees(MAX_TURRET_ANGLE_DEGREES);
 
-    private final double TURRET_GEAR_RATIO = 5;
+    private static final double TURRET_GEAR_RATIO = 5;
 
     private Rotation2d targetAngle = new Rotation2d();
     private Rotation2d currentAngle = new Rotation2d();
@@ -73,12 +73,12 @@ public class Turret extends NeoGroupSubsystem{
         double feedforwardOutput = feedforward.calculate(absoluteEncoder.getRate());
         if(!Utilities.isValidDouble(feedforwardOutput)) feedforwardOutput = 0;
 
+        super.relativeSpeed = pidOutput + feedforwardOutput;
+
         SmartDashboard.putNumber("Turret Target Angle", targetAngle.getDegrees());
         SmartDashboard.putNumber("Turret Current Angle", currentAngle.getDegrees());
         SmartDashboard.putNumber("Turret PID Output", pidOutput);
         SmartDashboard.putNumber("Turret Feedforward Output", feedforwardOutput);
-
-        //TODO DECIDE ON BEST METHOD TO ROTATE TURRET -> Maybe make into a command that other commands feed things into
 
         super.periodic();
 
@@ -104,7 +104,18 @@ public class Turret extends NeoGroupSubsystem{
         this.targetAngle = clampTurretAngle(targetAngle);
     }
 
-    private Rotation2d clampTurretAngle(Rotation2d value){
+    private static Rotation2d clampTurretAngle(Rotation2d value){
         return Rotation2d.fromDegrees(MathUtil.clamp(value.getDegrees(), -MAX_TURRET_ANGLE_DEGREES, MAX_TURRET_ANGLE_DEGREES));
+    }
+
+
+    //See https://www.desmos.com/calculator/4ijjqb4nci for a graph of the score and cost functions
+    public static double scoreFunction(double position, double distance){
+        return 100 * costFunction(position) / distance;
+    }
+
+    public static double costFunction(double position){
+        double value = -Math.pow(1 / 550D * position, 6) + 10;
+        return Math.max(value, 0);
     }
 }

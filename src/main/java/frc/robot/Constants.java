@@ -23,28 +23,28 @@ public final class Constants {
     public static final int           BACK_RIGHT_DRIVE_STEER_ID     = 8;
 
  
-    public static final int           INTAKE_FRONT_MOTOR_ID         = 9;
-    public static final int           INTAKE_LEFT_MOTOR_ID          = 10;
-    public static final int           INTAKE_RIGHT_MOTOR_ID         = 11;
-    public static final int           INTAKE_CENTER_OMNI_MOTOR_ID   = 12;
-    public static final int           INTAKE_CENTER_BELT_MOTOR_ID   = 13;
+    public static final int           INTAKE_FRONT_MOTOR_ID          = 9;
+    public static final int           INTAKE_LEFT_MOTOR_ID           = 10;
+    public static final int           INTAKE_RIGHT_MOTOR_ID          = 11;
+    public static final int           INTAKE_CENTER_OMNI_MOTOR_ID    = 12;
+    public static final int           INTAKE_CENTER_BELT_MOTOR_ID    = 13;
 
-    public static final int           INDEXER_MOTOR_ID              = 14; 
+    public static final int           INDEXER_MOTOR_ID               = 14; 
 
-    public static final int           SHOOTER_TOP_MOTOR_ID          = 15;
-    public static final int           SHOOTER_BOTTOM_MOTOR_ID       = 16;
+    public static final int           SHOOTER_TOP_MOTOR_ID           = 15;
+    public static final int           SHOOTER_BOTTOM_MOTOR_ID        = 16;
  
-    public static final int           PIVOTER_LEFT_MOTOR_ID         = 17;
-    public static final int           PIVOTER_RIGHT_MOTOR_ID        = 18;
+    public static final int           PIVOTER_LEFT_MOTOR_ID          = 17;
+    public static final int           PIVOTER_RIGHT_MOTOR_ID         = 18;
 
-    public static final int           TURRET_MOTOR_ID               = 19;
+    public static final int           TURRET_MOTOR_ID                = 19;
 
 
-    public static final int           INTAKE_SENSOR_DIO_PORT        = 1;
+    public static final int           INTAKE_SENSOR_DIO_PORT         = 0;
     public static final int           INDEXER_SENSOR_DIO_PORT        = 1;
 
-    public static final int           TURRET_ENCODER_DIO_PORT_A     = 2;
-    public static final int           TURRET_ENCODER_DIO_PORT_B     = 3;
+    public static final int           TURRET_ENCODER_DIO_PORT_A      = 2;
+    public static final int           TURRET_ENCODER_DIO_PORT_B      = 3;
 
     public static final int           PIVOTER_LEFT_ENCODER_DIO_PORT = 4;
     public static final int           PIVOTER_RIGHT_ENCODER_DIO_PORT= 5;
