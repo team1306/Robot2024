@@ -30,6 +30,8 @@ public class Turret extends NeoGroupSubsystem{
     private Rotation2d targetAngle = new Rotation2d();
     private Rotation2d currentAngle = new Rotation2d();
 
+    private double toleranceAngleDegrees = 0.2;
+
     private double kP = 1, kI = 0, kD = 0;
     private PIDController pidController = new PIDController(kP, kI, kD);
     
@@ -52,6 +54,8 @@ public class Turret extends NeoGroupSubsystem{
         DashboardGetter.addGetDoubleData("Turret kS", kS, value -> kS = value); 
         DashboardGetter.addGetDoubleData("Turret kV", kV, value -> kV = value); 
 
+        DashboardGetter.addGetDoubleData("Turret Tolerance Angle", toleranceAngleDegrees, value -> toleranceAngleDegrees = value); 
+
         DashboardGetter.addGetBooleanData("Reset Turret Angle", false, value -> {
             if(value){ 
                 absoluteEncoder.reset();
@@ -63,11 +67,12 @@ public class Turret extends NeoGroupSubsystem{
     @Override
     public void periodic(){
         pidController.setPID(kP, kI, kD);
+        pidController.setTolerance(toleranceAngleDegrees);
         feedforward = new SimpleMotorFeedforward(kS, kV);
 
         currentAngle = Rotation2d.fromDegrees(absoluteEncoder.getDistance());
 
-        double pidOutput = pidController.calculate(currentAngle.getDegrees(), getAngleDifference().getDegrees());
+        double pidOutput = pidController.calculate(currentAngle.getDegrees(), targetAngle.getDegrees());
         if(!Utilities.isValidDouble(pidOutput)) pidOutput = 0;
 
         double feedforwardOutput = feedforward.calculate(absoluteEncoder.getRate());
@@ -77,6 +82,7 @@ public class Turret extends NeoGroupSubsystem{
 
         SmartDashboard.putNumber("Turret Target Angle", targetAngle.getDegrees());
         SmartDashboard.putNumber("Turret Current Angle", currentAngle.getDegrees());
+        SmartDashboard.putNumber("Turret Angle Difference", getAngleDifference().getDegrees());
         SmartDashboard.putNumber("Turret PID Output", pidOutput);
         SmartDashboard.putNumber("Turret Feedforward Output", feedforwardOutput);
 
@@ -104,10 +110,13 @@ public class Turret extends NeoGroupSubsystem{
         this.targetAngle = clampTurretAngle(targetAngle);
     }
 
+    public boolean atSetpoint(){
+        return Math.abs(getAngleDifference().getDegrees()) < toleranceAngleDegrees;
+    }
+
     private static Rotation2d clampTurretAngle(Rotation2d value){
         return Rotation2d.fromDegrees(MathUtil.clamp(value.getDegrees(), -MAX_TURRET_ANGLE_DEGREES, MAX_TURRET_ANGLE_DEGREES));
     }
-
 
     //See https://www.desmos.com/calculator/4ijjqb4nci for a graph of the score and cost functions
     public static double scoreFunction(double position, double distance){
