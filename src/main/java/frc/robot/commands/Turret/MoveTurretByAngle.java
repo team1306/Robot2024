@@ -1,4 +1,4 @@
-package frc.robot.commands.Turret;
+package frc.robot.commands.turret;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;

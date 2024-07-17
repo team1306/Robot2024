@@ -1,4 +1,4 @@
-package frc.robot.commands.Indexer;
+package frc.robot.commands.indexer;
 
 import java.util.function.DoubleSupplier;
 
