@@ -14,7 +14,7 @@ import frc.robot.subsystems.Turret;
 public class MoveTurretToAbsoluteAngle extends Command{
 
     private final Turret turret;
-    private final Rotation2d targetAngle;
+    private final Rotation2d targetAngle; 
 
     /**
      * Initialize a new instance of the {@link MoveTurretToRelativeAngle} class

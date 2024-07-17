@@ -14,7 +14,7 @@ public class ToggleShooterCommand extends Command{
         this.shooter = shooter;
         this.speed = speed;
     }
-
+ 
     @Override
     public void execute () {
        shooter.setTargetSpeed(speed.getAsDouble());

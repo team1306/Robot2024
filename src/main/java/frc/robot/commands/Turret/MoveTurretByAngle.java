@@ -15,7 +15,7 @@ import static frc.robot.subsystems.Turret.*;
 public class MoveTurretByAngle extends Command{
 
     private final Turret turret;
-    private final Rotation2d angleDifference;
+    private final Rotation2d angleDifference; 
 
     /**
      * Initialize a new instance of the {@link MoveTurretToRelativeAngle} class
