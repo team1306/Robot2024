@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-
 public class RobotContainer {
   private final CommandXboxController controller1 = new CommandXboxController(0); // Creates an XboxController on port 1.
   private final CommandXboxController controller2 = new CommandXboxController(1); // Creates an XboxController on port 1.
