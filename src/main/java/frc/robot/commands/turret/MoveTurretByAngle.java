@@ -1,4 +1,4 @@
-package frc.robot.commands.Turret;
+package frc.robot.commands.turret;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -15,7 +15,7 @@ import static frc.robot.subsystems.Turret.*;
 public class MoveTurretByAngle extends Command{
 
     private final Turret turret;
-    private final Rotation2d angleDifference;
+    private final Rotation2d angleDifference; 
 
     /**
      * Initialize a new instance of the {@link MoveTurretToRelativeAngle} class
@@ -25,6 +25,8 @@ public class MoveTurretByAngle extends Command{
     public MoveTurretByAngle(Turret turret, Rotation2d angleDifference){
         this.turret = turret;
         this.angleDifference = angleDifference;
+
+        addRequirements(turret);
 
         assert Math.abs(angleDifference.getDegrees()) <= 360;
     }
