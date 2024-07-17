@@ -27,6 +27,8 @@ public class MoveTurretToRelativeAngle extends Command{
         this.turret = turret;
         this.targetAngle = targetAngle;
 
+        addRequirements(turret);
+
         assert targetAngle.getDegrees() <= 360 && targetAngle.getDegrees() >= 0;
     }
 

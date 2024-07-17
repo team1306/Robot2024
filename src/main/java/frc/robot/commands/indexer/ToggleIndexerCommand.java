@@ -13,6 +13,8 @@ public class ToggleIndexerCommand extends Command{
     public ToggleIndexerCommand (Indexer indexer, DoubleSupplier speed) {
         this.indexer = indexer;
         this.speed = speed;
+
+        addRequirements(indexer);
     } 
 
     @Override

@@ -25,6 +25,8 @@ public class MoveTurretToAbsoluteAngle extends Command{
         this.turret = turret;
         this.targetAngle = targetAngle;
         
+        addRequirements(turret);
+
         assert Math.abs(targetAngle.getDegrees()) <= 800;
     }
 

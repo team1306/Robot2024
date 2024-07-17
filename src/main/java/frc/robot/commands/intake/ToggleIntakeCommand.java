@@ -14,6 +14,8 @@ public class ToggleIntakeCommand extends Command{
     public ToggleIntakeCommand (Intake intake, DoubleSupplier speed) {
         this.intake = intake;
         this.speed = speed;
+        
+        addRequirements(intake);
     } 
 
     @Override

@@ -26,6 +26,8 @@ public class MoveTurretByAngle extends Command{
         this.turret = turret;
         this.angleDifference = angleDifference;
 
+        addRequirements(turret);
+
         assert Math.abs(angleDifference.getDegrees()) <= 360;
     }
 
