@@ -11,6 +11,8 @@ public class MovePivoterToSetpoint extends Command{
     public MovePivoterToSetpoint (Pivoter pivoter, PivoterSetpoint setpoint){
         this.pivoter = pivoter;
         this.setpoint = setpoint;
+        
+        addRequirements(pivoter);
     }   
 
     @Override

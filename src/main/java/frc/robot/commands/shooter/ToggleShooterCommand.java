@@ -13,6 +13,8 @@ public class ToggleShooterCommand extends Command{
     public ToggleShooterCommand (Shooter shooter, DoubleSupplier speed) {
         this.shooter = shooter;
         this.speed = speed;
+
+        addRequirements(shooter);
     }
  
     @Override
