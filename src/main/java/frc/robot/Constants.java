@@ -60,4 +60,6 @@ public final class Constants {
            
     public static final boolean       INCLUDE_AUTO                  = true;
     public static final boolean       INCLUDE_LIMELIGHT             = true;
+
+    public static final double       MAX_SPEED                     = 5D; // temp value, m/s
 }
