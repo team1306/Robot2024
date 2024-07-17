@@ -19,7 +19,7 @@ public class ToggleIntakeCommand extends Command{
     @Override
     public void execute () {
        intake.setTargetSpeed(speed.getAsDouble());
-       finished = intake.notePresent();
+       finished = intake.notePresent(); //when note detected, stop intake
     }
 
     @Override
