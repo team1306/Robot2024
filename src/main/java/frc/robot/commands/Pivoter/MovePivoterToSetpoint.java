@@ -1,4 +1,4 @@
-package frc.robot.commands.Pivoter;
+package frc.robot.commands.pivoter;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Pivoter;
