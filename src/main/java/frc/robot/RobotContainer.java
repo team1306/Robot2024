@@ -5,12 +5,10 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.SwerveSubsystem;
-
 import static frc.robot.Constants.*;
 
 public class RobotContainer {
@@ -20,6 +18,7 @@ public class RobotContainer {
 
   public RobotContainer() {
     configureBindings();
+    //Command appears to not be scheduled 
     Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
         () -> MathUtil.applyDeadband(controller1.getLeftY(), 0),
         () -> MathUtil.applyDeadband(controller1.getLeftX(), 0),
@@ -36,10 +35,9 @@ public class RobotContainer {
         () -> MathUtil.applyDeadband(controller1.getLeftX(), LEFT_X_DEADBAND),
         () -> controller1.getRawAxis(2));
 
-    drivebase.setDefaultCommand(
-        !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle : driveFieldOrientedDirectAngleSim);
+    // drivebase.setDefaultCommand(
+    //     !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle : driveFieldOrientedDirectAngleSim);
     drivebase.setDefaultCommand(driveFieldOrientedDirectAngle);
-
   }
 
   /**

@@ -17,27 +17,26 @@ public final class Constants {
     public static final int           FRONT_RIGHT_DRIVE_MOTOR_ID     = 2;
     public static final int           BACK_LEFT_DRIVE_MOTOR_ID       = 3;
     public static final int           BACK_RIGHT_DRIVE_MOTOR_ID      = 4;
-    public static final int           FRONT_LEFT_DRIVE_STEER_ID      = 5;
-    public static final int           FRONT_RIGHT_DRIVE_STEER_ID     = 6;
-    public static final int           BACK_LEFT_DRIVE_STEER_ID       = 7;
-    public static final int           BACK_RIGHT_DRIVE_STEER_ID      = 8;
-
+    public static final int           FRONT_LEFT_DRIVE_STEER_ID      = 1;
+    public static final int           FRONT_RIGHT_DRIVE_STEER_ID     = 2;
+    public static final int           BACK_LEFT_DRIVE_STEER_ID       = 3;
+    public static final int           BACK_RIGHT_DRIVE_STEER_ID      = 4;
  
-    public static final int           INTAKE_FRONT_MOTOR_ID          = 9;
-    public static final int           INTAKE_LEFT_MOTOR_ID           = 10;
-    public static final int           INTAKE_RIGHT_MOTOR_ID          = 11;
-    public static final int           INTAKE_CENTER_OMNI_MOTOR_ID    = 12;
-    public static final int           INTAKE_CENTER_BELT_MOTOR_ID    = 13;
+    public static final int           INTAKE_FRONT_MOTOR_ID          = 5;
+    public static final int           INTAKE_LEFT_MOTOR_ID           = 6;
+    public static final int           INTAKE_RIGHT_MOTOR_ID          = 7;
+    public static final int           INTAKE_CENTER_OMNI_MOTOR_ID    = 8;
+    public static final int           INTAKE_CENTER_BELT_MOTOR_ID    = 9;
 
-    public static final int           INDEXER_MOTOR_ID               = 14; 
+    public static final int           INDEXER_MOTOR_ID               = 10; 
 
-    public static final int           SHOOTER_TOP_MOTOR_ID           = 15;
-    public static final int           SHOOTER_BOTTOM_MOTOR_ID        = 16;
+    public static final int           SHOOTER_TOP_MOTOR_ID           = 11;
+    public static final int           SHOOTER_BOTTOM_MOTOR_ID        = 12;
  
-    public static final int           PIVOTER_LEFT_MOTOR_ID          = 17;
-    public static final int           PIVOTER_RIGHT_MOTOR_ID         = 18;
+    public static final int           PIVOTER_LEFT_MOTOR_ID          = 13;
+    public static final int           PIVOTER_RIGHT_MOTOR_ID         = 14;
 
-    public static final int           TURRET_MOTOR_ID                = 19;
+    public static final int           TURRET_MOTOR_ID                = 15;
 
 
     public static final int           INTAKE_SENSOR_DIO_PORT         = 0;

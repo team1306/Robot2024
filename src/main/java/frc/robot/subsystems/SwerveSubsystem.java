@@ -66,7 +66,7 @@ public class SwerveSubsystem extends SubsystemBase
     SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
     try
     {
-        File directory = new File(Filesystem.getDeployDirectory(),"swerve");
+      File directory = new File(Filesystem.getDeployDirectory(),"swerve");
       swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED); // 5 meters per second, temp value
 
     } catch (Exception e)
@@ -226,7 +226,7 @@ public class SwerveSubsystem extends SubsystemBase
   {
     // swerveDrive.setHeadingCorrection(true); // Normally you would want heading correction for this kind of control.
     return run(() -> {
-
+      System.out.println(translationX.getAsDouble() + "-" + translationY.getAsDouble() + "-" + headingX.getAsDouble() + "-" + headingY); 
       Translation2d scaledInputs = cubeTranslation(new Translation2d(translationX.getAsDouble(),
                                                                                 translationY.getAsDouble()));
 
