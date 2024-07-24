@@ -79,6 +79,10 @@ public class Utilities {
         });
     }
 
+    public static Translation2d cubeTranslation(Translation2d translation) {
+        return new Translation2d(Math.pow(translation.getX(), 3), Math.pow(translation.getY(), 3));
+    }
+
     @SafeVarargs
     public static <T> ArrayList<T> arrayListFromParams(T... items) {
         final ArrayList<T> arrayList = new ArrayList<>();
