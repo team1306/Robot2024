@@ -5,20 +5,30 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.SwerveSubsystem;
 import static frc.robot.Constants.*;
 
+import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain.SwerveDriveState;
+
 public class RobotContainer {
   private final CommandXboxController controller1 = new CommandXboxController(0); // Creates an XboxController on port 1.
   private final CommandXboxController controller2 = new CommandXboxController(1); // Creates an XboxController on port 1.
-  private final SwerveSubsystem drivebase = new SwerveSubsystem();
+  // private final SwerveSubsystem drivebase;
+
+  public static void printHello() {
+    System.out.println("Hello");
+  }
 
   public RobotContainer() {
-    configureBindings();
+   /* drivebase =  new SwerveSubsystem();
+
+    //configureBindings();
     //Command appears to not be scheduled 
+    
     Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
         () -> MathUtil.applyDeadband(controller1.getLeftY(), 0),
         () -> MathUtil.applyDeadband(controller1.getLeftX(), 0),
@@ -37,7 +47,20 @@ public class RobotContainer {
 
     // drivebase.setDefaultCommand(
     //     !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle : driveFieldOrientedDirectAngleSim);
-    drivebase.setDefaultCommand(driveFieldOrientedDirectAngle);
+    final Command a = new Command() {
+      @Override
+      public void execute() {
+        System.out.println("I Love Running in A loop!");
+      }
+      @Override
+      public boolean isFinished() {
+        return false;
+      }
+    };
+   // drivebase.setDefaultCommand(/*driveFieldOrientedDirectAnglea);
+   a.schedule();
+    configureBindings();
+    */
   }
 
   /**
@@ -50,7 +73,7 @@ public class RobotContainer {
      * joysticks}.
      */
   private void configureBindings() {
-    controller1.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
+    // controller1.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
   }
 
   public Command getAutonomousCommand() {

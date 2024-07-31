@@ -226,6 +226,9 @@ public class SwerveSubsystem extends SubsystemBase
   {
     // swerveDrive.setHeadingCorrection(true); // Normally you would want heading correction for this kind of control.
     return run(() -> {
+      System.out.println("Hi Bradley!");
+      /*
+
       System.out.println(translationX.getAsDouble() + "-" + translationY.getAsDouble() + "-" + headingX.getAsDouble() + "-" + headingY); 
       Translation2d scaledInputs = cubeTranslation(new Translation2d(translationX.getAsDouble(),
                                                                                 translationY.getAsDouble()));
@@ -236,7 +239,7 @@ public class SwerveSubsystem extends SubsystemBase
                                                                       headingY.getAsDouble(),
                                                                       swerveDrive.getOdometryHeading().getRadians(),
                                                                       swerveDrive.getMaximumVelocity()));
-    });
+    */});
   }
 
   /**
@@ -354,6 +357,7 @@ public class SwerveSubsystem extends SubsystemBase
   @Override
   public void periodic()
   {
+    System.out.println("THE DRIVETRAIN IS RUNNING.");
   }
 
   @Override
