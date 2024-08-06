@@ -25,7 +25,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     robotContainer = new RobotContainer();
-    PortForwarder.add(5800, "photonvision.local", 5800);
   }
 
   @Override
@@ -65,8 +64,10 @@ public class Robot extends TimedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
-    new InstantCommand(() -> System.out.println("Connor eats cheese.")).schedule();
-   // drivebase.setDefaultCommand(/*driveFieldOrientedDirectAngle*/a)
+new RunCommand(() -> {
+      System.out.println("Whoops!");
+    }).schedule();
+    // drivebase.setDefaultCommand(/*driveFieldOrientedDirectAngle*/a)
 
   }
 
