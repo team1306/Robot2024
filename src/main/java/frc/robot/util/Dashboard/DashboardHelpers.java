@@ -1,5 +1,6 @@
 package frc.robot.util.Dashboard;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,14 +34,20 @@ public class DashboardHelpers {
     public static void updateValues(){
         for(Entry<Object, List<Field>> classToUpdate : fieldsToUpdate.entrySet()){
             for(Field field : classToUpdate.getValue()){
-                if(field.isAnnotationPresent(GetValue.class)){
-                    field.setAccessible(true);
-                    updateGetValueField(classToUpdate.getKey(), field);
+                for(Annotation annotation : field.getAnnotations()){
+                    if(annotation.annotationType().equals(GetValue.class)){
+                        field.setAccessible(true);
+                        updateGetValueField(classToUpdate.getKey(), field);
+                    }
+                    if(annotation.annotationType().equals(PutValue.class)){
+                        field.setAccessible(true);
+                        updatePutValueField(classToUpdate.getKey(), field);
+                    }
                 }
-                if(field.isAnnotationPresent(PutValue.class)){
-                    field.setAccessible(true);
-                    updatePutValueField(classToUpdate.getKey(), field);
-                }
+                // if(field.isAnnotationPresent(PutValue.class)){
+                //     field.setAccessible(true);
+                //     updatePutValueField(classToUpdate.getKey(), field);
+                // }
             }
         }
     }
