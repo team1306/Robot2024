@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 /**
  * Class to simplify the getting and assigning of variables from {@link SmartDashboard}
  */
-
+@Deprecated
 public class DashboardGetter {
     private static final List<GetEntry> getEntries = new ArrayList<>();
 

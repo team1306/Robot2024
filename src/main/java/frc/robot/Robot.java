@@ -4,32 +4,23 @@
 
 package frc.robot;
 
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAnalogSensor;
-import com.revrobotics.CANAnalog.AnalogMode;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.util.DashboardGetter;
 import frc.robot.util.MotorUtil;
 import frc.robot.util.Dashboard.DashboardHelpers;
-import frc.robot.util.Dashboard.GetValue;
-import frc.robot.util.Dashboard.PutValue;
 
 public class Robot extends TimedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
-  @PutValue(key = "push")
-  private double value = 0;
 
   private CANSparkMax motor = MotorUtil.initSparkMax(5, MotorType.kBrushless, IdleMode.kBrake);
   private SparkAnalogSensor encoder = motor.getAnalog(SparkAnalogSensor.Mode.kAbsolute);
@@ -38,7 +29,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     // robotContainer = new RobotContainer();
-    // DashboardHelpers.addClassToRefresh(this);
   }
 
   @Override
