@@ -20,12 +20,12 @@ import frc.robot.util.Dashboard.DashboardHelpers;
 public class Robot extends TimedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
-  private CANSparkMax motor1 = MotorUtil.initSparkMax(6, MotorType.kBrushless, IdleMode.kCoast);
-  private SparkAnalogSensor encoder1 = motor1.getAnalog();  
+  // private CANSparkMax motor1 = MotorUtil.initSparkMax(6, MotorType.kBrushless, IdleMode.kCoast);
+  // private SparkAnalogSensor encoder1 = motor1.getAnalog();  
 
   @Override
   public void robotInit() {
-    // robotContainer = new RobotContainer();
+    robotContainer = new RobotContainer();
   }
 
   @Override
@@ -33,7 +33,7 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
     DashboardGetter.update();
     DashboardHelpers.updateValues();
-    SmartDashboard.putNumber("Encoder Value", encoder1.getPosition());
+    // SmartDashboard.putNumber("Encoder Value", encoder1.getPosition());
   }
 
   @Override
