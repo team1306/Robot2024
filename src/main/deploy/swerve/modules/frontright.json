@@ -15,8 +15,8 @@
     "canbus": "rio"
   },
   "encoder": {
-    "type": "sparkmax_analog",
-    "id": 6,
+    "type": "thrifty",
+    "id": 3,
     "canbus": "null"
   },
   "inverted": {
