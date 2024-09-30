@@ -8,8 +8,8 @@ import java.lang.annotation.Target;
 /**
  * Annotates a field to put a value to SmartDashboard
  */
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PutValue {
-    String key();;
+    String key();
 }

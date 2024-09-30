@@ -4,25 +4,16 @@
 
 package frc.robot;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkAnalogSensor;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.util.DashboardGetter;
-import frc.robot.util.MotorUtil;
 import frc.robot.util.Dashboard.DashboardHelpers;
 
 public class Robot extends TimedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
-  // private CANSparkMax motor1 = MotorUtil.initSparkMax(6, MotorType.kBrushless, IdleMode.kCoast);
-  // private SparkAnalogSensor encoder1 = motor1.getAnalog();  
-
+  
   @Override
   public void robotInit() {
     robotContainer = new RobotContainer();
@@ -32,7 +23,7 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
     DashboardGetter.update();
-    DashboardHelpers.updateValues();
+    DashboardHelpers.update();
     // SmartDashboard.putNumber("Encoder Value", encoder1.getPosition());
   }
 
@@ -42,8 +33,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    DashboardHelpers.updateValues();
-  
   }
 
   @Override
@@ -73,7 +62,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    
+        
   }
 
   @Override

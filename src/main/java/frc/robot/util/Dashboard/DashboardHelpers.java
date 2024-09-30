@@ -1,157 +1,85 @@
 package frc.robot.util.Dashboard;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-/**
- * Method to get and put values to SmartDashboard using annotations.
- * <p> To work, the class with the {@link GetVaue} and {@link PutValue} annotations must be registered using the {@link DashboardHelpers#addClassToRefresh(Object)} method. </p>
- * Both {@link GetValue} and {@link PutValue} have 1 parameter which specifies the key to use for the field. If left as an empty string, the field name will be used as the key instead
- * 
- * @author Bradley Chumanov
- */
+import lombok.SneakyThrows;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 public class DashboardHelpers {
-    private static Map<Object, List<Field>> fieldsToUpdate = new HashMap<>();
+    private static final Set<Object> classesToUpdate = new HashSet<>();
 
-    /**
-     * Should be called in the constructor of a class.
-     * Adds a class to the list of classes to have the fields annotated with {@link GetValue} or {@link PutValue} updated
-     * @param clazz the class object. (referenced using "this")
-     */
-    public static void addClassToRefresh(Object clazz){
-        List<Field> fields = Arrays.stream(clazz.getClass().getDeclaredFields()).filter(DashboardHelpers::isUpdateAnnotationPresent).toList();
-        for(Field field : fields){
-            field.setAccessible(true);
-            if(field.isAnnotationPresent(GetValue.class)){
-                initGetValueField(clazz, field);
-            }
-        }
-        fieldsToUpdate.put(clazz, fields);
+    public static void updateClass(Object instance) {
+        Arrays.stream(instance.getClass().getDeclaredFields())
+                .filter(field -> field.isAnnotationPresent(GetValue.class)).forEach(field -> {
+                    field.setAccessible(true);
+                    if (!SmartDashboard.getEntry(field.getAnnotation(GetValue.class).key()).exists())
+                        putValue(field.getAnnotation(GetValue.class).key(), getFieldValue(instance, field));
+                    handleGetTypes(instance, field);
+                });
+
+        Arrays.stream(instance.getClass().getDeclaredFields())
+                .filter(field -> field.isAnnotationPresent(PutValue.class))
+                .forEach(field -> {
+                    field.setAccessible(true);
+                    putValue(field.getAnnotation(PutValue.class).key(), getFieldValue(instance, field));
+                });
+
+        Arrays.stream(instance.getClass().getDeclaredMethods())
+                .filter(method -> method.isAnnotationPresent(PutValue.class))
+                .forEach(method -> {
+                    method.setAccessible(true);
+                    putValue(method.getAnnotation(PutValue.class).key(), getMethodValue(instance, method));
+                });
+        classesToUpdate.add(instance);
+
     }
 
-    /**
-     * Remove the class from the list to be updated. Should be called in a command's end method. Does not need to be called in a subsystem 
-     * @param clazz the class object. (referenced using "this")
-     */
-    public static void removeClassToRefresh(Object clazz){
-        fieldsToUpdate.remove(clazz);
+    public static void update() {
+        classesToUpdate.forEach(DashboardHelpers::updateClass);
     }
 
-    /**
-     * Updates the fields using the annotations provided
-     */
-    public static void updateValues(){
-        for(Entry<Object, List<Field>> classToUpdate : fieldsToUpdate.entrySet()){
-            for(Field field : classToUpdate.getValue()){
-                for(Annotation annotation : field.getAnnotations()){
-                    if(annotation.annotationType().equals(GetValue.class)){
-                        updateGetValueField(classToUpdate.getKey(), field);
-                    }
-                    if(annotation.annotationType().equals(PutValue.class)){
-                        updatePutValueField(classToUpdate.getKey(), field);
-                    }
-                }
-            }
-        }
+    @SneakyThrows(IllegalAccessException.class)
+    private static Object getFieldValue(Object instance, Field field) {
+        return field.get(instance);
     }
 
-    /**
-     * Updates a field annotated with {@link GetValue}. Gets the value from SmartDashboard and sets the field.
-     * @param clazz the class object
-     * @param field the field object
-     */
-    private static void updateGetValueField(Object clazz, Field field){
-        String key = field.getAnnotation(GetValue.class).key();
-        if(key.isEmpty()) key = field.getName();
-        
-        try{
-            getDashboardValue(key, field, clazz);
-        }catch(IllegalAccessException | IllegalArgumentException e){
-            throw new RuntimeException(e);
-        }
+    @SneakyThrows({IllegalAccessException.class, InvocationTargetException.class})
+    private static Object getMethodValue(Object instance, Method method) {
+        return method.invoke(instance);
     }
 
-    private static void initGetValueField(Object clazz, Field field){
-        String key = field.getAnnotation(GetValue.class).key();
-        if(key.isEmpty()) key = field.getName();
-
-        try{
-            putDashboardValue(key, field.get(clazz));
-        }catch(IllegalAccessException | IllegalArgumentException e){
-            throw new RuntimeException(e);
-        }
-    }
-        
-     /**
-     * Updates a field annotated with {@link PutValue}. Puts the fields value to SmartDashboard
-     * @param clazz the class object
-     * @param field the field object
-     */
-    private static void updatePutValueField(Object clazz, Field field){
-        String key = field.getAnnotation(PutValue.class).key();
-        if(key.isEmpty()) key = field.getName();
-
-        try{
-            putDashboardValue(key, field.get(clazz));
-        }catch(IllegalAccessException | IllegalArgumentException e){
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Puts a type T value to SmartDashboard
-     * @param <T> the type of value to put to SmartDashboard
-     * @param key the SmartDashboard key
-     * @param value the value to put
-     */
-    private static <T> void putDashboardValue(String key, T value){
-        if(value.getClass().equals(boolean.class) || value.getClass().equals(Boolean.class)){
-            SmartDashboard.putBoolean(key, (boolean) value);
-
-        }else if(value.getClass().equals(double.class) || value.getClass().equals(Double.class)){
-            SmartDashboard.putNumber(key, (double) value);
-
-        }else if(value.getClass().equals(String.class)){
-            SmartDashboard.putString(key, (String) value);
-
-        }else{
-            throw new IllegalArgumentException(value.getClass().getSimpleName() + " is not a valid puttable SmartDashboard type");
-        }
-    }
-
-    /**
-     * Gets a value from SmartDashboard and assigns it to the field
-     * @param <T> the type of value to get
-     * @param key the key of the value
-     * @param field the field to assign the value to
-     * @param clazz the class object
-     * @throws IllegalAccessException when the field cannot be accessed
-     * @throws IllegalArgumentException when the field is not a valid SmartDashboard type
-     */
-    private static void getDashboardValue(String key, Field field, Object clazz) throws IllegalAccessException, IllegalArgumentException{
+    @SneakyThrows(IllegalAccessException.class)
+    private static void handleGetTypes(Object instance, Field field) {
         Class<?> type = field.getType();
+        Object defaultValue = field.get(instance);
+        String key = field.getAnnotation(GetValue.class).key();
 
-        if(type.equals(boolean.class) || type.equals(Boolean.class)){
-            field.set(clazz, SmartDashboard.getBoolean(key, (boolean)field.get(clazz)));
-
-        }else if(type.equals(double.class) || type.equals(Double.class)){
-            field.set(clazz, SmartDashboard.getNumber(key, (double)field.get(clazz)));
-
-        }else if(type.equals(String.class)){
-            field.set(clazz, SmartDashboard.getString(key, (String)field.get(clazz)));
-
-        }else{
-            throw new IllegalArgumentException(field.getClass().getSimpleName() + " is not a valid gettable SmartDashboard type");
+        if (type.equals(double.class)) {
+            field.set(instance, SmartDashboard.getNumber(key, (double) defaultValue));
+        } else if (type.equals(String.class)) {
+            String stringDefault = (String) defaultValue;
+            field.set(instance, SmartDashboard.getString(key, stringDefault == null ? "" : stringDefault));
+        } else if (type.equals(boolean.class)) {
+            field.set(instance, SmartDashboard.getBoolean(key, (boolean) defaultValue));
+        } else {
+            throw new RuntimeException("Unsupported getValue type: " + type);
         }
     }
 
-    private static boolean isUpdateAnnotationPresent(Field field){
-        return field.isAnnotationPresent(GetValue.class) || field.isAnnotationPresent(PutValue.class);
+    public static void putValue(String key, Object value) {
+        if (value instanceof Double) {
+            SmartDashboard.putNumber(key, (double) value);
+        } else if (value instanceof String) {
+            SmartDashboard.putString(key, (String) value);
+        } else if (value instanceof Boolean) {
+            SmartDashboard.putBoolean(key, (boolean) value);
+        } else {
+            throw new RuntimeException("Unsupported putValue type: " + (value == null ? "void is not a valid type" : value.getClass()));
+        }
     }
 }
