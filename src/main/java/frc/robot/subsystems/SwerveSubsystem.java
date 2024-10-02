@@ -22,12 +22,17 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import java.io.File;
 import java.util.function.DoubleSupplier;
+
+import frc.robot.util.Dashboard.DashboardHelpers;
+import frc.robot.util.Dashboard.GetValue;
+import frc.robot.util.Dashboard.PutValue;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import swervelib.SwerveController;
@@ -44,9 +49,10 @@ import static frc.robot.util.Utilities.*;
 
 public class SwerveSubsystem extends SubsystemBase
 {
-  double driveP, driveI, driveD, driveF, driveIZ;
-  double angleP, angleI, angleD, angleF, angleIZ;
-
+  @GetValue
+  private double driveP, driveI, driveD, driveF, driveIZ;
+  @GetValue
+  private double angleP, angleI, angleD, angleF, angleIZ;
   /*
    * Swerve drive object.
    */
@@ -58,11 +64,10 @@ public class SwerveSubsystem extends SubsystemBase
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
-   *
-   * @param directory Directory of swerve drive config files.
-   */
+   **/
   public SwerveSubsystem() {
     // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary objects being created.
+    DashboardHelpers.addUpdateClass(this);
     SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
     try
     {

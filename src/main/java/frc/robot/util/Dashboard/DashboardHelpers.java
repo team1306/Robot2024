@@ -15,7 +15,9 @@ import java.util.Set;
  * This class is a set of tools to write less code for SmartDashboard related methods. It primarily uses annotations to achieve this.
  */
 public class DashboardHelpers {
-    private static final Set<Object> classesToUpdate = new HashSet<>();
+    private static final Set<GetField> getFieldsToUpdate = new HashSet<>();
+    private static final Set<PutField> putFieldsToUpdate = new HashSet<>();
+    private static final Set<PutMethod> putMethodsToUpdate = new HashSet<>();
 
     /**
      * Adds a class to check for any {@link GetValue} or {@link PutValue} annotations. 
@@ -23,29 +25,41 @@ public class DashboardHelpers {
      * This will put the value of any fields or call any methods with {@link PutValue} to SmartDashboard
      * @param instance the instance of the class to check
      */
-    public static void updateClass(Object instance) {
+    public static void addUpdateClass(Object instance) {
         Arrays.stream(instance.getClass().getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(GetValue.class)).forEach(field -> {
                     field.setAccessible(true);
-                    if (!SmartDashboard.getEntry(field.getAnnotation(GetValue.class).key()).exists())
-                        putValue(field.getAnnotation(GetValue.class).key(), getFieldValue(instance, field));
-                    handleGetTypes(instance, field);
+                    String key = field.getAnnotation(GetValue.class).key();
+                    if(key.isBlank())
+                        key = field.getName();
+                    key = instance.getClass().getSimpleName() + "/" + key;
+                    Object value = getFieldValue(instance, field);
+                    if (!SmartDashboard.getEntry(key).exists())
+                        putValue(key, value);
+                    getFieldsToUpdate.add(new GetField(instance, field, key, value));
                 });
 
         Arrays.stream(instance.getClass().getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(PutValue.class))
                 .forEach(field -> {
                     field.setAccessible(true);
-                    putValue(field.getAnnotation(PutValue.class).key(), getFieldValue(instance, field));
+                    String key = field.getAnnotation(PutValue.class).key();
+                    if(key.isBlank())
+                        key = field.getName();
+                    key = instance.getClass().getSimpleName() + "/" + key;
+                    putFieldsToUpdate.add(new PutField(instance, field, key));
                 });
 
         Arrays.stream(instance.getClass().getDeclaredMethods())
                 .filter(method -> method.isAnnotationPresent(PutValue.class))
                 .forEach(method -> {
                     method.setAccessible(true);
-                    putValue(method.getAnnotation(PutValue.class).key(), getMethodValue(instance, method));
+                    String key = method.getAnnotation(PutValue.class).key();
+                    if(key.isBlank())
+                        key = method.getName();
+                    key = instance.getClass().getSimpleName() + "/" + key;
+                    putMethodsToUpdate.add(new PutMethod(instance, method, key));
                 });
-        classesToUpdate.add(instance);
 
     }
 
@@ -54,7 +68,9 @@ public class DashboardHelpers {
      * This method should be called only once in {@link Robot#robotPeriodic()}
      */
     public static void update() {
-        classesToUpdate.forEach(DashboardHelpers::updateClass);
+        getFieldsToUpdate.forEach(DashboardHelpers::handleGetTypes);
+        putFieldsToUpdate.forEach(DashboardHelpers::internalPutValue);
+        putMethodsToUpdate.forEach(DashboardHelpers::internalPutValue);
     }
 
     /**
@@ -80,21 +96,29 @@ public class DashboardHelpers {
     }
 
     @SneakyThrows(IllegalAccessException.class)
-    private static void handleGetTypes(Object instance, Field field) {
+    private static void handleGetTypes(GetField getField) {
+        Field field = getField.field;
         Class<?> type = field.getType();
-        Object defaultValue = field.get(instance);
-        String key = field.getAnnotation(GetValue.class).key();
-
+        
         if (type.equals(double.class)) {
-            field.set(instance, SmartDashboard.getNumber(key, (double) defaultValue));
+            field.set(getField.instance, SmartDashboard.getNumber(getField.key, (double) getField.defaultValue));
         } else if (type.equals(String.class)) {
-            String stringDefault = (String) defaultValue;
-            field.set(instance, SmartDashboard.getString(key, stringDefault == null ? "" : stringDefault));
+            String stringDefault = (String) getField.defaultValue;
+            field.set(getField.instance, SmartDashboard.getString(getField.key, stringDefault == null ? "" : stringDefault));
         } else if (type.equals(boolean.class)) {
-            field.set(instance, SmartDashboard.getBoolean(key, (boolean) defaultValue));
+            field.set(getField.instance, SmartDashboard.getBoolean(getField.key, (boolean) getField.defaultValue));
         } else {
             throw new RuntimeException("Unsupported getValue type: " + type);
         }
+    }
+    
+    @SneakyThrows(IllegalAccessException.class)
+    private static void internalPutValue(PutField putField) {
+        putValue(putField.key, putField.field.get(putField.instance));
+    }
+
+    private static void internalPutValue(PutMethod putField) {
+        putValue(putField.key, getMethodValue(putField.instance, putField.method));
     }
 
     /**
@@ -113,4 +137,9 @@ public class DashboardHelpers {
             throw new RuntimeException("Unsupported putValue type: " + (value == null ? "void is not a valid type" : value.getClass()));
         }
     }
+    
+    private record GetField(Object instance, Field field, String key, Object defaultValue) {}
+    private record PutField(Object instance, Field field, String key) {}
+    private record PutMethod(Object instance, Method method, String key) {}
+
 }
