@@ -22,7 +22,7 @@ public class RobotContainer {
     //Command appears to not be scheduled 
     Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
         () -> MathUtil.applyDeadband(controller1.getLeftY(), 0),
-        () -> MathUtil.applyDeadband(controller1.getLeftX(), 0),
+        () -> MathUtil.applyDeadband(-controller1.getLeftX(), 0),
         () -> controller1.getRightX(),
         () -> controller1.getRightY());
 

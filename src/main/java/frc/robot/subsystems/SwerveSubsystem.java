@@ -33,6 +33,8 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
+import swervelib.SwerveModule;
+import swervelib.parser.PIDFConfig;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -42,8 +44,10 @@ import static frc.robot.util.Utilities.*;
 
 public class SwerveSubsystem extends SubsystemBase
 {
+  double driveP, driveI, driveD, driveF, driveIZ;
+  double angleP, angleI, angleD, angleF, angleIZ;
 
-  /**
+  /*
    * Swerve drive object.
    */
   private final SwerveDrive         swerveDrive;
@@ -350,6 +354,10 @@ public class SwerveSubsystem extends SubsystemBase
   @Override
   public void periodic()
   {
+    for (SwerveModule swerveModule : swerveDrive.getModules()) {
+      swerveModule.setDrivePIDF(new PIDFConfig(driveP, driveI, driveD, driveF, driveIZ));
+      swerveModule.setAnglePIDF(new PIDFConfig(angleP, angleI, angleD, angleF, angleIZ));
+    }
   }
 
   @Override
