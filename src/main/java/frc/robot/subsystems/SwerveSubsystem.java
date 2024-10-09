@@ -53,7 +53,7 @@ public class SwerveSubsystem extends SubsystemBase
   @GetValue
   private double driveP, driveI, driveD, driveF, driveIZ;
   @GetValue
-  private double angleP, angleI, angleD, angleF, angleIZ;
+  private double angleP = 0.01, angleI, angleD, angleF, angleIZ;
 
   private boolean pushPID = false;
   /*
