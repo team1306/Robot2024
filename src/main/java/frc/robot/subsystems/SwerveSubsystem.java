@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import java.io.File;
+import java.time.Instant;
 import java.util.function.DoubleSupplier;
 
 import frc.robot.util.Dashboard.DashboardHelpers;
@@ -53,6 +54,8 @@ public class SwerveSubsystem extends SubsystemBase
   private double driveP, driveI, driveD, driveF, driveIZ;
   @GetValue
   private double angleP, angleI, angleD, angleF, angleIZ;
+
+  private boolean pushPID = false;
   /*
    * Swerve drive object.
    */
@@ -127,7 +130,9 @@ public class SwerveSubsystem extends SubsystemBase
     Pose3d speakerAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
     return getPose().getTranslation().getDistance(speakerAprilTagPose.toPose2d().getTranslation());
   }
-
+  public void pushPID() {
+    pushPID = true;
+  }
   /**
    * Get the yaw to aim at the speaker.
    *
@@ -231,7 +236,6 @@ public class SwerveSubsystem extends SubsystemBase
   {
     // swerveDrive.setHeadingCorrection(true); // Normally you would want heading correction for this kind of control.
     return run(() -> {
-      System.out.println(translationX.getAsDouble() + "-" + translationY.getAsDouble() + "-" + headingX.getAsDouble() + "-" + headingY); 
       Translation2d scaledInputs = cubeTranslation(new Translation2d(translationX.getAsDouble(),
                                                                                 translationY.getAsDouble()));
 
@@ -305,11 +309,14 @@ public class SwerveSubsystem extends SubsystemBase
   {
     return run(() -> {
       // Make the robot move
-      swerveDrive.drive(cubeTranslation(new Translation2d(
+      SmartDashboard.putNumber("x", translationX.getAsDouble() * swerveDrive.getMaximumVelocity());
+      SmartDashboard.putNumber("y", translationY.getAsDouble() * swerveDrive.getMaximumVelocity());
+      SmartDashboard.putNumber("rotation", translationX.getAsDouble() * swerveDrive.getMaximumVelocity());
+      swerveDrive.drive(squareTranslation(new Translation2d(
                             translationX.getAsDouble() * swerveDrive.getMaximumVelocity(),
                             translationY.getAsDouble() * swerveDrive.getMaximumVelocity())),
-                        Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumAngularVelocity(),
-                        true,
+                        Math.pow(angularRotationX.getAsDouble(), 2) * Math.signum(angularRotationX.getAsDouble()),
+                        false,
                         false);
     });
   }
@@ -359,9 +366,12 @@ public class SwerveSubsystem extends SubsystemBase
   @Override
   public void periodic()
   {
-    for (SwerveModule swerveModule : swerveDrive.getModules()) {
-      swerveModule.setDrivePIDF(new PIDFConfig(driveP, driveI, driveD, driveF, driveIZ));
-      swerveModule.setAnglePIDF(new PIDFConfig(angleP, angleI, angleD, angleF, angleIZ));
+    if (pushPID) {
+      for (SwerveModule swerveModule : swerveDrive.getModules()) {
+        swerveModule.setDrivePIDF(new PIDFConfig(driveP, driveI, driveD, driveF, driveIZ));
+        swerveModule.setAnglePIDF(new PIDFConfig(angleP, angleI, angleD, angleF, angleIZ));
+      }
+      pushPID = false;
     }
   }
 

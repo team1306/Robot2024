@@ -79,6 +79,11 @@ public class Utilities {
         });
     }
 
+
+    public static Translation2d squareTranslation(Translation2d translation) {
+        return new Translation2d(Math.pow(translation.getX(), 2) * Math.signum(translation.getX()), Math.pow(translation.getY(), 2) * Math.signum(translation.getY()));
+    }
+    
     public static Translation2d cubeTranslation(Translation2d translation) {
         return new Translation2d(Math.pow(translation.getX(), 3), Math.pow(translation.getY(), 3));
     }
