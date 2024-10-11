@@ -27,13 +27,13 @@ public class RobotContainer {
         () -> controller1.getRightY());
 
     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(-controller1.getLeftY(), LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(-controller1.getLeftX(), LEFT_X_DEADBAND),
+        () -> MathUtil.applyDeadband(-controller1.getLeftY() * 0.1, LEFT_Y_DEADBAND),
+        () -> MathUtil.applyDeadband(-controller1.getLeftX() * 0.1, LEFT_X_DEADBAND),
         () -> -controller1.getRightX());
 
     Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
-        () -> MathUtil.applyDeadband(controller1.getLeftY(), LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(controller1.getLeftX(), LEFT_X_DEADBAND),
+        () -> MathUtil.applyDeadband(controller1.getLeftY() * 0.01, LEFT_Y_DEADBAND),
+        () -> MathUtil.applyDeadband(controller1.getLeftX() * 0.01, LEFT_X_DEADBAND),
         () -> controller1.getRawAxis(2));
 
     // drivebase.setDefaultCommand(
