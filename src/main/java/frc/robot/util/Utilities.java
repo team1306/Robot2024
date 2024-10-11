@@ -88,6 +88,10 @@ public class Utilities {
         return new Translation2d(Math.pow(translation.getX(), 3), Math.pow(translation.getY(), 3));
     }
 
+    public static double smartPow(double a, double b) {
+        return Math.pow(a, b) * Math.signum(a);
+    }
+
     @SafeVarargs
     public static <T> ArrayList<T> arrayListFromParams(T... items) {
         final ArrayList<T> arrayList = new ArrayList<>();

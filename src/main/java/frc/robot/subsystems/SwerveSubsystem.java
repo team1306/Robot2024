@@ -309,14 +309,17 @@ public class SwerveSubsystem extends SubsystemBase
   {
     return run(() -> {
       // Make the robot move
-      SmartDashboard.putNumber("x", translationX.getAsDouble() * swerveDrive.getMaximumVelocity());
-      SmartDashboard.putNumber("y", translationY.getAsDouble() * swerveDrive.getMaximumVelocity());
-      SmartDashboard.putNumber("rotation", translationX.getAsDouble() * swerveDrive.getMaximumVelocity());
-      swerveDrive.drive(squareTranslation(new Translation2d(
-                            translationX.getAsDouble() * swerveDrive.getMaximumVelocity(),
-                            translationY.getAsDouble() * swerveDrive.getMaximumVelocity())),
-                        Math.pow(angularRotationX.getAsDouble(), 2) * Math.signum(angularRotationX.getAsDouble()),
-                        false,
+      final double forwardComponent = smartPow(translationX.getAsDouble(), 2) * swerveDrive.getMaximumVelocity();
+      final double sidewaysComponent = smartPow(translationY.getAsDouble(), 2) * swerveDrive.getMaximumVelocity();
+      final double angularComponent = smartPow(angularRotationX.getAsDouble(), 2) * swerveDrive.getMaximumAngularVelocity() * 180 / Math.PI * 5;
+
+
+      SmartDashboard.putNumber("x", forwardComponent);
+      SmartDashboard.putNumber("y", sidewaysComponent);
+      SmartDashboard.putNumber("rotation", angularComponent);
+      swerveDrive.drive(new Translation2d(forwardComponent, sidewaysComponent),
+                        angularComponent,
+                        true,
                         false);
     });
   }
