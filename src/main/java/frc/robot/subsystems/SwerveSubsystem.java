@@ -53,7 +53,7 @@ public class SwerveSubsystem extends SubsystemBase
   @GetValue
   private double driveP, driveI, driveD, driveF, driveIZ;
   @GetValue
-  private double angleP = 0.01, angleI, angleD, angleF, angleIZ;
+  private double angleP = 0.0301306, angleI, angleD = 1.541306, angleF, angleIZ;
 
   private boolean pushPID = false;
   /*
@@ -165,6 +165,27 @@ public class SwerveSubsystem extends SubsystemBase
                                                       getHeading())
                );
         }).until(() -> getSpeakerYaw().minus(getHeading()).getDegrees() < tolerance);
+  }
+
+/**
+   * Aim the robot at a setpoint with a tolerance
+   *
+   * @param rotation the rotation to rotate to
+   * @param tolerance Tolerance.
+   * @return Command to turn the robot to the desired rotation.
+   */
+  public Command aimAtSetpoint(Rotation2d rotation, Rotation2d tolerance)
+  {
+    SwerveController controller = swerveDrive.getSwerveController();
+    return run(
+        () -> {
+          drive(ChassisSpeeds.fromFieldRelativeSpeeds(0,
+                                                      0,
+                                                      controller.headingCalculate(getHeading().getRadians(),
+                                                                                  rotation.getRadians()),
+                                                      getHeading())
+               );
+        }).until(() -> rotation.minus(getHeading()).getDegrees() < tolerance.getDegrees());
   }
 
   /**
@@ -311,8 +332,7 @@ public class SwerveSubsystem extends SubsystemBase
       // Make the robot move
       final double forwardComponent = smartPow(translationX.getAsDouble(), 2) * swerveDrive.getMaximumVelocity();
       final double sidewaysComponent = smartPow(translationY.getAsDouble(), 2) * swerveDrive.getMaximumVelocity();
-      final double angularComponent = smartPow(angularRotationX.getAsDouble(), 2) * swerveDrive.getMaximumAngularVelocity() * 180 / Math.PI * 5;
-
+      final double angularComponent = smartPow(angularRotationX.getAsDouble(), 2) * swerveDrive.getMaximumAngularVelocity();
 
       SmartDashboard.putNumber("x", forwardComponent);
       SmartDashboard.putNumber("y", sidewaysComponent);

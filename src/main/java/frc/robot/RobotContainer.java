@@ -5,17 +5,25 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.util.Dashboard.DashboardHelpers;
+import frc.robot.util.Dashboard.GetValue;
+
 import static frc.robot.Constants.*;
 
 public class RobotContainer {
   final CommandXboxController controller1 = new CommandXboxController(0); // Creates an XboxController on port 1.
   private final CommandXboxController controller2 = new CommandXboxController(1); // Creates an XboxController on port 1.
+  @GetValue
+  private double MULT = 0.5;
   final SwerveSubsystem drivebase;
   public RobotContainer() {
+    DashboardHelpers.addUpdateClass(this);
     drivebase = new SwerveSubsystem();
 
     configureBindings();
@@ -27,9 +35,9 @@ public class RobotContainer {
         () -> controller1.getRightY());
 
     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(-controller1.getLeftY() * 0.1, LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(-controller1.getLeftX() * 0.1, LEFT_X_DEADBAND),
-        () -> -controller1.getRightX());
+        () -> MathUtil.applyDeadband(-controller1.getLeftY() * MULT, LEFT_Y_DEADBAND),
+        () -> MathUtil.applyDeadband(-controller1.getLeftX() * MULT, LEFT_X_DEADBAND),
+        () -> controller1.getRightX());
 
     Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
         () -> MathUtil.applyDeadband(controller1.getLeftY() * 0.01, LEFT_Y_DEADBAND),
@@ -52,6 +60,10 @@ public class RobotContainer {
      */
   private void configureBindings() {
     controller1.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
+    controller1.povUp().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(1)));
+    controller1.povDown().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(1)));
+    controller1.povLeft().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(180), Rotation2d.fromDegrees(1)));
+    controller1.povRight().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(270), Rotation2d.fromDegrees(1)));
   }
 
   public Command getAutonomousCommand() {
