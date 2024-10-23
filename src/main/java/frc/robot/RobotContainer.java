@@ -27,9 +27,8 @@ public class RobotContainer {
     drivebase = new SwerveSubsystem();
 
     configureBindings();
-    //Command appears to not be scheduled 
     Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(controller1.getLeftY(), 0),
+        () -> MathUtil.applyDeadband(-controller1.getLeftY(), 0),
         () -> MathUtil.applyDeadband(-controller1.getLeftX(), 0),
         () -> controller1.getRightX(),
         () -> controller1.getRightY());
@@ -46,7 +45,7 @@ public class RobotContainer {
 
     // drivebase.setDefaultCommand(
     //     !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle : driveFieldOrientedDirectAngleSim);
-    drivebase.setDefaultCommand(driveFieldOrientedDirectAngle);
+    drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
   }
 
   /**
@@ -60,12 +59,12 @@ public class RobotContainer {
      */
   private void configureBindings() {
     controller1.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-    /*
+    
     controller1.povUp().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(1)));
-    controller1.povDown().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(1)));
-    controller1.povLeft().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(180), Rotation2d.fromDegrees(1)));
-    controller1.povRight().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(270), Rotation2d.fromDegrees(1)));
-    */
+    controller1.povRight().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(1)));
+    controller1.povDown().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(180), Rotation2d.fromDegrees(1)));
+    controller1.povLeft().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(270), Rotation2d.fromDegrees(1)));
+
   }
 
   public Command getAutonomousCommand() {

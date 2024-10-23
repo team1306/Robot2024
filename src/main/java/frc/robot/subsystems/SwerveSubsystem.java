@@ -180,14 +180,10 @@ public class SwerveSubsystem extends SubsystemBase
     SwerveController controller = swerveDrive.getSwerveController();
     return run(
         () -> {
-          drive(ChassisSpeeds.fromFieldRelativeSpeeds(0,
-                                                      0,
-                                                      controller.headingCalculate(getHeading().getRadians(),
-                                                                                  rotation.getRadians()),
-                                                      getHeading())
-               );
+          drive(ChassisSpeeds.fromFieldRelativeSpeeds(0, 0,
+              controller.headingCalculate(getHeading().getRadians(), rotation.getRadians()), getHeading()));
         }).until(() -> rotation.minus(getHeading()).getDegrees() < tolerance.getDegrees());
-  }
+      }
 
   /**
    * Aim the robot at the target returned by PhotonVision.
@@ -261,7 +257,6 @@ public class SwerveSubsystem extends SubsystemBase
       
       final double forwardComponent = smartPow(translationX.getAsDouble(), 2) * swerveDrive.getMaximumVelocity();
       final double sidewaysComponent = smartPow(translationY.getAsDouble(), 2) * swerveDrive.getMaximumVelocity();
-
       // Make the robot move
       driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(forwardComponent, sidewaysComponent,
                                                                       headingX.getAsDouble(),
