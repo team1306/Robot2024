@@ -51,7 +51,7 @@ import static frc.robot.util.Utilities.*;
 public class SwerveSubsystem extends SubsystemBase
 {
   @GetValue
-  private double driveP, driveI, driveD, driveF, driveIZ;
+  private double driveP, driveI, driveD, driveF, driveIZ, headingP, headingI, headingD;
   @GetValue
   private double angleP = 0.0301306, angleI, angleD = 1.541306, angleF, angleIZ;
 
@@ -81,8 +81,9 @@ public class SwerveSubsystem extends SubsystemBase
     {
       throw new RuntimeException(e);
     }
-    swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via angle.
-    swerveDrive.setCosineCompensator(false);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
+    
+    swerveDrive.setHeadingCorrection(true); // Heading correction should only be used while controlling the robot via angle.
+    swerveDrive.setCosineCompensator(true);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
     // setupPathPlanner();
   }
 
@@ -257,11 +258,12 @@ public class SwerveSubsystem extends SubsystemBase
   {
     // swerveDrive.setHeadingCorrection(true); // Normally you would want heading correction for this kind of control.
     return run(() -> {
-      Translation2d scaledInputs = cubeTranslation(new Translation2d(translationX.getAsDouble(),
-                                                                                translationY.getAsDouble()));
+      
+      final double forwardComponent = smartPow(translationX.getAsDouble(), 2) * swerveDrive.getMaximumVelocity();
+      final double sidewaysComponent = smartPow(translationY.getAsDouble(), 2) * swerveDrive.getMaximumVelocity();
 
       // Make the robot move
-      driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(), scaledInputs.getY(),
+      driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(forwardComponent, sidewaysComponent,
                                                                       headingX.getAsDouble(),
                                                                       headingY.getAsDouble(),
                                                                       swerveDrive.getOdometryHeading().getRadians(),
@@ -396,6 +398,7 @@ public class SwerveSubsystem extends SubsystemBase
       }
       pushPID = false;
     }
+    swerveDrive.getSwerveController().thetaController.setPID(headingP, headingI, headingD);
   }
 
   @Override

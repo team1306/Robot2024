@@ -46,7 +46,7 @@ public class RobotContainer {
 
     // drivebase.setDefaultCommand(
     //     !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle : driveFieldOrientedDirectAngleSim);
-    drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+    drivebase.setDefaultCommand(driveFieldOrientedDirectAngle);
   }
 
   /**
@@ -60,10 +60,12 @@ public class RobotContainer {
      */
   private void configureBindings() {
     controller1.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
+    /*
     controller1.povUp().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(1)));
     controller1.povDown().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(1)));
     controller1.povLeft().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(180), Rotation2d.fromDegrees(1)));
     controller1.povRight().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(270), Rotation2d.fromDegrees(1)));
+    */
   }
 
   public Command getAutonomousCommand() {
