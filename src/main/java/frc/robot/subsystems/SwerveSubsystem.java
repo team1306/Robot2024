@@ -49,7 +49,7 @@ import static frc.robot.util.Utilities.*;
 public class SwerveSubsystem extends SubsystemBase
 {
   @GetValue
-  private double driveP, driveI, driveD, driveF, driveIZ, headingP, headingI, headingD;
+  private double driveP, driveI, driveD, driveF, driveIZ, headingP = 0.66, headingI, headingD = 0.017;
   @GetValue
   private double angleP = 0.0301306, angleI, angleD = 1.541306, angleF, angleIZ;
 

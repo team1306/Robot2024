@@ -19,7 +19,7 @@ public class RobotContainer {
   final CommandXboxController controller1 = new CommandXboxController(0); // Creates an XboxController on port 1.
   private final CommandXboxController controller2 = new CommandXboxController(1); // Creates an XboxController on port 1.
   @GetValue
-  private double MULT = 0.5;
+  public double mult = 0.5;
   final SwerveSubsystem drivebase;
   public RobotContainer() {
     DashboardHelpers.addUpdateClass(this);
@@ -27,14 +27,14 @@ public class RobotContainer {
 
     configureBindings();
     Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(-controller1.getLeftY(), 0),
-        () -> MathUtil.applyDeadband(-controller1.getLeftX(), 0),
-        () -> controller1.getRightX(),
-        () -> controller1.getRightY());
+        () -> MathUtil.applyDeadband(-controller1.getLeftY() * mult, 0),
+        () -> MathUtil.applyDeadband(-controller1.getLeftX() * mult, 0),
+        () -> MathUtil.applyDeadband(-controller1.getRightX(), 0.25),
+        () -> MathUtil.applyDeadband(-controller1.getRightY(), .025));
 
     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(-controller1.getLeftY() * MULT, LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(-controller1.getLeftX() * MULT, LEFT_X_DEADBAND),
+        () -> MathUtil.applyDeadband(-controller1.getLeftY() * mult, LEFT_Y_DEADBAND),
+        () -> MathUtil.applyDeadband(-controller1.getLeftX() * mult, LEFT_X_DEADBAND),
         () -> controller1.getRightX());
 
     Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
@@ -44,7 +44,7 @@ public class RobotContainer {
 
     // drivebase.setDefaultCommand(
     //     !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle : driveFieldOrientedDirectAngleSim);
-    drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+    drivebase.setDefaultCommand(driveFieldOrientedDirectAngle);
   }
 
   /**
