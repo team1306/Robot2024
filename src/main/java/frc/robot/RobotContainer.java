@@ -15,6 +15,9 @@ import frc.robot.util.Dashboard.GetValue;
 
 import static frc.robot.Constants.*;
 
+import com.choreo.lib.Choreo;
+import com.choreo.lib.ChoreoTrajectory;
+
 public class RobotContainer {
   final CommandXboxController controller1 = new CommandXboxController(0); // Creates an XboxController on port 1.
   private final CommandXboxController controller2 = new CommandXboxController(1); // Creates an XboxController on port 1.
@@ -27,14 +30,14 @@ public class RobotContainer {
 
     configureBindings();
     Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(-controller1.getLeftY() * mult, 0),
-        () -> MathUtil.applyDeadband(-controller1.getLeftX() * mult, 0),
-        () -> MathUtil.applyDeadband(-controller1.getRightX(), 0.25),
-        () -> MathUtil.applyDeadband(-controller1.getRightY(), .025));
+        () -> MathUtil.applyDeadband(controller1.getLeftY() * mult, 0),
+        () -> MathUtil.applyDeadband(controller1.getLeftX() * mult, 0),
+        () -> MathUtil.applyDeadband(controller1.getRightX(), 0.25),
+        () -> MathUtil.applyDeadband(controller1.getRightY(), .025));
 
     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(-controller1.getLeftY() * mult, LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(-controller1.getLeftX() * mult, LEFT_X_DEADBAND),
+        () -> MathUtil.applyDeadband(controller1.getLeftY() * mult, LEFT_Y_DEADBAND),
+        () -> MathUtil.applyDeadband(controller1.getLeftX() * mult, LEFT_X_DEADBAND),
         () -> controller1.getRightX());
 
     Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(

@@ -4,12 +4,16 @@
 
 package frc.robot.subsystems;
 
+import com.choreo.lib.Choreo;
+import com.choreo.lib.ChoreoControlFunction;
+import com.choreo.lib.ChoreoTrajectory;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -24,6 +28,8 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
@@ -37,8 +43,6 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
-import swervelib.SwerveModule;
-import swervelib.parser.PIDFConfig;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -49,7 +53,7 @@ import static frc.robot.util.Utilities.*;
 public class SwerveSubsystem extends SubsystemBase
 {
   @GetValue
-  private double driveP, driveI, driveD, driveF, driveIZ, headingP = 0.66, headingI, headingD = 0.017;
+  private double driveP, driveI, driveD, driveF, driveIZ, headingP = 0.33, headingI, headingD = 0.017;
   @GetValue
   private double angleP = 0.0301306, angleI, angleD = 1.541306, angleF, angleIZ;
 
@@ -180,7 +184,7 @@ public class SwerveSubsystem extends SubsystemBase
         () -> {
           drive(ChassisSpeeds.fromFieldRelativeSpeeds(0, 0,
               controller.headingCalculate(getHeading().getRadians(), rotation.getRadians()), getHeading()));
-        }).until(() -> rotation.minus(getHeading()).getDegrees() < tolerance.getDegrees());
+        }).until(() -> Math.abs(rotation.minus(getHeading()).getDegrees()) < tolerance.getDegrees());
       }
 
   /**
@@ -359,6 +363,7 @@ public class SwerveSubsystem extends SubsystemBase
                       rotation,
                       fieldRelative,
                       false); // Open loop is disabled since it shouldn't be used most of the time.
+  
   }
 
   /**
@@ -384,14 +389,24 @@ public class SwerveSubsystem extends SubsystemBase
   @Override
   public void periodic()
   {
-    if (pushPID) {
-      for (SwerveModule swerveModule : swerveDrive.getModules()) {
-        swerveModule.setDrivePIDF(new PIDFConfig(driveP, driveI, driveD, driveF, driveIZ));
-        swerveModule.setAnglePIDF(new PIDFConfig(angleP, angleI, angleD, angleF, angleIZ));
-      }
-      pushPID = false;
-    }
+    // if (pushPID) {
+    //   for (SwerveModule swerveModule : swerveDrive.getModules()) {
+    //     swerveModule.setDrivePIDF(new PIDFConfig(driveP, driveI, driveD, driveF, driveIZ));
+    //     swerveModule.setAnglePIDF(new PIDFConfig(angleP, angleI, angleD, angleF, angleIZ));
+    //   }
+
+    //   pushPID = false;
+    // }
     swerveDrive.getSwerveController().thetaController.setPID(headingP, headingI, headingD);
+  }
+
+  public Command getAutoCommand(){
+    ChoreoTrajectory trajectory = Choreo.getTrajectory("TestPath");
+    PIDController xController = new PIDController(0, 0, 0);
+    PIDController yController = new PIDController(0, 0, 0);
+    PIDController rotationController = new PIDController(0, 0, 0);
+
+    return Choreo.choreoSwerveCommand(trajectory, this::getPose, xController, yController,rotationController, this::drive, this::isRedAlliance, this);
   }
 
   @Override
