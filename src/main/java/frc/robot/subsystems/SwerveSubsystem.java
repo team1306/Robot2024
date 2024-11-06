@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 import choreo.Choreo;
 import choreo.auto.AutoFactory;
+import choreo.trajectory.TrajectorySample;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathConstraints;
@@ -31,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import java.io.File;
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 import frc.robot.util.Dashboard.DashboardHelpers;
@@ -401,16 +404,17 @@ public class SwerveSubsystem extends SubsystemBase
   }
 
   public Command getAutoCommand(){
-    var trajectory = Choreo.loadTrajectory("TestPath");
+    Optional<?> trajectory = Choreo.loadTrajectory("TestPath");
+    
     if(trajectory.isEmpty()) return new InstantCommand();
     
     //TODO verify that this is the correct way to create the auto factory
     var builder = Choreo.createAutoFactory(this, this::getPose, (pose, sampleType) -> drive(sampleType.getChassisSpeeds())
     , this::isRedAlliance, new AutoFactory.AutoBindings());
     
-    resetOdometry(trajectory.get().getInitialPose(isRedAlliance()));
+    resetOdometry(((choreo.trajectory.Trajectory<?>)trajectory.get()).getInitialPose(isRedAlliance()));
     
-    return builder.trajectoryCommand(trajectory.get());
+    return builder.trajectoryCommand((choreo.trajectory.Trajectory<?>)trajectory.get());
   }
 
   @Override
