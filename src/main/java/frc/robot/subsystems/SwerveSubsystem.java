@@ -7,10 +7,16 @@ package frc.robot.subsystems;
 import choreo.Choreo;
 import choreo.auto.AutoFactory;
 import choreo.trajectory.TrajectorySample;
+
+import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.PIDController;
@@ -23,6 +29,8 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -58,7 +66,7 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     @GetValue
-    private double driveP, driveI, driveD, driveF, driveIZ, headingP = 0.33, headingI, headingD = 0.017;
+    private double driveP, driveI, driveD, driveF, driveIZ, headingP = 0.4, headingI, headingD = 0.025;
     @GetValue
     private double angleP = 0.0301306, angleI, angleD = 1.541306, angleF, angleIZ;
     private boolean pushPID = false;
@@ -77,45 +85,34 @@ public class SwerveSubsystem extends SubsystemBase {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-        swerveDrive.setHeadingCorrection(true); // Heading correction should only be used while controlling the robot via angle.
+        //TODO Change based off auto
+        swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via angle.
         swerveDrive.setCosineCompensator(true);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
         //TODO tune the coefficient
-        swerveDrive.setAngularVelocityCompensation(true, true, 0.1);
-        // setupPathPlanner();
+        // swerveDrive.setAngularVelocityCompensation(true, true, 0.1);
+        setupPathPlanner();
     }
 
-  /*
-  public void setupPathPlanner()
-  {
-    AutoBuilder.configureHolonomic(
-        this::getPose, // Robot pose supplier
-        this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
-        this::getRobotVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-        this::setChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-        new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                                         AutonConstants.TRANSLATION_PID,
-                                         // Translation PID constants
-                                         AutonConstants.ANGLE_PID,
-                                         // Rotation PID constants
-                                         4.5,
-                                         // Max module speed, in m/s
-                                         swerveDrive.swerveDriveConfiguration.getDriveBaseRadiusMeters(),
-                                         // Drive base radius in meters. Distance from robot center to furthest module.
-                                         new ReplanningConfig()
-                                         // Default path replanning config. See the API for the options here
-        ),
-        () -> {
-          // Boolean supplier that controls when the path will be mirrored for the red alliance
-          // This will flip the path being followed to the red side of the field.
-          // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-          var alliance = DriverStation.getAlliance();
-          return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
-        },
-        this // Reference to this subsystem to set requirements
-                                  );
-  }
-  */
+    public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
+    public static final PIDConstants ANGLE_PID       = new PIDConstants(0.4, 0, 0.01);
+
+    public void setupPathPlanner()
+    {
+        AutoBuilder.configureHolonomic(
+            this::getPose, 
+            this::resetOdometry, 
+            this::getRobotVelocity, 
+            this::setChassisSpeeds,
+            new HolonomicPathFollowerConfig( 
+                                            TRANSLATION_PID,
+                                            ANGLE_PID,
+                                            swerveDrive.getMaximumVelocity(),
+                                            swerveDrive.swerveDriveConfiguration.getDriveBaseRadiusMeters(),
+                                            new ReplanningConfig()
+            ),
+            this::isRedAlliance, this);
+    }
+  
 
     @Override
     public void periodic() {
@@ -202,23 +199,22 @@ public class SwerveSubsystem extends SubsystemBase {
         if (trajectory.isEmpty()) return new InstantCommand();
 
         //TODO fix the incorrect movement of swerve and failure to reset position
-        var builder = Choreo.createAutoFactory(this, this::getPose, (robotPose, sample) -> {
-            PIDController xController = new PIDController(0.2, 0, 0);
-            PIDController yController = new PIDController(0.2, 0, 0);
-            PIDController rController = new PIDController(0.2, 0, 0);
+        AutoFactory builder = Choreo.createAutoFactory(this, this::getPose, (robotPose, sample) -> {
+            PIDController xController = new PIDController(5, 0, 0);
+            PIDController yController = new PIDController(5, 0, 0);
+            PIDController rController = new PIDController(5, 0, 0);                                                                                                                                                                                                                     //heheheheaaaa
 
             Pose2d desiredPose = ((TrajectorySample<?>) sample).getPose();
             ChassisSpeeds desiredSpeeds = ((TrajectorySample<?>) sample).getChassisSpeeds();
             ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 new ChassisSpeeds(
                     xController.calculate(robotPose.getX(), desiredPose.getX()) + desiredSpeeds.vxMetersPerSecond,
-                    yController.calculate(robotPose.getY(), desiredPose.getX()) + desiredSpeeds.vyMetersPerSecond,
+                    yController.calculate(robotPose.getY(), desiredPose.getY()) + desiredSpeeds.vyMetersPerSecond,
                     rController.calculate(robotPose.getRotation().getRadians(), desiredPose.getRotation().getRadians()) + desiredSpeeds.omegaRadiansPerSecond
                 ), robotPose.getRotation());
             setChassisSpeeds(speeds);
             }, this::isRedAlliance, new AutoFactory.AutoBindings());
-
-
+           
         return new InstantCommand(() -> resetOdometry(((choreo.trajectory.Trajectory<?>) trajectory.get()).getInitialPose(isRedAlliance())))
             .andThen(builder.trajectoryCommand((choreo.trajectory.Trajectory<?>) trajectory.get()));
     }

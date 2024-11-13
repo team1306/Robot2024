@@ -27,24 +27,26 @@ public class RobotContainer {
 
     configureBindings();
     Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(-controller1.getLeftY() * mult, 0),
-        () -> MathUtil.applyDeadband(-controller1.getLeftX() * mult, 0),
-        () -> MathUtil.applyDeadband(-controller1.getRightX(), 0.25),
-        () -> MathUtil.applyDeadband(-controller1.getRightY(), .025));
+        () -> MathUtil.applyDeadband(controller1.getLeftY() * mult, 0),
+        () -> MathUtil.applyDeadband(controller1.getLeftX() * mult, 0),
+        () -> MathUtil.applyDeadband(controller1.getRightX(), 0.25),
+        () -> MathUtil.applyDeadband(controller1.getRightY(), .025));
 
     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(-controller1.getLeftY() * mult, LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(-controller1.getLeftX() * mult, LEFT_X_DEADBAND),
+        () -> MathUtil.applyDeadband(controller1.getLeftY() * mult, LEFT_Y_DEADBAND),
+        () -> MathUtil.applyDeadband(controller1.getLeftX() * mult, LEFT_X_DEADBAND),
         () -> controller1.getRightX());
-
     Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
         () -> MathUtil.applyDeadband(controller1.getLeftY() * 0.01, LEFT_Y_DEADBAND),
         () -> MathUtil.applyDeadband(controller1.getLeftX() * 0.01, LEFT_X_DEADBAND),
         () -> controller1.getRawAxis(2));
+    Command pushRobot = drivebase.driveCommand(()-> 0, ()->0, ()-> 0);
+
 
     // drivebase.setDefaultCommand(
     //     !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle : driveFieldOrientedDirectAngleSim);
-    drivebase.setDefaultCommand(driveFieldOrientedDirectAngle);
+    drivebase.setDefaultCommand(pushRobot);
+    // drivebase.setMotorBrake(false);
   }
 
   /**
