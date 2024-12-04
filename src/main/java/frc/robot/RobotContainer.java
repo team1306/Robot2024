@@ -27,10 +27,10 @@ public class RobotContainer {
 
     configureBindings();
     Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(controller1.getLeftY() * mult, 0),
-        () -> MathUtil.applyDeadband(controller1.getLeftX() * mult, 0),
-        () -> MathUtil.applyDeadband(controller1.getRightX(), 0.25),
-        () -> MathUtil.applyDeadband(controller1.getRightY(), .025));
+        () -> MathUtil.applyDeadband(-controller1.getLeftY() * mult, 0),
+        () -> MathUtil.applyDeadband(-controller1.getLeftX() * mult, 0),
+        () -> MathUtil.applyDeadband(-controller1.getRightX(), 0.25),
+        () -> MathUtil.applyDeadband(-controller1.getRightY(), .025));
 
     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
         () -> MathUtil.applyDeadband(controller1.getLeftY() * mult, LEFT_Y_DEADBAND),
@@ -46,7 +46,7 @@ public class RobotContainer {
     // drivebase.setDefaultCommand(
     //     !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle : driveFieldOrientedDirectAngleSim);
     drivebase.setDefaultCommand(pushRobot);
-    // drivebase.setMotorBrake(false);
+    drivebase.setMotorBrake(false);
   }
 
   /**
@@ -66,6 +66,7 @@ public class RobotContainer {
     controller1.povDown().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(180), Rotation2d.fromDegrees(1)));
     controller1.povLeft().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(270), Rotation2d.fromDegrees(1)));
 
+    controller1.start().onTrue(new InstantCommand(() -> drivebase.zeroGyro()));
   }
 
   public Command getAutonomousCommand() {

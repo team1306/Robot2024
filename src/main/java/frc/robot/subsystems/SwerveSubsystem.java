@@ -200,9 +200,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
         //TODO fix the incorrect movement of swerve and failure to reset position
         AutoFactory builder = Choreo.createAutoFactory(this, this::getPose, (robotPose, sample) -> {
-            PIDController xController = new PIDController(5, 0, 0);
-            PIDController yController = new PIDController(5, 0, 0);
-            PIDController rController = new PIDController(5, 0, 0);                                                                                                                                                                                                                     //heheheheaaaa
+            PIDController xController = new PIDController(10, 0, 0);
+            PIDController yController = new PIDController(10, 0, 0);
+            PIDController rController = new PIDController(10, 0, 0);                                                                                                                                                                                                                     //heheheheaaaa
 
             Pose2d desiredPose = ((TrajectorySample<?>) sample).getPose();
             ChassisSpeeds desiredSpeeds = ((TrajectorySample<?>) sample).getChassisSpeeds();
