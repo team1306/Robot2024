@@ -51,6 +51,7 @@ import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
@@ -86,8 +87,8 @@ public class SwerveSubsystem extends SubsystemBase {
             throw new RuntimeException(e);
         }
         //TODO Change based off auto
-        swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via angle.
-        swerveDrive.setCosineCompensator(true);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
+        swerveDrive.setHeadingCorrection(true); // Heading correction should only be used while controlling the robot via angle.
+        swerveDrive.setCosineCompensator(!SwerveDriveTelemetry.isSimulation);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
         //TODO tune the coefficient
         // swerveDrive.setAngularVelocityCompensation(true, true, 0.1);
         setupPathPlanner();
@@ -485,5 +486,9 @@ public class SwerveSubsystem extends SubsystemBase {
                 new Config(),
                 this, swerveDrive),
             3.0, 5.0, 3.0);
+    }
+
+    public double[] getWheelRadiusCharacterizationPositions() {
+        return Arrays.stream(swerveDrive.getModulePositions()).mapToDouble(s -> s.angle.getRadians()).toArray();
     }
 }

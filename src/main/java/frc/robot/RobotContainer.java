@@ -6,9 +6,12 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.WheelRadiusCharacterization;
+import frc.robot.commands.WheelRadiusCharacterization.Direction;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.util.Dashboard.DashboardHelpers;
 import frc.robot.util.Dashboard.GetValue;
@@ -41,12 +44,21 @@ public class RobotContainer {
         () -> MathUtil.applyDeadband(controller1.getLeftX() * 0.01, LEFT_X_DEADBAND),
         () -> controller1.getRawAxis(2));
     Command pushRobot = drivebase.driveCommand(()-> 0, ()->0, ()-> 0);
+    Command driveCommand = new Command() {
+      {
+          addRequirements(drivebase);
+      }
+      public void execute(){
+        drivebase.drive(new ChassisSpeeds(0, 0, 0.5));
+      }
+    };
+    // drivebase.setDefaultCommand(driveCommand);
 
 
     // drivebase.setDefaultCommand(
     //     !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle : driveFieldOrientedDirectAngleSim);
-    drivebase.setDefaultCommand(pushRobot);
-    drivebase.setMotorBrake(false);
+    // drivebase.setDefaultCommand(driveFieldOrientedDirectAngle);
+    // drivebase.setMotorBrake(false);
   }
 
   /**
@@ -59,8 +71,7 @@ public class RobotContainer {
      * joysticks}.
      */
   private void configureBindings() {
-    controller1.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-    
+    controller1.a().toggleOnTrue(new WheelRadiusCharacterization(drivebase, Direction.COUNTER_CLOCKWISE));
     controller1.povUp().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(1)));
     controller1.povRight().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(1)));
     controller1.povDown().onTrue(drivebase.aimAtSetpoint(Rotation2d.fromDegrees(180), Rotation2d.fromDegrees(1)));
