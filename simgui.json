@@ -49,11 +49,16 @@
     },
     "transitory": {
       "SmartDashboard": {
-        "Field": {
-          "double[]##v_/SmartDashboard/Field/Robot": {
+        "Drive": {
+          "RadiusCharacterization": {
             "open": true
           },
           "open": true
+        },
+        "Field": {
+          "double[]##v_/SmartDashboard/Field/Robot": {
+            "open": true
+          }
         },
         "open": true
       }

@@ -489,6 +489,6 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public double[] getWheelRadiusCharacterizationPositions() {
-        return Arrays.stream(swerveDrive.getModulePositions()).mapToDouble(s -> s.angle.getRadians()).toArray();
+        return Arrays.stream(swerveDrive.getModulePositions()).mapToDouble(s -> s.distanceMeters).toArray();
     }
 }
