@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotState;
@@ -16,10 +17,9 @@ import lombok.RequiredArgsConstructor;
 
 
 public class WheelRadiusCharacterization extends Command {
-  private static double characterizationSpeed = .5;
+  private static double characterizationSpeed = 1;
   private final double driveRadius;
   private final DoubleSupplier gyroYawRadsSupplier;
-
   @RequiredArgsConstructor
   public enum Direction {
     CLOCKWISE(-1),
@@ -44,7 +44,7 @@ public class WheelRadiusCharacterization extends Command {
     this.omegaDirection = omegaDirection;
     DashboardHelpers.addUpdateClass(this);
     driveRadius = drive.getSwerveDriveConfiguration().getDriveBaseRadiusMeters();
-    gyroYawRadsSupplier = () -> drive.getPose().getRotation().getRadians();
+    gyroYawRadsSupplier = () -> drive.getGyroAngle().getRadians();
   }
 
   @Override
@@ -65,8 +65,9 @@ public class WheelRadiusCharacterization extends Command {
     drive.drive(new ChassisSpeeds(0, 0, heading));
 
     // Get yaw and wheel positions
-    accumGyroYawRads += MathUtil.angleModulus(gyroYawRadsSupplier.getAsDouble() - lastGyroYawRads);
-    lastGyroYawRads = gyroYawRadsSupplier.getAsDouble();
+    final double currRads = gyroYawRadsSupplier.getAsDouble();
+    accumGyroYawRads += MathUtil.angleModulus(currRads - lastGyroYawRads);
+    lastGyroYawRads = currRads;
     double averageWheelPosition = 0.0;
     double[] wheelPositiions = drive.getWheelRadiusCharacterizationPositions();
     for (int i = 0; i < 4; i++) {

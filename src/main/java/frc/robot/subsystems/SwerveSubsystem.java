@@ -4,10 +4,13 @@
 
 package frc.robot.subsystems;
 
-import choreo.Choreo;
-import choreo.auto.AutoFactory;
-import choreo.trajectory.TrajectorySample;
+import static frc.robot.util.Utilities.smartPow;
 
+import java.io.File;
+import java.util.Optional;
+import java.util.function.DoubleSupplier;
+
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -17,6 +20,9 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import choreo.Choreo;
+import choreo.auto.AutoFactory;
+import choreo.trajectory.TrajectorySample;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.PIDController;
@@ -29,11 +35,12 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
@@ -49,13 +56,6 @@ import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.function.DoubleSupplier;
-
-import static frc.robot.util.Utilities.smartPow;
 
 public class SwerveSubsystem extends SubsystemBase {
     /*
@@ -126,6 +126,7 @@ public class SwerveSubsystem extends SubsystemBase {
             pushPID = false;
         }
         swerveDrive.getSwerveController().thetaController.setPID(headingP, headingI, headingD);
+        SmartDashboard.putNumber("cool radians", ((AHRS)(swerveDrive.getGyro().getIMU())).getRotation2d().getRadians());
     }
 
     /**
@@ -489,6 +490,16 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public double[] getWheelRadiusCharacterizationPositions() {
-        return Arrays.stream(swerveDrive.getModulePositions()).mapToDouble(s -> s.distanceMeters).toArray();
+        double[] pos = new double[4];
+        for(int i = 0; i < 4; i++){
+            pos[i] = ((TalonFX)(swerveDrive.getModules()[i].getDriveMotor().getMotor())).getRotorPosition().getValue();
+        }
+
+        return pos;
+        // return Arrays.stream(swerveDrive.getModulePositions()).mapToDouble(s -> s.distanceMeters).toArray();
+    }
+
+    public Rotation2d getGyroAngle(){
+        return ((AHRS)(swerveDrive.getGyro().getIMU())).getRotation2d();
     }
 }

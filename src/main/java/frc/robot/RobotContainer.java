@@ -44,20 +44,12 @@ public class RobotContainer {
         () -> MathUtil.applyDeadband(controller1.getLeftX() * 0.01, LEFT_X_DEADBAND),
         () -> controller1.getRawAxis(2));
     Command pushRobot = drivebase.driveCommand(()-> 0, ()->0, ()-> 0);
-    Command driveCommand = new Command() {
-      {
-          addRequirements(drivebase);
-      }
-      public void execute(){
-        drivebase.drive(new ChassisSpeeds(0, 0, 0.5));
-      }
-    };
     // drivebase.setDefaultCommand(driveCommand);
 
 
     // drivebase.setDefaultCommand(
     //     !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle : driveFieldOrientedDirectAngleSim);
-    // drivebase.setDefaultCommand(driveFieldOrientedDirectAngle);
+    drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     // drivebase.setMotorBrake(false);
   }
 
