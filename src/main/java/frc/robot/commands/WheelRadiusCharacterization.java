@@ -66,7 +66,8 @@ public class WheelRadiusCharacterization extends Command {
 
     // Get yaw and wheel positions
     final double currRads = gyroYawRadsSupplier.getAsDouble();
-    accumGyroYawRads += MathUtil.angleModulus(currRads - lastGyroYawRads);
+    accumGyroYawRads += MathUtil.
+    angleModulus(currRads - lastGyroYawRads);
     lastGyroYawRads = currRads;
     double averageWheelPosition = 0.0;
     double[] wheelPositiions = drive.getWheelRadiusCharacterizationPositions();
@@ -78,6 +79,7 @@ public class WheelRadiusCharacterization extends Command {
     SmartDashboard.putNumber("Drive/RadiusCharacterization/DrivePosition", averageWheelPosition);
     SmartDashboard.putNumber("Drive/RadiusCharacterization/AccumGyroYawRads", accumGyroYawRads);
     SmartDashboard.putNumber("Drive/RadiusCharacterization/CurrentWheelRadiusInches", Units.metersToInches(currentEffectiveWheelRadius));
+  
   }
 
   @Override

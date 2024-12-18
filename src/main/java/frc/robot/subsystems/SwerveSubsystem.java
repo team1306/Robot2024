@@ -124,9 +124,9 @@ public class SwerveSubsystem extends SubsystemBase {
             }
 
             pushPID = false;
+            swerveDrive.getSwerveController().thetaController.setPID(headingP, headingI, headingD);
         }
-        swerveDrive.getSwerveController().thetaController.setPID(headingP, headingI, headingD);
-        SmartDashboard.putNumber("cool radians", ((AHRS)(swerveDrive.getGyro().getIMU())).getRotation2d().getRadians());
+        SmartDashboard.putNumber("cool radians", ((AHRS)(swerveDrive.getGyro().getIMU())).getYaw());
     }
 
     /**
